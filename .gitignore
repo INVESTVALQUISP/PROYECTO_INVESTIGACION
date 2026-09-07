@@ -1,0 +1,17 @@
+# Entorno virtual
+VAL/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+
+# Archivos de entorno
+.env
+.env.*
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Archivos de configuración de IDE
+.vscode/
+.idea/

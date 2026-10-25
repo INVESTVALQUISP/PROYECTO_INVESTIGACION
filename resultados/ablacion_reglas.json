@@ -1,0 +1,60 @@
+{
+ "reps": 10,
+ "duration": 7200,
+ "variants": [
+  {
+   "key": "A",
+   "name": "Paper: 5 reglas por intervenci\u00f3n",
+   "n_rules": 25,
+   "mean_dm": 10.931596625529421,
+   "max_dm": 23.555072878374244,
+   "err_vs_paper": 9.348379046285732,
+   "wins": 16
+  },
+  {
+   "key": "B",
+   "name": "Una sola base (la de 7 s) en las 5 intervenciones",
+   "n_rules": 5,
+   "mean_dm": 16.91131867424601,
+   "max_dm": 67.8180492314851,
+   "err_vs_paper": 36.402276872387674,
+   "wins": 13
+  },
+  {
+   "key": "C",
+   "name": "Sin la regla veryshort",
+   "n_rules": 20,
+   "mean_dm": 11.589045455877734,
+   "max_dm": 26.932724194138313,
+   "err_vs_paper": 10.527383003084054,
+   "wins": 15
+  },
+  {
+   "key": "D",
+   "name": "Tres reglas (veryshort, medium, verylong)",
+   "n_rules": 15,
+   "mean_dm": 11.057172015323305,
+   "max_dm": 23.797356631199566,
+   "err_vs_paper": 8.239563931930666,
+   "wins": 16
+  },
+  {
+   "key": "E",
+   "name": "Solo extremos (veryshort, verylong)",
+   "n_rules": 10,
+   "mean_dm": 11.293578190001803,
+   "max_dm": 23.6025010126826,
+   "err_vs_paper": 7.262985616434141,
+   "wins": 16
+  },
+  {
+   "key": "F",
+   "name": "Solo veryshort",
+   "n_rules": 5,
+   "mean_dm": 355.09011567986227,
+   "max_dm": 795.1019855907327,
+   "err_vs_paper": 2726.2193377984913,
+   "wins": 3
+  }
+ ]
+}

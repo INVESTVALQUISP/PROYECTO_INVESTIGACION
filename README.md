@@ -1,25 +1,50 @@
-# Proyecto de investigación: controlador de lógica difusa para semáforos
+# Réplica del controlador de lógica difusa de Pappis y Mamdani (1977)
 
-Controlador de **lógica difusa tipo Mamdani** que decide cuántos segundos extender el verde de un semáforo a partir de dos medidas del tráfico: la **longitud de la cola** y la **tasa de llegada** de vehículos. Está hecho con [`scikit-fuzzy`](https://github.com/scikit-fuzzy/scikit-fuzzy).
+Réplica, validación y simulador gráfico del controlador de semáforos con lógica difusa de
+
+> C. P. Pappis y E. H. Mamdani, «A Fuzzy Logic Controller for a Traffic Junction»,
+> *IEEE Trans. Syst., Man, Cybern.*, vol. SMC-7, no. 10, pp. 707–717, oct. 1977.
+
+El controlador decide, cada 10 s de verde, cuánto extender la luz verde de una intersección aislada de dos calles unidireccionales.
+**Usa las 25 reglas exactas del artículo original** (5 por cada intervención, a los 7, 17, 27, 37 y 47 s), leídas de la imagen de
+las páginas del original y verificadas por pruebas automáticas.
 
 > **Autores:** Raul Nolberto Quispe Saya y Kevin Luis Valero Ccacya
 > Escuela Profesional de Ingeniería Electrónica, Universidad Nacional de San Agustín de Arequipa.
 
-## Contenido del repositorio
+## Qué contiene
 
-| Archivo / carpeta | Descripción |
+| Carpeta | Contenido |
 |---|---|
-| `flc_controlador.py` | El controlador: variables, funciones de membresía, base de reglas, función `calcular_extension()` y generación de las gráficas. |
-| `CODIGOA1.py` | Prueba mínima: comprueba que `numpy`, `scikit-fuzzy` y `matplotlib` están instalados. |
-| `requirements.txt` | Versiones de las librerías usadas. |
-| `resultados/` | Gráficas de las funciones de membresía (se regeneran al ejecutar `flc_controlador.py`). |
+| `codigo/` | Modelo de tráfico, controlador difuso (25 reglas), simulador paso a paso, simulador gráfico y web, pruebas y generadores de figuras y tablas. |
+| `resultados/` | Resultados de la réplica en JSON (Tablas I y VIII, auditoría, estadística, verificación de fórmulas) y las 180 reglas en `reglas_180.csv`. |
+| `articulo_ieee/` | Artículo en formato IEEE (IEEEtran) listo para compilar en Overleaf, con su PDF. |
+| `figures/`, `muestras/` | Figuras, captura de la ventana, video de ejemplo y CSV de disparos de reglas. |
+| `docs/` | Guía técnica (`README_TECNICO.md`), guía de VS Code y el PDF del avance 5. |
+| `notebooks/` | Cuaderno Jupyter con las verificaciones. |
+| `.vscode/` | Configuraciones de F5 y tareas para ejecutar todo desde Visual Studio Code. |
+| `referencia/` | Cita del artículo original (el PDF no se incluye: pertenece a IEEE). |
+| `archivo/` | Material histórico, no vigente: el primer controlador del proyecto (16 reglas, centroide) y un módulo anterior a las correcciones. |
+
+## Resultados
+
+Con las 25 reglas, 20 réplicas de 7200 s por combinación de flujos y la semilla base 0:
+
+- **Verificación contra lo impreso:** conjuntos difusos, operadores «más que» y «menos que», las 25 reglas y el ejemplo trabajado del
+  artículo coinciden con el original (diferencia 0.000).
+- **Tabla I** (modelo de ciclo fijo con ajustes de Webster): error relativo medio de 2.1 % (simulación) y 0.8 % (fórmula).
+- **Tabla VIII** (difuso frente a ciclo fijo): el difuso mejora al ciclo fijo en **16 de 16** combinaciones de flujo (p < 0.001 en todas),
+  con un error medio de 9.3 % y máximo de 19.8 % respecto de los retardos publicados. El retardo del difuso queda en promedio 8.8 % por
+  debajo del publicado; esa discrepancia se documenta en el artículo.
+- **Inferencia por falta de datos:** el artículo no dice cómo se miden los arribos *A* y la cola *Q* en la simulación. De ocho lecturas
+  probadas, solo una («calibrada») reproduce la Tabla VIII; se presenta como una inferencia, no como una cita del original.
 
 ## Instalación
 
-Se necesita Python 3.10 o superior.
+Se necesita Python 3.10 o superior (el simulador de ventana usa Tkinter).
 
 ```bash
-# Linux / macOS
+# Linux / macOS (en Ubuntu: sudo apt install python3-venv python3-tk)
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
@@ -28,95 +53,54 @@ python -m pip install -r requirements.txt
 ```powershell
 # Windows (PowerShell)
 python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .venv\Scripts\activate
 python -m pip install -r requirements.txt
 ```
 
-Si PowerShell bloquea la activación del entorno, ejecute antes `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`.
-
-Para comprobar la instalación:
+## Cómo usarlo
 
 ```bash
-python CODIGOA1.py
+python codigo/ejecutar_pruebas.py      # resumen de validación: pruebas y tablas (segundos)
+python codigo/simulador_gui.py         # simulador gráfico con calle, reglas y disparos
+python codigo/web_sim.py               # simulador web en http://localhost:8000
+python codigo/informe_disparos.py      # CSV y PNG de qué reglas disparan
+python codigo/run_experiments.py       # Tablas I y VIII oficiales (unos 2 min)
 ```
 
-## Uso
+Los scripts se pueden ejecutar desde cualquier carpeta. En Visual Studio Code, abra la carpeta y use **Ejecutar y depurar (F5)**;
+`docs/README_VSCODE.md` explica el paso a paso.
 
-### Ejecutar el ejemplo
+### El simulador
 
-```bash
-python flc_controlador.py
-```
+La ventana muestra la calle con autos que respetan la distancia entre sí, semáforos de tres luces y, para cada decisión, las cinco reglas
+de la intervención con su activación, la regla que dispara (★), el vector de grados y los disparos acumulados de las 25 reglas. Tiene
+opciones para explicar: escenarios predefinidos, encender y apagar reglas, pausar en cada decisión, explicación de cada decisión en
+palabras simples, agregar autos a mano y ocultar o mostrar apartados.
 
-Calcula la extensión del verde para cuatro casos de prueba y guarda las tres gráficas de membresía en `resultados/`. Salida esperada:
+![Simulador](muestras/captura_simulador_gui.png)
 
-```
-  Cola (veh)   Llegada (veh/min)  Extensión (s)
---------------------------------------------------
-           2                   1           1.33
-          10                   6          12.50
-          20                  11          23.06
-          28                  14          23.33
-```
+### Artículo
 
-### Usarlo desde otro programa
+`articulo_ieee/` contiene el manuscrito (`main.tex`, `referencias.bib`, tablas y figuras). En Overleaf: suba la carpeta como
+proyecto, deje `main.tex` como documento principal y compile con pdfLaTeX. Las tablas y figuras se regeneran con los scripts
+`codigo/gen_tablas_latex.py`, `gen_tabla_180.py` y `gen_fig_articulo*.py`.
 
-```python
-from flc_controlador import calcular_extension
+## Pruebas
 
-extension = calcular_extension(cola_actual=10, tasa_llegada=6)   # 12.5 segundos
-```
+`python codigo/ejecutar_pruebas.py` corre 87 comprobaciones automáticas:
 
-> Al importar el módulo se crea la carpeta `resultados/` junto al código si no existe.
+| Prueba | Qué verifica |
+|---|---|
+| `test_paper_tables.py` (42) | Conjuntos, operadores, las 25 reglas, ejemplo de la Tabla VII y estructura temporal frente a lo impreso. |
+| `test_sim_engine.py` (10) | El simulador paso a paso da el mismo resultado que la simulación por lotes. |
+| `test_disparos.py` (22) | El panel de reglas y disparos muestra lo que calcula el controlador. |
+| `test_autos.py` (13) | Los autos nunca se superponen, apagar reglas afecta el resultado, y las explicaciones coinciden con las decisiones. |
 
-## Cómo funciona
+`codigo/verificar_formulas.py` contrasta además las deducciones matemáticas del artículo con cálculos numéricos independientes.
 
-### Variables
+## Más documentación
 
-| Variable | Tipo | Universo | Etiquetas |
-|---|---|---|---|
-| Longitud de cola `Q` | entrada | 0 a 30 vehículos | corta, media, larga, muy larga |
-| Tasa de llegada `A` | entrada | 0 a 15 veh/min | baja, moderada, alta, muy alta |
-| Extensión del verde `E` | salida | 0 a 25 s | muy corta, corta, media, larga, muy larga |
-
-### Funciones de membresía
-
-Los parámetros están en la sección 2 de `flc_controlador.py` (`trimf` = triangular, `trapmf` = trapezoidal).
-
-| Cola `Q` | Parámetros | Llegada `A` | Parámetros | Extensión `E` | Parámetros |
-|---|---|---|---|---|---|
-| corta | trap `[0, 0, 3, 7]` | baja | trap `[0, 0, 1.5, 4]` | muy corta | tri `[0, 0, 4]` |
-| media | tri `[4, 9, 14]` | moderada | tri `[2, 5, 8]` | corta | tri `[2, 6, 10]` |
-| larga | tri `[11, 17, 23]` | alta | tri `[6, 9.5, 13]` | media | tri `[8, 12.5, 17]` |
-| muy larga | trap `[18, 24, 30, 30]` | muy alta | trap `[10, 13, 15, 15]` | larga | tri `[15, 19, 23]` |
-| | | | | muy larga | tri `[20, 25, 25]` |
-
-![Funciones de membresía de la cola](resultados/funciones_membresia_cola.png)
-![Funciones de membresía de la llegada](resultados/funciones_membresia_llegada.png)
-![Funciones de membresía de la extensión](resultados/funciones_membresia_extension.png)
-
-### Base de reglas
-
-Son 16 reglas, la combinación completa de las 4 etiquetas de cola con las 4 de llegada (`Q y A → E`):
-
-| Cola \ Llegada | baja | moderada | alta | muy alta |
-|---|---|---|---|---|
-| **corta** | muy corta | corta | media | media |
-| **media** | corta | media | larga | larga |
-| **larga** | media | larga | muy larga | muy larga |
-| **muy larga** | larga | muy larga | muy larga | muy larga |
-
-### Inferencia y defuzzificación
-
-- Conectivo «y» = mínimo; agregación de las reglas = máximo (inferencia de Mamdani, la que usa `scikit-fuzzy` por defecto).
-- Defuzzificación por **centroide** (`E.defuzzify_method = 'centroid'`).
-
-## Relación con Pappis y Mamdani (1977)
-
-El controlador se inspira en el trabajo de Pappis y Mamdani sobre el control difuso de una intersección, pero no es una réplica exacta: aquel usa 25 reglas (cinco por cada momento de intervención), tres entradas (tiempo, arribos y cola), extensiones de 1 a 10 s y decide por máximo con umbral 0.5 en lugar de centroide. Este proyecto usa dos entradas, 16 reglas y extensiones de 0 a 25 s.
-
-## Reproducibilidad
-
-- `requirements.txt` fija las versiones usadas.
-- El controlador es determinista: las mismas entradas dan siempre la misma extensión.
-- Las gráficas de `resultados/` se pueden regenerar con `python flc_controlador.py`.
+- `docs/README_TECNICO.md`: detalle técnico, decisiones y correcciones de la transcripción.
+- `docs/README_VSCODE.md`: uso desde Visual Studio Code y personalización del simulador.
+- `docs/avance5_validacion_replica.pdf`: informe de validación con las curvas de fuzzificación.

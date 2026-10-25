@@ -1,0 +1,64 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "1. Pruebas de validación (resumen)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/ejecutar_pruebas.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "2. Simulador gráfico: calle + reglas + disparos (ventana)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/simulador_gui.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "3. Simulador web (abrir http://localhost:8000)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/web_sim.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "4. Informe de reglas y disparos (CSV + PNG en salidas/)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/informe_disparos.py",
+      "args": ["--ns", "720", "--ew", "2160", "--seconds", "1800", "--seed", "1"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "5. Video MP4 de la simulación (salidas/simulacion.mp4)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/simulador_gui.py",
+      "args": ["--video", "salidas/simulacion.mp4", "--ns", "720", "--ew", "2160",
+               "--seconds", "120", "--fps", "30", "--sub", "3", "--seed", "1", "--csv", "salidas/disparos_video.csv"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "6. Tablas I y VIII oficiales (~2 min)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/run_experiments.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Archivo actual",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

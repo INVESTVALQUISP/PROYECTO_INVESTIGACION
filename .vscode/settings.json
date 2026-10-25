@@ -1,0 +1,8 @@
+{
+  "python.analysis.extraPaths": ["${workspaceFolder}/codigo"],
+  "python.terminal.activateEnvironment": true,
+  "terminal.integrated.env.windows": { "PYTHONPATH": "${workspaceFolder}/codigo" },
+  "terminal.integrated.env.linux": { "PYTHONPATH": "${workspaceFolder}/codigo" },
+  "files.exclude": { "**/__pycache__": true, "**/.venv": true },
+  "search.exclude": { "archivo": true, "entregas": true }
+}

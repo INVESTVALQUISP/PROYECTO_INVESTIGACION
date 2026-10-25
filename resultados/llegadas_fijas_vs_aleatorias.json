@@ -1,0 +1,142 @@
+{
+ "reps": 10,
+ "duration": 7200,
+ "rows": [
+  {
+   "ns": 360,
+   "ew": 360,
+   "fixed_bernoulli": 7.310098180353313,
+   "fuzzy_bernoulli": 5.639534582899719,
+   "fixed_fijas": 6.906111111111111,
+   "fuzzy_fijas": 5.5825000000000005
+  },
+  {
+   "ns": 360,
+   "ew": 720,
+   "fixed_bernoulli": 7.522910813413091,
+   "fuzzy_bernoulli": 5.984530446135682,
+   "fixed_fijas": 6.985000000000001,
+   "fuzzy_fijas": 6.146481481481482
+  },
+  {
+   "ns": 360,
+   "ew": 1080,
+   "fixed_bernoulli": 7.817384977882988,
+   "fuzzy_bernoulli": 6.336222966211492,
+   "fixed_fijas": 7.2193402777777775,
+   "fuzzy_fijas": 7.065138888888889
+  },
+  {
+   "ns": 360,
+   "ew": 1440,
+   "fixed_bernoulli": 8.230112470426759,
+   "fuzzy_bernoulli": 6.709177843766042,
+   "fixed_fijas": 7.464944444444446,
+   "fuzzy_fijas": 7.111472222222223
+  },
+  {
+   "ns": 360,
+   "ew": 1800,
+   "fixed_bernoulli": 9.2892499165681,
+   "fuzzy_bernoulli": 7.304176275027656,
+   "fixed_fijas": 8.149791666666669,
+   "fuzzy_fijas": 8.185578703703703
+  },
+  {
+   "ns": 360,
+   "ew": 2160,
+   "fixed_bernoulli": 11.68355509013467,
+   "fuzzy_bernoulli": 8.621163980534712,
+   "fixed_fijas": 9.286091269841268,
+   "fuzzy_fijas": 9.238154761904763
+  },
+  {
+   "ns": 360,
+   "ew": 2520,
+   "fixed_bernoulli": 17.14116239332776,
+   "fuzzy_bernoulli": 12.102126617640854,
+   "fixed_fijas": 11.948489583333336,
+   "fuzzy_fijas": 10.3375
+  },
+  {
+   "ns": 720,
+   "ew": 720,
+   "fixed_bernoulli": 9.398812808060642,
+   "fuzzy_bernoulli": 6.574906978835118,
+   "fixed_fijas": 8.891180555555554,
+   "fuzzy_fijas": 6.602673611111112
+  },
+  {
+   "ns": 720,
+   "ew": 1080,
+   "fixed_bernoulli": 10.621463808768768,
+   "fuzzy_bernoulli": 7.52772379097798,
+   "fixed_fijas": 10.101250000000002,
+   "fuzzy_fijas": 7.561861111111111
+  },
+  {
+   "ns": 720,
+   "ew": 1440,
+   "fixed_bernoulli": 12.598796599209846,
+   "fuzzy_bernoulli": 9.104207161826565,
+   "fixed_fijas": 11.584583333333333,
+   "fuzzy_fijas": 9.125277777777777
+  },
+  {
+   "ns": 720,
+   "ew": 1800,
+   "fixed_bernoulli": 15.403742239745867,
+   "fuzzy_bernoulli": 12.186118925697366,
+   "fixed_fijas": 14.029563492063492,
+   "fuzzy_fijas": 12.986666666666665
+  },
+  {
+   "ns": 720,
+   "ew": 2160,
+   "fixed_bernoulli": 21.464153184813444,
+   "fuzzy_bernoulli": 17.671128351097334,
+   "fixed_fijas": 19.410017361111112,
+   "fuzzy_fijas": 16.457934027777775
+  },
+  {
+   "ns": 1080,
+   "ew": 1080,
+   "fixed_bernoulli": 13.545227200400172,
+   "fuzzy_bernoulli": 9.679808493816806,
+   "fixed_fijas": 12.97425925925926,
+   "fuzzy_fijas": 10.213148148148148
+  },
+  {
+   "ns": 1080,
+   "ew": 1440,
+   "fixed_bernoulli": 17.850734266662293,
+   "fuzzy_bernoulli": 13.656044910482038,
+   "fixed_fijas": 16.441567460317458,
+   "fuzzy_fijas": 13.338492063492064
+  },
+  {
+   "ns": 1080,
+   "ew": 1800,
+   "fixed_bernoulli": 25.919735474466798,
+   "fuzzy_bernoulli": 22.253601805147138,
+   "fixed_fijas": 23.537378472222223,
+   "fuzzy_fijas": 20.84967013888889
+  },
+  {
+   "ns": 1440,
+   "ew": 1440,
+   "fixed_bernoulli": 27.152978397123537,
+   "fuzzy_bernoulli": 23.555072878374244,
+   "fixed_fijas": 25.16199652777778,
+   "fuzzy_fijas": 18.09453125
+  }
+ ],
+ "err_table_I": {
+  "bernoulli": 1.9857094096402863,
+  "fijas": 10.397085252394161
+ },
+ "err_table_VIII": {
+  "bernoulli": 9.348379046285732,
+  "fijas": 9.963076988379596
+ }
+}

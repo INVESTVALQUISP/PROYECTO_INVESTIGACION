@@ -1,0 +1,22 @@
+\begin{table}[!t]
+\caption{Auditoría de las ocho lecturas de las entradas del controlador (reglas fijas; 10 réplicas de 7200\,s). Error relativo frente a la Tabla VIII del artículo.}
+\label{tab:auditoria}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lllrrr@{}}
+\toprule
+$A$ & $Q$ evaluada & Cola $Q$ & Medio\,\% & Máx.\,\% & Mejor que fijo \\
+\midrule
+arribos & predicha & total & 631.0 & 2623 & 5/16 (literal) \\
+arribos & predicha & desde el verde & 323.1 & 1869 & 6/16 \\
+arribos & actual & total & 566.6 & 2610 & 5/16 \\
+arribos & actual & desde el verde & 227.6 & 1185 & 6/16 \\
+cruces & predicha & total & 421.0 & 2404 & 11/16 \\
+cruces & predicha & desde el verde & 175.4 & 1162 & 11/16 \\
+cruces & actual & total & 374.1 & 2362 & 12/16 \\
+cruces & actual & desde el verde & 9.3 & 19 & 16/16 (calibrada) \\
+\bottomrule
+\end{tabular}
+\fuente{simulaciones propias (\texttt{fidelity\_audit.py}, \texttt{resultados/fidelity\_audit.json}) comparadas con la Tabla~VIII del artículo original (p.~715).}
+\end{table}

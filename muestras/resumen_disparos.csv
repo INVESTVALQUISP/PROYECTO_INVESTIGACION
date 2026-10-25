@@ -1,0 +1,26 @@
+﻿regla,texto,activaciones,disparos
+7s-R1,si T=veryshort y A=mt(none) y Q=any entonces E=veryshort,46,5
+7s-R2,si T=short y A=mt(afew) y Q=lt(verysmall) entonces E=short,43,1
+7s-R3,si T=medium y A=mt(few) y Q=lt(verysmall) entonces E=medium,43,1
+7s-R4,si T=long y A=mt(medium) y Q=lt(verysmall) entonces E=long,42,2
+7s-R5,si T=verylong y A=mt(many) y Q=lt(verysmall) entonces E=verylong,42,37
+17s-R1,si T=veryshort y A=mt(none) y Q=any entonces E=veryshort,33,6
+17s-R2,si T=short y A=mt(afew) y Q=lt(verysmall) entonces E=short,23,0
+17s-R3,si T=medium y A=mt(few) y Q=lt(verysmall) entonces E=medium,22,0
+17s-R4,si T=long y A=mt(medium) y Q=lt(verysmall) entonces E=long,23,1
+17s-R5,si T=verylong y A=mt(many) y Q=lt(small) entonces E=verylong,27,26
+27s-R1,si T=veryshort y A=mt(none) y Q=any entonces E=veryshort,21,2
+27s-R2,si T=short y A=mt(afew) y Q=lt(verysmall) entonces E=short,19,0
+27s-R3,si T=medium y A=mt(few) y Q=lt(verysmall) entonces E=medium,18,0
+27s-R4,si T=long y A=mt(medium) y Q=lt(verysmall) entonces E=long,18,0
+27s-R5,si T=verylong y A=mt(many) y Q=lt(small) entonces E=verylong,20,20
+37s-R1,si T=veryshort y A=mt(none) y Q=any entonces E=veryshort,18,0
+37s-R2,si T=short y A=mt(afew) y Q=lt(smallplus) entonces E=short,18,2
+37s-R3,si T=medium y A=mt(medium) y Q=lt(smallplus) entonces E=medium,14,0
+37s-R4,si T=long y A=mt(many) y Q=lt(medium) entonces E=long,17,0
+37s-R5,si T=verylong y A=mt(toomany) y Q=lt(long) entonces E=verylong,17,17
+47s-R1,si T=veryshort y A=mt(none) y Q=any entonces E=veryshort,16,0
+47s-R2,si T=short y A=mt(afew) y Q=lt(long) entonces E=short,16,1
+47s-R3,si T=medium y A=mt(medium) y Q=lt(long) entonces E=medium,13,2
+47s-R4,si T=long y A=mt(toomany) y Q=lt(verylong) entonces E=long,7,0
+47s-R5,si T=verylong y A=mt(toomany) y Q=lt(verylong) entonces E=verylong,14,14

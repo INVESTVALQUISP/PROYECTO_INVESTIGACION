@@ -1,6 +1,11 @@
-numpy==2.2.6
-matplotlib==3.10.6
-pandas==2.3.2
-scikit-fuzzy==0.5.0
-scipy==1.15.2
-networkx==3.1.0
+numpy>=1.24
+matplotlib>=3.7
+pillow>=10.0
+# simulador web (web_sim.py)
+flask>=3.0
+# exportar video MP4 (simulador_gui.py --video)
+imageio>=2.31
+imageio-ffmpeg>=0.4
+# PDF del avance (build_avance5.py)
+reportlab>=4.0
+# El simulador de ventana usa Tkinter, incluido en la instalacion estandar de Python para Windows.

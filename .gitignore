@@ -1,4 +1,6 @@
-# Entorno virtual
+# Entornos virtuales
+.venv/
+venv/
 VAL/
 
 # Caché de Python
@@ -12,6 +14,15 @@ __pycache__/
 # Jupyter Notebook
 .ipynb_checkpoints/
 
-# Archivos de configuración de IDE
-.vscode/
+# IDE (se conserva .vscode/ porque trae las configuraciones F5 del simulador)
 .idea/
+
+# Salidas que genera el simulador y las pruebas
+salidas/
+
+# Archivos auxiliares de LaTeX
+articulo_ieee/*.aux
+articulo_ieee/*.log
+articulo_ieee/*.out
+articulo_ieee/*.bbl
+articulo_ieee/*.blg

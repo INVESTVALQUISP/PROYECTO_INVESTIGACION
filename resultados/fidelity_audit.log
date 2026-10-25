@@ -1,0 +1,13 @@
+10 replicas x 7200 s | referencia: Tabla VIII (difuso)
+
+A         Q evaluada cola Q          | error medio   maximo  mejor que fijo
+arrivals  predicted  total           |      631.0%  2622.5%            5/16
+arrivals  predicted  green_arrivals  |      323.1%  1869.0%            6/16
+arrivals  current    total           |      566.6%  2609.7%            5/16
+arrivals  current    green_arrivals  |      227.6%  1184.9%            6/16
+crossing  predicted  total           |      421.0%  2403.6%           11/16
+crossing  predicted  green_arrivals  |      175.4%  1161.9%           11/16
+crossing  current    total           |      374.1%  2362.4%           12/16
+crossing  current    green_arrivals  |        9.3%    19.3%           16/16
+
+Guardado en fidelity_audit.json

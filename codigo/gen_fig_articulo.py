@@ -37,7 +37,7 @@ LANES = [
     ("Lógica difusa", OR, "#ffedd5",
      [["1965 Zadeh: conjuntos difusos", "1975 Mamdani y Assilian", "1977 Pappis y Mamdani"],
       ["1999 Trabia et al.", "2000 Niittymäki y Pursula", "2005 Murat y Gedizlioglu"], [],
-      ["2021 Ali; Jiang; Vuong (ANFIS)", "2026 Dvorsky et al. (tipo 2)"]]),
+      ["2021 Ali; Jiang; Vuong (ANFIS)", "2026 Shaheen et al. (tipo 2)"]]),
     ("Aprendizaje y bancos de prueba", GR, "#dcfce7",
      [[], ["2001 Bingham (neurodifuso)", "2003 Abdulhai et al. (Q-learning)"],
       ["2015 Mnih et al. (DQN)", "2016 Genders y Razavi", "2018 IntelliLight", "2020 Chu et al."],
@@ -71,7 +71,7 @@ fig.savefig(f"{OUT}/fig_timeline.png", dpi=300); plt.close(fig)
 COLS = [("Tiempo fijo", BL, "#dbeafe", ["Webster (1958)", "Miller (1963)", "Allsop (1971)", "TRANSYT (1969)"]),
         ("Actuado por vehículo", BL, "#dbeafe", ["Extensión del verde con", "detectores; línea base de", "Pappis y Mamdani"]),
         ("Adaptativo en tiempo real", BL, "#dbeafe", ["SCOOT, SCATS (1982)", "RHODES (2001)", "Papageorgiou (2003)"]),
-        ("Lógica difusa", OR, "#ffedd5", ["Pappis y Mamdani (1977)", "Trabia (1999)", "Niittymäki y Pursula (2000)", "Murat (2005)", "Ali; Jiang (2021)", "Dvorsky (2026)"]),
+        ("Lógica difusa", OR, "#ffedd5", ["Pappis y Mamdani (1977)", "Trabia (1999)", "Niittymäki y Pursula (2000)", "Murat (2005)", "Ali; Jiang (2021)", "Shaheen (2026)"]),
         ("Neurodifuso y RL", GR, "#dcfce7", ["Bingham (2001)", "Abdulhai (2003)", "Genders (2016)", "IntelliLight (2018)", "Chu (2020)", "Vuong (2021)", "Vlasceanu (2025)"]),
         ("Revisiones y bancos", GR, "#dcfce7", ["Noaeen (2022)", "Michailidis (2025)", "Ault, RESCO (2021)", "Mei, LibSignal (2024)"])]
 nL = max(len(c[3]) for c in COLS)

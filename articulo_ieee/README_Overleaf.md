@@ -6,7 +6,7 @@ Plantilla IEEEtran (journal), texto en español con abstract en inglés. Documen
 |---|---|
 | `main.tex` | Artículo principal (15 páginas con referencias). Documento principal en Overleaf. |
 | `suplemento.tex` | Material suplementario (9 páginas): lista literal de las 180 reglas, los seis apartados del simulador por separado, figuras y tablas adicionales. Se compila aparte. |
-| `referencias.bib` | 50 referencias (todas citadas), incluidas las de 2021–2026 (Ali, Jiang, Vuong, Dvorsky, Vlasceanu, Noaeen, Michailidis, Mei, Ault). |
+| `referencias.bib` | 50 referencias (todas citadas), incluidas las de 2021–2026 (Ali, Jiang, Vuong, Shaheen, Vlasceanu, Noaeen, Michailidis, Mei, Ault). |
 | `tabla_*.tex` | Tablas generadas por programa desde `resultados/*.json` (`codigo/gen_tablas_latex.py`, `codigo/gen_tabla_180.py`). |
 | `figures/` | Figuras (`codigo/gen_fig_articulo*.py`, `gen_fig_simulador_compuesto.py`). |
 | `suplemento_etiquetas.tex` | Números de sección/ecuación de `main.tex` para el suplemento (lo genera `codigo/gen_suplemento_etiquetas.py`). |

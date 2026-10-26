@@ -1,6 +1,6 @@
 """Comprueba cada DOI de articulo_ieee/referencias.bib contra la API pública de Crossref.
 
-Para cada entrada con DOI compara título, primer autor, año, volumen y páginas con lo que
+Para cada entrada con DOI compara título, apellidos de los autores (en orden), año, volumen y páginas con lo que
 registra el editor. Requiere conexión a internet; usa solo la biblioteca estándar.
 
     python verificar_referencias.py                 # revisa todas las entradas con DOI
@@ -72,16 +72,21 @@ def consultar(doi):
 def comparar(campos, msg):
     """Lista de (campo, valor en el .bib, valor en Crossref, coincide)."""
     titulo = " ".join(msg.get("title", []) + msg.get("subtitle", []))
-    autores = msg.get("author", [])
-    apellido = normalizar(autores[0].get("family", ""))[:1] if autores else []
-    primer_autor_bib = normalizar(campos.get("author", "").split(" and ")[0])[-1:]
-    fecha = (msg.get("issued") or msg.get("published") or {}).get("date-parts", [[None]])[0][0]
+    apellidos_cr = [normalizar(a.get("family") or a.get("name", ""))[-1:] for a in msg.get("author", [])]
+    apellidos_cr = [a[0] for a in apellidos_cr if a]
+    partes = [p for p in re.split(r"\s+and\s+", campos.get("author", "")) if p.strip()]
+    hay_otros = bool(partes) and partes[-1].strip() == "others"
+    apellidos_bib = [normalizar(p)[-1] for p in partes if p.strip() != "others" and normalizar(p)]
+    if hay_otros:  # "A and B and others": solo se compara lo escrito
+        apellidos_cr = apellidos_cr[:len(apellidos_bib)]
+    anios = sorted({str(msg[k]["date-parts"][0][0]) for k in ("issued", "published", "published-print", "published-online")
+                    if msg.get(k) and msg[k].get("date-parts") and msg[k]["date-parts"][0][0]})
     filas = [
         ("título", campos.get("title", ""), titulo, titulos_coinciden(campos.get("title", ""), titulo)),
-        ("primer autor", " ".join(primer_autor_bib), " ".join(apellido), primer_autor_bib == apellido),
+        ("autores (apellidos, en orden)", ", ".join(apellidos_bib), ", ".join(apellidos_cr), apellidos_bib == apellidos_cr),
     ]
     if "year" in campos:
-        filas.append(("año", campos["year"], str(fecha), campos["year"].strip() == str(fecha)))
+        filas.append(("año", campos["year"], " / ".join(anios), campos["year"].strip() in anios))  # en línea e impreso pueden diferir
     if "volume" in campos and msg.get("volume"):
         filas.append(("volumen", campos["volume"], msg["volume"], campos["volume"].strip() == msg["volume"]))
     if "pages" in campos and msg.get("page"):

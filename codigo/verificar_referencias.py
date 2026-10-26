@@ -50,6 +50,7 @@ def normalizar(s):
     s = re.sub(r"\\[a-zA-Z]+\s*", " ", s).replace("{", "").replace("}", "")
     s = unicodedata.normalize("NFKD", s)
     s = "".join(ch for ch in s if not unicodedata.combining(ch)).lower()
+    s = s.translate(str.maketrans({"ı": "i", "ł": "l", "ø": "o", "đ": "d", "æ": "ae", "ß": "ss"}))  # sin descomposición Unicode
     return re.sub(r"[^a-z0-9 ]+", " ", s).split()
 
 

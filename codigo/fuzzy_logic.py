@@ -115,7 +115,7 @@ def mu_time(label, t):
 # ---------------------------------------------------------------------------
 # REGLAS DEL APENDICE (25 reglas = 5 intervenciones x 5 reglas, a los 7,17,27,37,47 s)
 # Verificadas contra la IMAGEN de las pags. 715-716 del paper original (el texto OCR
-# desordena las columnas; la traduccion al espanol tambien intercambia reglas).
+# desordena las columnas).
 # Cada regla: (T, A_base, Q_base, E)
 #   T      = etiqueta difusa de TIEMPO
 #   A_base = etiqueta base de ARRIBOS (se le aplica mt)

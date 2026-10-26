@@ -9,10 +9,7 @@ operadores, regla de decisión): los controladores alternativos y el re-afinado 
 hechos antes no forman parte de este repositorio (se calcularon con reglas mal transcritas y quedaron descartados).
 
 **Fuente de verdad:** únicamente el paper **original en inglés** (PDF `01 pappis1977`, págs. 707–716),
-leído sobre la **imagen** de cada página. La traducción al español (hecha por una IA) **no se usa**
-como referencia: contiene errores verificados, p. ej. las reglas de las intervenciones de 27 s
-(le asigna `long/mt(many)/lt(medium)` y `verylong/mt(too many)/lt(long)`, que en el original son
-de la de 37 s) y de 37 s. Todos los valores de `paper_data.py` y las 25 reglas salen del original.
+leído sobre la **imagen** de cada página. Todos los valores de `paper_data.py` y las 25 reglas salen del original.
 
 ---
 
@@ -142,7 +139,7 @@ indica el número de réplicas ("many runs"), solo los 7200 s por corrida.
 |---|---|---|
 | 1 | Operador `mt` (pág. 4, Tabla V): 0 para `a < x0`. | Octubre 2026 (previa). |
 | 2 | Conjunto `verylong` de colas: pico en q = 28 (Tabla IV). | Octubre 2026 (previa). |
-| 3 | **Reglas de las intervenciones 27, 37 y 47 s.** La transcripción anterior (7 reglas en la de 27 s, 2 en la de 47 s, 24 en total) venía del texto OCR, que mezcla las dos columnas de la pág. 716; la traducción al español tenía además otros errores en las intervenciones de 27 y 37 s. Con la **imagen** del original: 5 reglas por intervención, 25 en total (como dice el texto de la pág. 6). | Cambia por completo el comportamiento del controlador en verdes largos. |
+| 3 | **Reglas de las intervenciones 27, 37 y 47 s.** La transcripción anterior (7 reglas en la de 27 s, 2 en la de 47 s, 24 en total) venía del texto OCR, que mezcla las dos columnas de la pág. 716. Con la **imagen** del original: 5 reglas por intervención, 25 en total (como dice el texto de la pág. 6). | Cambia por completo el comportamiento del controlador en verdes largos. |
 | 4 | **Temporización.** Se decidía tras 8 s de verde (y hasta 58 s en total); ahora tras exactamente 7 s y como máximo 57 s, como dice el paper. | Menos verde mínimo. |
 | 5 | **Doble conteo de arribos.** Al terminar el verde difuso se reprocesaba el segundo final, contando dos veces sus arribos (entre 6 % y 12 % más vehículos que los generados, solo en el difuso). Ahora cada segundo se procesa una vez. | El difuso dejaba de ser comparable con el ciclo fijo. |
 | 6 | Verdes del ciclo fijo en segundos enteros; Tabla I con fórmula de Webster real (antes se imprimía una fórmula incorrecta). | Tabla I más cercana al paper. |

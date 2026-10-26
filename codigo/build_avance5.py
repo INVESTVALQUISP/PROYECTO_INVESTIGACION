@@ -179,8 +179,7 @@ S += fig("figures/fig_fuzzificacion.png",
 # ===========================================================================
 S.append(P("1. Fuente de verdad y método de validación", "h1"))
 S += bullets([
-    "<b>Fuente única:</b> el PDF original en inglés. La traducción al español (hecha por una IA) <b>no</b> se usa: tiene errores "
-    "verificados (por ejemplo, intercambia reglas de las intervenciones de 27 s y 37 s).",
+    "<b>Fuente única:</b> el PDF original en inglés.",
     "<b>Se lee la imagen, no el texto extraído.</b> El texto extraído del PDF mezcla las dos columnas de la pág. 716 y desordena "
     "las reglas del Apéndice; la versión anterior del código heredó ese error. Todos los valores de <font face='Courier'>paper_data.py</font> "
     "se transcribieron de las imágenes de las tablas.",

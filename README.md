@@ -107,6 +107,7 @@ proyecto, deje `main.tex` como documento principal y compile con pdfLaTeX. Las t
 | `test_estadistica.py` (10) | Wilcoxon, Friedman, Holm, t de Student y χ² contra valores conocidos. |
 | `verificar_formulas.py` (9) | Las deducciones del artículo contra cálculos independientes. |
 | `test_archivos_citados.py` (12) | Todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila. |
+| `verificar_referencias.py` | Comprueba cada DOI de `referencias.bib` contra Crossref (requiere internet; no cuenta entre las comprobaciones). |
 
 Con `--rapido` recalcula además una Tabla VIII reducida (unos 20 s).
 

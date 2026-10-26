@@ -62,6 +62,7 @@ Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
 * Comparadores que no son del paper: actuado por detector, difuso con centroide, ciclo fijo sin redondeo (`comparadores.py`).
 * Efecto de borde del horizonte (`efecto_borde.py`), disparos agregados (`informe_agregado.py`), entorno y costo (`entorno.py`).
 * `test_archivos_citados.py`: todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila.
+* `verificar_referencias.py`: comprueba cada DOI de `articulo_ieee/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las 132 comprobaciones.
 * `python codigo/ejecutar_pruebas.py` corre 132 comprobaciones; con `--rapido` recalcula además una Tabla VIII reducida.
 
 ---

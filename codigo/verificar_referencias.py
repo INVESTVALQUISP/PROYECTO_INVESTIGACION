@@ -44,6 +44,8 @@ def doi_de(campos):
 
 def normalizar(s):
     s = re.sub(r"<[^>]+>", " ", s)  # etiquetas HTML/JATS que Crossref deja en los títulos
+    for orden, letra in ((r"\\i", "i"), (r"\\j", "j"), (r"\\o", "o"), (r"\\l", "l"), (r"\\L", "l"), (r"\\O", "o"), (r"\\aa", "a"), (r"\\ae", "ae"), (r"\\ss", "ss")):
+        s = re.sub(orden + r"(?![a-zA-Z])\s*", letra, s)  # letras LaTeX sin acento: \i, \o, \l...
     s = re.sub(r"\\[`'^\"~=.]\{?\\?(\w)\}?", r"\1", s)  # acentos LaTeX
     s = re.sub(r"\\[a-zA-Z]+\s*", " ", s).replace("{", "").replace("}", "")
     s = unicodedata.normalize("NFKD", s)

@@ -9,8 +9,9 @@ y el paper usa 25 de ellas: 5 reglas (R1..R5) en cada una de las 5 intervencione
 la usa el autor. La regla R1 del autor usa Q = "any" (sin condicion sobre la cola), por
 eso cubre las seis reglas (Q = very small ... very long) de su fila en cada intervencion.
 
-Salida:  resultados/reglas_180.csv   (una fila por regla)
-         articulo_ieee/tabla_180.tex (una sola tabla larga con las 180 reglas)
+Salida:  resultados/reglas_180.csv        (una fila por regla)
+         articulo_ieee/tabla_180.tex      (tabla larga con las 180 reglas; va en suplemento.tex)
+         articulo_ieee/tabla_matriz180.tex (matriz compacta 5 x (6 x 6) para el articulo)
 Uso:  python codigo/gen_tabla_180.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -112,3 +113,53 @@ tex = (r"""{\scriptsize
 """)
 open("articulo_ieee/tabla_180.tex", "w", encoding="utf-8").write(tex)
 print("guardado articulo_ieee/tabla_180.tex y resultados/reglas_180.csv")
+
+
+# ------------------------------------------------------------ matriz compacta 5 x (6 x 6)
+def tramos(ks):
+    """[1,2,3,5] -> '1--3,5' (numeros de intervencion 1..5 = 7, 17, 27, 37, 47 s)."""
+    ks = sorted(ks)
+    out, i = [], 0
+    while i < len(ks):
+        j = i
+        while j + 1 < len(ks) and ks[j + 1] == ks[j] + 1:
+            j += 1
+        out.append(str(ks[i]) if j == i else (f"{ks[i]}--{ks[j]}" if j > i + 1 else f"{ks[i]},{ks[j]}"))
+        i = j + 1
+    return ",".join(out)
+
+
+INT_IDX = {k: n for n, k in enumerate(fl.INTERVENTIONS, start=1)}
+ABR_Q = {"verysmall": "vs", "small": "s", "smallplus": "s+", "medium": "m", "long": "l", "verylong": "vl"}
+n_celdas = 0
+cols = "@{}l" + ("|" + "c" * 6) * 5 + "@{}"
+filas = [r"\begin{tabular}{" + cols + "}", r"\toprule"]
+cab1 = "$A\\backslash Q$"
+for T in T_LAB:
+    cab1 += f" & \\multicolumn{{6}}{{c}}{{$T=E=$ {TXT[T]}}}"
+filas.append(cab1 + r" \\")
+filas.append("".join(f"\\cmidrule(l){{{2 + 6 * i}-{7 + 6 * i}}}" for i in range(5)))
+cab2 = ""
+for _ in T_LAB:
+    cab2 += "".join(f" & {ABR_Q[q]}" for q in Q_LAB)
+filas.append(cab2 + r" \\")
+filas.append(r"\midrule")
+for A in A_LAB:
+    fila_ = f"mt({TXT[A]})"
+    for T in T_LAB:
+        for Q in Q_LAB:
+            u = used.get((T, A, Q), {})
+            if u:
+                n_celdas += 1
+                anys = any(v[1] for v in u.values())
+                tono = "green!55" if anys else "green!30"
+                fila_ += f" & \\cellcolor{{{tono}}}{tramos([INT_IDX[k] for k in u])}"
+            else:
+                fila_ += " & "
+    filas.append(fila_ + r" \\")
+filas += [r"\bottomrule", r"\end{tabular}"]
+assert n_celdas == 19, n_celdas
+mat = "{\\fontsize{6}{7}\\selectfont\n\\setlength{\\tabcolsep}{1.2pt}\n\\renewcommand{\\arraystretch}{1.12}\n" + "\n".join(filas) + "\n}\n"
+open("articulo_ieee/tabla_matriz180.tex", "w", encoding="utf-8").write(mat)
+print("guardado articulo_ieee/tabla_matriz180.tex:", n_celdas, "celdas usadas de 180")
+

@@ -42,7 +42,7 @@ class SimConfig:
     ruleset: str = "paper"              # "paper" | "tuned"
     threshold: float = 0.5
     mode: str = "capacity"              # "capacity" | "literal"  (ver traffic_model)
-    predicted_q: bool = True
+    predicted_q: Optional[bool] = None  # None: valor por defecto del modo (capacity -> False, literal -> True); si se da, SIEMPRE se respeta
     queue_source: Optional[str] = None  # None: "total" si mode="literal", si no "green_arrivals"
     a_mode: Optional[str] = None        # "crossing" | "arrivals" (None: segun mode)
     q_mode: Optional[str] = None        # "current" | "predicted" (None: segun mode)
@@ -51,6 +51,10 @@ class SimConfig:
 
     def __post_init__(self):
         self.rules = load_ruleset(self.ruleset)
+        # Se resuelven y se GUARDAN los parametros de la lectura (ninguno queda implicito ni se ignora):
+        # SimConfig() queda explicitamente CALIBRADA (crossing / current / predicted_q=False / green_arrivals).
+        self.a_mode, self.q_mode = fl._resolve_modes(self.mode, self.predicted_q, self.a_mode, self.q_mode)
+        self.predicted_q = (self.q_mode == "predicted")
         if self.queue_source is None:
             self.queue_source = "total" if self.mode == "literal" else "green_arrivals"
 

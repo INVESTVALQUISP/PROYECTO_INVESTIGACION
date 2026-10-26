@@ -2,13 +2,14 @@
 %%  Articulo en formato IEEE (clase IEEEtran, modo "journal")
 %%  Compilar en Overleaf con pdfLaTeX (compilador por defecto). Documento principal: main.tex
 %%  Bibliografia: referencias.bib (BibTeX, estilo IEEEtran)
+%%  Material suplementario (lista literal de las 180 reglas y paneles del simulador): suplemento.tex
 %% =============================================================================
 \documentclass[journal]{IEEEtran}
 
 % ---- Codificacion e idioma ---------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla]{babel}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
 \addto\captionsspanish{\renewcommand{\figurename}{Fig.}\renewcommand{\abstractname}{Abstract}}
 
 % ---- Paquetes ----------------------------------------------------------------
@@ -16,16 +17,16 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage[table]{xcolor}   % celdas sombreadas en la tabla de las 180 reglas
-\usepackage{longtable}        % tabla larga de las 180 reglas
+\usepackage[table]{xcolor}   % celdas sombreadas (matriz de las 180 combinaciones)
 \usepackage{array}
 \usepackage{url}
-\usepackage{placeins}   % \FloatBarrier: evita que las figuras se vayan a otra seccion
 
 \graphicspath{{figures/}}
 
-% Nota de fuente bajo cada tabla: de dónde salen sus datos
+% Nota de fuente bajo cada tabla: de donde salen sus datos
 \newcommand{\fuente}[1]{\par\vspace{3pt}\noindent{\scriptsize\textit{Fuente:} #1\par}}
+\renewcommand{\thetable}{\arabic{table}}   % tablas propias en arabigos; las del articulo original, en romanos
+\newcommand{\qbar}{\bar{q}}   % tasa media de llegada (veh/s); q (sin barra) se reserva para la longitud de la cola
 
 % =============================================================================
 \begin{document}
@@ -33,8 +34,7 @@
 \title{Réplica y validación del controlador de lógica difusa para una intersección de tráfico de Pappis y Mamdani (1977): un estudio de reproducibilidad}
 
 \author{Raul Nolberto Quispe Saya and Kevin Luis Valero Ccacya%
-\thanks{R. N. Quispe Saya y K. L. Valero Ccacya pertenecen a la Escuela Profesional de Ingeniería Electrónica, Universidad Nacional de San Agustín de Arequipa, Arequipa, Perú (correos electrónicos: rquispesa@unsa.edu.pe, kvaleroc@unsa.edu.pe).}%
-\thanks{Manuscrito en preparación (versión para revisión).}}
+\thanks{R. N. Quispe Saya y K. L. Valero Ccacya pertenecen a la Escuela Profesional de Ingeniería Electrónica, Universidad Nacional de San Agustín de Arequipa, Arequipa, Perú (correos electrónicos: rquispesa@unsa.edu.pe, kvaleroc@unsa.edu.pe).}}
 
 \markboth{Quispe Saya y Valero Ccacya: Réplica y validación del controlador difuso de Pappis y Mamdani (1977)}%
 {Quispe Saya y Valero Ccacya: Réplica y validación del controlador difuso de Pappis y Mamdani}
@@ -43,7 +43,7 @@
 
 % =============================================================================
 \begin{abstract}
-This paper presents a replication and validation study of the fuzzy logic traffic-signal controller proposed by Pappis and Mamdani in 1977, an early and widely cited application of fuzzy logic to traffic signal control. The original article describes an isolated intersection of two one-way streets whose green phases are extended by a controller based on 25 linguistic rules, but it omits the code, the random-number generator and several implementation details. We reimplement the intersection model and the controller from the original publication alone and verify every printed element against it: the fuzzy sets and the ``more than'' and ``less than'' operators (zero difference), the 25 rules of the appendix, and the worked example of the paper (every row of its decision table). The replica reproduces the fixed-cycle validation table with a mean relative error of 2.1\%, and the fuzzy controller improves on the fixed-cycle baseline in all 16 flow combinations (95\% confidence intervals, $p<0.001$), with a mean error of 9.3\% with respect to the published delays. The fixed-cycle delays show a small bias with respect to the publication ($-1.6$\%), whereas the fuzzy controller delays are systematically lower than the published ones ($-8.8$\%, 95\% CI $-12.3$ to $-5.4$), a discrepancy that remains unexplained and is reported as a limitation of the replication. We also show that the paper does not specify how the controller inputs (arrivals and queue) are measured during the simulation: of eight plausible readings, only one reproduces the published results, so it is reported as an inference caused by missing data. The article also reviews fixed-time, actuated and adaptive signal control, fuzzy traffic-signal controllers, reinforcement-learning approaches and reproducibility practices, reports an exploratory rule-reduction experiment, and describes an open simulator that shows the rules fired at each decision.
+This paper presents a replication and validation study of the fuzzy-logic traffic-signal controller proposed by Pappis and Mamdani in 1977 for an isolated intersection of two one-way streets. The original article omits the code, the random-number generator and several implementation details. We reimplement the model and the controller from the original publication alone and verify every printed element (fuzzy sets, ``more than''/``less than'' operators, 25 rules and worked example) with zero difference. Using 20 replications of 7200\,s with common random numbers, the replica reproduces the fixed-cycle validation table with a mean relative error of 2.1\,\%, and the fuzzy controller beats the fixed cycle in all 16 flow combinations (exact paired Wilcoxon tests with Holm correction, $p\le3.1\times10^{-5}$), with a mean error of 9.2\,\% with respect to the published delays; fuzzy delays are systematically lower than published ($-8.6$\,\%, 95\,\% CI $-12.0$ to $-5.3$), a discrepancy left unexplained. The paper does not state how the controller inputs are measured: of eight readings only one reproduces the published results, reported as an inference caused by missing data. Against a vehicle-actuated baseline not used in the original, the fuzzy controller is better at low and medium flows (up to 22\,\%) and worse at high flows (up to 29\,\%), and both are indistinguishable on average (10.93 vs.\ 10.88\,s/veh). All reduced rule subsets are significantly worse than the 25 rules, although 15 rules cost only 1.6\,\%. An open simulator shows the rules fired at each decision.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -53,7 +53,7 @@ Fuzzy logic control, Mamdani inference, replication study, reproducibility, traf
 \IEEEpeerreviewmaketitle
 
 % ---- Resumen en espanol --------------------------------------------------------
-\noindent{\footnotesize\textbf{\textit{Resumen}---}Este artículo presenta un estudio de réplica y validación del controlador de semáforos con lógica difusa propuesto por Pappis y Mamdani en 1977, una aplicación temprana y muy citada de la lógica difusa al control de semáforos. El artículo original describe una intersección aislada de dos calles unidireccionales cuyas fases verdes son extendidas por un controlador basado en 25 reglas lingüísticas, pero no publica el código, el generador de números aleatorios ni varios detalles de implementación. Se reimplementan el modelo de la intersección y el controlador a partir únicamente de la publicación original y se verifica contra ella cada elemento impreso: los conjuntos difusos y los operadores «más que» y «menos que» (diferencia nula), las 25 reglas del apéndice y el ejemplo trabajado del artículo (todas las filas de su tabla de decisión). La réplica reproduce la tabla de validación de ciclo fijo con un error relativo medio de 2.1\,\% y el controlador difuso mejora la línea base de ciclo fijo en las 16 combinaciones de caudal (intervalos de confianza al 95\,\%, $p<0.001$), con un error medio de 9.3\,\% respecto de los retardos publicados. Los retardos del ciclo fijo muestran un sesgo pequeño respecto de la publicación ($-1.6$\,\%), mientras que los del controlador difuso son sistemáticamente menores que los publicados ($-8.8$\,\%, IC 95\,\% de $-12.3$ a $-5.4$), una discrepancia que no se logró explicar y que se declara como limitación de la réplica. Además se muestra que el artículo no especifica cómo se miden las entradas del controlador (arribos y cola) durante la simulación: de ocho lecturas plausibles solo una reproduce los resultados publicados, por lo que se presenta como una inferencia debida a la falta de datos. El artículo revisa además el control de semáforos de tiempo fijo, actuado y adaptativo, el control difuso de semáforos, los enfoques de aprendizaje por refuerzo y las prácticas de reproducibilidad, presenta un experimento exploratorio de reducción de reglas y describe un simulador abierto que muestra las reglas que disparan en cada decisión.\par}
+\noindent{\footnotesize\textbf{\textit{Resumen}---}Este artículo presenta un estudio de réplica y validación del controlador de semáforos con lógica difusa propuesto por Pappis y Mamdani en 1977 para una intersección aislada de dos calles unidireccionales. El artículo original no publica el código, el generador de números aleatorios ni varios detalles de implementación. Se reimplementan el modelo y el controlador a partir únicamente de la publicación original y se verifica cada elemento impreso (conjuntos difusos, operadores «más que» y «menos que», 25 reglas y ejemplo trabajado) con diferencia nula. Con 20 réplicas de 7200\,s y números aleatorios comunes, la réplica reproduce la tabla de validación de ciclo fijo con un error relativo medio de 2.1\,\% y el controlador difuso supera al ciclo fijo en las 16 combinaciones de caudal (pruebas de Wilcoxon exactas pareadas con corrección de Holm, $p\le3.1\times10^{-5}$), con un error medio de 9.2\,\% respecto de los retardos publicados; los retardos difusos son sistemáticamente menores que los publicados ($-8.6$\,\%, IC 95\,\% de $-12.0$ a $-5.3$), discrepancia que se deja sin explicar. El artículo no especifica cómo se miden las entradas del controlador: de ocho lecturas solo una reproduce los resultados publicados, y se presenta como inferencia por falta de datos. Frente a un controlador actuado por detector, que el original no usa, el difuso es mejor con caudales bajos y medios (hasta 22\,\%) y peor con caudales altos (hasta 29\,\%), y en promedio ambos son indistinguibles (10.93 frente a 10.88\,s/veh). Todos los subconjuntos reducidos de reglas son significativamente peores que las 25 reglas, aunque con 15 el costo es de solo 1.6\,\%. Un simulador abierto muestra las reglas que disparan en cada decisión.\par}
 \vspace{2pt}
 \noindent{\footnotesize\textbf{\textit{Palabras clave}---}Control con lógica difusa, inferencia de Mamdani, estudio de réplica, reproducibilidad, control de semáforos, retardo vehicular.\par}
 
@@ -61,29 +61,28 @@ Fuzzy logic control, Mamdani inference, replication study, reproducibility, traf
 \section{Introducción}
 \label{sec:intro}
 
-\IEEEPARstart{E}{l} control de las señales luminosas de una intersección es uno de los problemas más estudiados de la ingeniería de tránsito. Aunque la congestión urbana se manifiesta sobre todo en conjuntos de intersecciones, cualquier estrategia para una red debe apoyarse en una descripción suficiente de lo que ocurre en cada intersección individual, que es el bloque elemental del sistema \cite{Pappis1977,Papageorgiou2003}. En la intersección aislada el problema consiste en repartir el tiempo de verde entre las fases de modo que se reduzca una medida de desempeño; la más habitual es el retardo medio por vehículo.
+\IEEEPARstart{E}{l} control de las señales luminosas de una intersección es uno de los problemas más estudiados de la ingeniería de tránsito. Cualquier estrategia para una red debe apoyarse en una descripción suficiente de cada intersección individual, el bloque elemental del sistema \cite{Pappis1977,Papageorgiou2003}. En la intersección aislada el problema consiste en repartir el tiempo de verde entre las fases de modo que se reduzca una medida de desempeño; la más habitual es el retardo medio por vehículo.
 
-Los métodos clásicos fijan el ciclo y los verdes a partir de los caudales medios \cite{Webster1958,Webster1966,Miller1963,Allsop1971}, mientras que los controladores actuados por vehículo y los sistemas adaptativos modifican la señal según la información de detectores \cite{Hunt1982,Lowrie1982,Mirchandani2001}. Una tercera familia, iniciada en los años setenta, traduce las instrucciones de un operador humano a reglas lingüísticas y las ejecuta con lógica difusa \cite{Zadeh1965,Zadeh1973,MamdaniAssilian1975}. Su referencia fundacional en tráfico es el trabajo de Pappis y Mamdani \cite{Pappis1977}.
+Los métodos clásicos fijan el ciclo y los verdes a partir de los caudales medios \cite{Webster1958,Webster1966,Miller1963,Allsop1971}, los controladores actuados y los sistemas adaptativos los modifican según detectores \cite{Hunt1982,Lowrie1982,Mirchandani2001}, y una tercera familia traduce las instrucciones de un operador humano a reglas lingüísticas ejecutadas con lógica difusa \cite{Zadeh1965,Zadeh1973,MamdaniAssilian1975}. Su referencia fundacional en tráfico es el trabajo de Pappis y Mamdani \cite{Pappis1977}: una intersección de dos calles unidireccionales, sin giros, cuyo controlador interviene a los 7, 17, 27, 37 y 47\,s del verde efectivo y decide, con 25 reglas lingüísticas evaluadas con los operadores mínimo y máximo, cuántos segundos extenderlo (de 1 a 10\,s) o si debe cambiar de fase. Los autores reportan, por simulación, retardos medios entre 10\,\% y 21\,\% menores que los de un controlador actuado eficaz en 16 combinaciones de caudal.
 
-Pappis y Mamdani estudian una intersección de dos calles unidireccionales, sin giros, con flujo de saturación de 3600\,veh/h. Un controlador interviene a los 7, 17, 27, 37 y 47\,s del verde efectivo y decide cuántos segundos extenderlo (de 1 a 10\,s) o si debe cambiar de fase. La decisión se obtiene de 25 reglas del tipo «si el tiempo es \emph{medio}, los arribos son \emph{más que pocos} y la cola es \emph{menor que pequeña}, entonces la extensión es \emph{media}», evaluadas con los operadores mínimo y máximo \cite{Pappis1977}. Los autores reportan, mediante simulación, retardos medios entre 10\,\% y 21\,\% menores que los de un controlador actuado por vehículo eficaz en 16 combinaciones de caudal. El artículo se cita con frecuencia como uno de los primeros controladores difusos de tráfico.
-
-Sin embargo, el artículo no puede reproducirse directamente. No se publica el programa (la simulación se ejecutó en un computador ICL-1900), no se indica el número de réplicas ni la semilla del generador pseudoaleatorio, no se detalla cómo se obtienen en cada intervención las entradas del controlador a partir del estado de la simulación y las reglas se obtuvieron por prueba y error \cite{Pappis1977}. Esta situación es habitual: estudios sobre inteligencia artificial muestran que ninguno de 400 artículos analizados documenta todas las variables necesarias para reproducirlos \cite{Gundersen2018}, y que la variabilidad no declarada de los experimentos dificulta interpretar los resultados \cite{Henderson2018}. Reproducir un resultado con la información disponible es, por tanto, un ejercicio de validación y no solo de implementación \cite{Peng2011,Sandve2013,Pineau2021}.
+Sin embargo, el artículo no puede reproducirse directamente: no publica el programa (se ejecutó en un computador ICL-1900), ni el número de réplicas, ni la semilla del generador, ni cómo se obtienen en cada intervención las entradas del controlador a partir del estado de la simulación, y sus reglas se obtuvieron por prueba y error \cite{Pappis1977}. La situación es habitual: ninguno de 400 artículos de inteligencia artificial analizados documenta todas las variables necesarias para reproducirlos \cite{Gundersen2018}, y la variabilidad no declarada dificulta interpretar los resultados \cite{Henderson2018}. Reproducir un resultado con la información disponible es, por tanto, un ejercicio de validación y no solo de implementación \cite{Peng2011,Sandve2013,Pineau2021}.
 
 Este trabajo documenta la réplica del controlador de Pappis y Mamdani con una única fuente: el artículo original en inglés. Las contribuciones son:
 \begin{enumerate}
-\item Una implementación abierta del modelo de la intersección y del controlador, verificada elemento por elemento contra lo impreso en el artículo (conjuntos difusos, operadores, reglas y ejemplo trabajado).
-\item La detección y corrección de errores de transcripción en las reglas del apéndice, causados por la lectura de texto extraído del PDF y por una traducción secundaria, que alteraban el comportamiento del controlador.
-\item La reproducción de la tabla de validación del modelo (error medio de 2.0\,\%) y de la tabla de resultados del controlador (mejora sobre el ciclo fijo en 16 de 16 combinaciones; error medio de 9.3\,\%).
-\item Una auditoría de ocho lecturas de las entradas del controlador, que identifica la única compatible con los resultados publicados y la declara como inferencia por falta de datos.
+\item Una implementación abierta del modelo y del controlador, verificada elemento por elemento contra lo impreso (conjuntos, operadores, reglas y ejemplo), con la deducción de cada fórmula usada.
+\item La corrección de errores de transcripción en las reglas del apéndice del original, causados por la lectura de texto extraído del PDF y por una traducción secundaria.
+\item La reproducción de la tabla de validación del modelo (error medio de 2.1\,\%) y de la tabla de resultados del controlador (mejora sobre el ciclo fijo en 16 de 16 combinaciones; error medio de 9.2\,\%), con 20 réplicas, números aleatorios comunes y pruebas no paramétricas.
+\item Una auditoría de ocho lecturas de las entradas, que identifica la única compatible con los resultados publicados y la declara como inferencia por falta de datos.
+\item Dos comparadores que el original no incluye (un actuado por detector y una variante con centroide) y un análisis de reducción de reglas.
 \end{enumerate}
 
-El resto del artículo se organiza así. La Sección~\ref{sec:sota} revisa el estado del arte. La Sección~\ref{sec:fundamentos} describe el controlador; la Sección~\ref{sec:modelo}, el modelo de la intersección y la réplica; la Sección~\ref{sec:metodologia}, la metodología de validación; la Sección~\ref{sec:resultados} presenta los resultados; la Sección~\ref{sec:discusion} los discute y la Sección~\ref{sec:conclusiones} concluye.
+El resto del artículo se organiza así. La Sección~\ref{sec:sota} revisa el estado del arte. La Sección~\ref{sec:modelo} presenta el modelo de la intersección y la línea base de ciclo fijo, con la deducción de sus fórmulas; la Sección~\ref{sec:controlador}, el controlador difuso y la deducción de sus operadores y de su regla de decisión; la Sección~\ref{sec:implementacion}, la implementación y el simulador; la Sección~\ref{sec:metodologia}, la metodología experimental; la Sección~\ref{sec:resultados}, los resultados; la Sección~\ref{sec:discusion} los discute y la Sección~\ref{sec:conclusiones} concluye. El Apéndice~\ref{app:180} presenta la matriz de las 180 combinaciones de antecedentes. La lista literal de las 180 reglas y los apartados del simulador por separado están en el material suplementario.
 
 % =============================================================================
 \section{Estado del arte}
 \label{sec:sota}
 
-Esta sección sitúa el trabajo de Pappis y Mamdani en el conjunto de la literatura. La Fig.~\ref{fig:taxonomia} resume los enfoques considerados y la Fig.~\ref{fig:timeline} ubica los hitos citados en el tiempo. La revisión se limita a las fuentes citadas y no pretende ser exhaustiva.
+Esta sección sitúa el trabajo de Pappis y Mamdani en el conjunto de la literatura; es una síntesis crítica y no introduce ecuaciones, que se definen una sola vez en las Secciones~\ref{sec:modelo} y~\ref{sec:controlador}. La Fig.~\ref{fig:taxonomia} resume los enfoques considerados y la Fig.~\ref{fig:timeline} ordena cronológicamente los hitos citados, incluidas las obras de 2021 a 2026. La revisión se limita a las fuentes citadas y no pretende ser exhaustiva.
 
 \begin{figure*}[!t]
 \centering
@@ -95,145 +94,57 @@ Esta sección sitúa el trabajo de Pappis y Mamdani en el conjunto de la literat
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=\textwidth]{fig_timeline.png}
-\caption{Línea de tiempo de las obras citadas: ingeniería de tránsito (azul), lógica difusa (naranja) y aprendizaje (verde).}
+\caption{Cronología de las obras citadas por línea de trabajo y época: ingeniería de tránsito (azul), lógica difusa (naranja) y aprendizaje y bancos de prueba (verde).}
 \label{fig:timeline}
 \end{figure*}
 
 \subsection{Control de una intersección aislada}
 \label{sec:sota-aislada}
-
-\subsubsection{Tiempo fijo}
-El control de tiempo fijo repite un plan de ciclo y de verdes calculado a partir de los caudales medios. Webster \cite{Webster1958} dedujo el ciclo óptimo $C_0$ que minimiza el retardo,
-\begin{equation}
-C_0=\frac{1.5\,L+5}{1-Y},\qquad g_i=\frac{y_i}{Y}\,(C_0-L),
-\label{eq:webster}
-\end{equation}
-donde $L$ es el tiempo perdido por ciclo, $y_i=q_i/s$ es la razón entre el caudal $q_i$ y el flujo de saturación $s$ de la fase $i$, $Y=\sum_i y_i$ y $g_i$ es el verde efectivo de la fase $i$. Origen: la expresión es la del artículo original (p.~709), tomada de Webster; el reparto $g_i$ y la cota $C>L/(1-Y)$ se deducen en el Sección~\ref{sec:formulas}, mientras que las constantes $1.5$ y $5$ son un ajuste empírico de Webster y no se deducen. Webster y Cobbe \cite{Webster1966} ampliaron el tratamiento de los semáforos, y Miller \cite{Miller1963} y Allsop \cite{Allsop1971} estudiaron los ajustes de ciclo fijo que minimizan el retardo en una intersección. TRANSYT \cite{Robertson1969} extiende la optimización de planes de tiempo fijo a una red. La limitación general, señalada por el propio Pappis y Mamdani, es que los retardos reales de un controlador de ciclo fijo exceden los óptimos cuando los caudales se apartan de aquellos para los que se calcularon los ajustes \cite{Pappis1977}.
-
-\subsubsection{Control actuado por vehículo}
-Un controlador actuado usa detectores para prolongar el verde mientras llegan vehículos, dentro de límites mínimo y máximo. Pappis y Mamdani lo toman como referencia: los retardos de su comparación final equivalen a los de un controlador actuado eficiente con ajustes óptimos \cite{Pappis1977}.
-
-\subsubsection{Control adaptativo en tiempo real}
-Los sistemas adaptativos optimizan en línea los parámetros de la señal con la información de detectores. SCOOT \cite{Hunt1982} y SCATS \cite{Lowrie1982} son los ejemplos más difundidos; RHODES \cite{Mirchandani2001} propone una arquitectura jerárquica que predice flujos de vehículos y pelotones y optimiza el control sobre un horizonte. Papageorgiou \emph{et al.} \cite{Papageorgiou2003} revisan las estrategias de control de tráfico urbano y de autopistas y las técnicas de guiado de rutas.
-
-\begin{table}[!t]
-\caption{Paradigmas de control de una intersección aislada}
-\label{tab:paradigmas}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.2\columnwidth}p{0.34\columnwidth}p{0.34\columnwidth}@{}}
-\toprule
-Paradigma & Información que usa & Limitación principal \\
-\midrule
-Tiempo fijo & Caudales medios, calculados fuera de línea & No responde a variaciones del tráfico \\
-Actuado & Presencia de vehículos en detectores & Reglas fijas de extensión y límites \\
-Adaptativo & Medidas en línea y predicción de flujo & Mayor infraestructura y modelo \\
-Difuso & Variables lingüísticas (tiempo, arribos, cola) & Reglas obtenidas por prueba y error \\
-Aprendizaje & Estado, acción y recompensa en simulación & Datos, cómputo y reproducibilidad \\
-\bottomrule
-\end{tabular}
-\fuente{elaboración propia a partir de las obras citadas en las subsecciones del estado del arte: tiempo fijo \cite{Webster1958,Miller1963,Allsop1971,Robertson1969}, difuso \cite{Pappis1977} y aprendizaje \cite{Abdulhai2003,Genders2016}.}
-\end{table}
-
-\subsubsection{Medida de desempeño}
-El retardo medio por vehículo es el criterio de desempeño de Pappis y Mamdani y de buena parte de la literatura posterior. Se define como el retardo total acumulado dividido por el número de vehículos,
-\begin{equation}
-d_m=\frac{D}{\sum_n q_n},
-\label{eq:dm}
-\end{equation}
-con $q_n=1$ si llegó un vehículo en el $n$-ésimo segundo y $0$ en caso contrario \cite{Pappis1977}. Es la definición del artículo original (p.~708): el retardo total entre los vehículos llegados (Sección~\ref{sec:formulas}). La Tabla~\ref{tab:paradigmas} resume los paradigmas descritos.
+El \emph{control de tiempo fijo} repite un plan de ciclo y de verdes calculado a partir de los caudales medios. Webster \cite{Webster1958} dedujo el ciclo que minimiza el retardo (ecuación~\eqref{eq:webster}); Webster y Cobbe \cite{Webster1966}, Miller \cite{Miller1963} y Allsop \cite{Allsop1971} estudiaron los ajustes de ciclo fijo, y TRANSYT \cite{Robertson1969} extiende la optimización a una red. Su limitación, señalada por Pappis y Mamdani, es que los retardos reales exceden los óptimos cuando los caudales se apartan de aquellos para los que se calcularon los ajustes \cite{Pappis1977}. Un \emph{controlador actuado} usa detectores para prolongar el verde mientras llegan vehículos, entre un mínimo y un máximo; Pappis y Mamdani lo toman como referencia, y los retardos de su comparación final equivalen a los de un actuado eficiente con ajustes óptimos \cite{Pappis1977}. Los \emph{sistemas adaptativos} optimizan en línea los parámetros con detectores: SCOOT \cite{Hunt1982}, SCATS \cite{Lowrie1982} y RHODES \cite{Mirchandani2001}; Papageorgiou \emph{et al.} \cite{Papageorgiou2003} revisan las estrategias urbanas y de autopistas. La medida de desempeño de Pappis y Mamdani y de buena parte de la literatura posterior es el retardo medio por vehículo (ecuación~\eqref{eq:dm}).
 
 \subsection{Lógica difusa y control lingüístico}
 \label{sec:sota-difusa}
-
-Zadeh \cite{Zadeh1965} introdujo los conjuntos difusos: a cada elemento $x$ de un universo se le asigna un grado de pertenencia $\mu_F(x)\in[0,1]$. Más tarde propuso un enfoque lingüístico para el análisis de sistemas complejos \cite{Zadeh1973} y el concepto de variable lingüística, cuyos valores son palabras como «pequeña» o «larga» \cite{Zadeh1975}. Esa base permitió expresar el conocimiento de un operador humano como reglas del tipo «si\,\dots\,entonces\,\dots».
-
-Mamdani \cite{Mamdani1974} y Mamdani y Assilian \cite{MamdaniAssilian1975} aplicaron ese enfoque al control de una planta dinámica real, y Mamdani \cite{Mamdani1977} lo extendió al razonamiento aproximado mediante síntesis lingüística. En el esquema de Mamdani, el «y» de una regla se interpreta como mínimo y el «si no» entre reglas como máximo, de modo que el grado de la cláusula formada por $R$ reglas es
-\begin{equation}
-\mu_C(\mathbf{x},e)=\max_{r=1,\dots,R}\ \min\{\mu_{P_r}(\mathbf{x}),\ \mu_{E_r}(e)\},
-\label{eq:mamdani}
-\end{equation}
-donde $\mu_{P_r}$ es la pertenencia del antecedente de la regla $r$ y $\mu_{E_r}$ la de su consecuente. Resulta de interpretar el «y» como mínimo y el «si no» como máximo, como hacen Pappis y Mamdani (p.~712); la deducción está en el Sección~\ref{sec:formulas}. Existen variantes posteriores: Takagi y Sugeno \cite{TakagiSugeno1985} usan consecuentes funcionales, y Jang \cite{Jang1993} integra un sistema de inferencia difusa en una red adaptativa cuyos parámetros se aprenden de datos. Lee \cite{Lee1990a,Lee1990b} ofrece una revisión de los componentes de un controlador difuso, entre ellos la fuzzificación, la base de reglas, el mecanismo de inferencia y los métodos de defuzzificación.
+Zadeh \cite{Zadeh1965} introdujo los conjuntos difusos, cuyos elementos tienen un grado de pertenencia $\mu_F(x)\in[0,1]$, y después el enfoque lingüístico \cite{Zadeh1973} y la variable lingüística, cuyos valores son palabras como «pequeña» o «larga» \cite{Zadeh1975}, que permite expresar el conocimiento de un operador como reglas «si\,\dots\,entonces\,\dots». Mamdani \cite{Mamdani1974} y Mamdani y Assilian \cite{MamdaniAssilian1975} lo aplicaron al control de una planta real y Mamdani \cite{Mamdani1977} lo extendió al razonamiento aproximado; en su esquema, el «y» es el mínimo y el «si no» entre reglas, el máximo (ecuación~\eqref{eq:mamdani}). Variantes posteriores son los consecuentes funcionales de Takagi y Sugeno \cite{TakagiSugeno1985} y la red adaptativa de Jang \cite{Jang1993}; Lee \cite{Lee1990a,Lee1990b} revisa fuzzificación, base de reglas, inferencia y defuzzificación.
 
 \subsection{Control difuso de semáforos}
 \label{sec:sota-semaforos}
+Pappis y Mamdani \cite{Pappis1977} estudian la intersección descrita en la Sección~\ref{sec:modelo}. Las reglas se afinaron por prueba y error, y fue el conjunto de reglas, y no los conjuntos difusos, lo que se modificó; los autores definen la estabilidad como la condición de no saturarse ante un amplio rango de caudales y observan que, una vez diseñado, el algoritmo actúa de forma determinista \cite{Pappis1977}.
 
-\subsubsection{El controlador de Pappis y Mamdani}
-Pappis y Mamdani \cite{Pappis1977} estudian una intersección de dos calles unidireccionales (Fig.~\ref{fig:bloques}). Las llegadas se generan en cada segundo comparando un número pseudoaleatorio con la tasa media de arribo; el flujo de saturación es de 3600\,veh/h y el tiempo perdido, de 10\,s por ciclo. El modelo se valida con un controlador de ciclo fijo de ajustes óptimos, comparando el retardo simulado con la fórmula de Webster (Tabla~I del artículo original).
-
-El retardo se contabiliza segundo a segundo. Sean $q_i\in\{0,1\}$ las llegadas, $Q_G$ los vehículos no despachados en el verde anterior y $Q_R$ la cola acumulada durante el rojo previo. La cola $n$ segundos después del inicio del rojo efectivo y el retardo acumulado durante el rojo ($R$ segundos) son
-\begin{align}
-Q_n &= Q_G+\sum_{i=1}^{n} q_i, \label{eq:colaR}\\
-D_R &= \sum_{n=1}^{R}\Bigl(Q_G+\sum_{i=1}^{n} q_i\Bigr), \label{eq:retardoR}
-\end{align}
-y, durante el verde efectivo ($G$ segundos), los vehículos aún no despachados a flujo de saturación $s$ y el retardo que acumulan son
-\begin{align}
-S_n &= \Bigl[\,Q_R+\sum_{i=1}^{n} q_i-s\,n\Bigr]^{+}, \label{eq:colaG}\\
-D_G &= \sum_{n=1}^{G} S_n, \qquad D=D_R+D_G, \label{eq:retardoG}
-\end{align}
-donde $[x]^{+}=\max\{x,0\}$. El retardo medio por vehículo se obtiene con \eqref{eq:dm}. Las ecuaciones \eqref{eq:colaR}--\eqref{eq:retardoG} son las del modelo del artículo original (p.~708); su deducción se da en el Sección~\ref{sec:formulas}.
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_bloques.png}
-\caption{Diagrama de bloques del sistema de control de Pappis y Mamdani (elaboración propia a partir del artículo original).}
-\label{fig:bloques}
-\end{figure*}
-
-El controlador interviene cada 10\,s durante el verde efectivo, la primera vez tras 7\,s, y decide la extensión $E$ del verde. Las entradas son el tiempo $T$ (la extensión candidata, de 1 a 10\,s), los arribos $A$ previstos en el brazo con derecho de paso y la cola $Q$ del brazo en rojo. Los valores lingüísticos se definen sobre universos discretos mediante tres tablas de conjuntos difusos, y dos operadores nuevos, «más que» (\emph{mt}) y «menos que» (\emph{lt}), generan versiones monótonas de esos conjuntos: dado el valor $x_0$ donde $\mu_A$ alcanza su máximo, $\mu_{lt(A)}(x)=1-\mu_A(x)$ si $x<x_0$ y $0$ en otro caso, y $\mu_{mt(A)}(x)=1-\mu_A(x)$ si $x>x_0$ y $0$ en otro caso \cite{Pappis1977}. La Fig.~\ref{fig:fuzzificacion} muestra los conjuntos reconstruidos para esta revisión.
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_fuzzificacion_ieee.png}
-\caption{Curvas de fuzzificación del controlador de Pappis y Mamdani: (a) tiempo y extensión; (b) arribos con el operador «más que»; (c) colas; (d) colas con el operador «menos que». Trazadas con los valores impresos en el artículo original.}
-\label{fig:fuzzificacion}
-\end{figure*}
-
-El conocimiento se expresa en 25 reglas, cinco por cada momento de intervención (7, 17, 27, 37 y 47\,s), con la forma
-\begin{equation}
-\text{si } T=t \text{ y } A=mt(a) \text{ y } Q=lt(q) \text{ entonces } E=e,
-\end{equation}
-donde en todas las reglas $T$ y $E$ comparten la misma etiqueta. Para cada $e=1,\dots,10$ se calcula el grado \eqref{eq:mamdani} con $\mu_{P_r}=\min\{\mu_T(e),\mu_{mt(A)}(a_e),\mu_{lt(Q)}(q_e)\}$, donde $a_e$ y $q_e$ son los arribos y la cola previstos para esa extensión. Se elige la extensión de mayor grado; si el máximo es menor que 0.5 no se extiende y se cambia de fase, y si el máximo no es único se toma la mayor extensión empatada. La defuzzificación es, por tanto, de tipo máximo con umbral, no un centroide. Con extensión de 10\,s se vuelve a intervenir al cabo de 10\,s, de modo que el verde efectivo no supera 57\,s.
-
-Los resultados se resumen en una tabla que compara el retardo del controlador difuso con el del actuado eficaz para 16 combinaciones de caudal entre 360 y 2520\,veh/h; la mejora va de 10\,\% a 21\,\%. Los autores señalan que las reglas se afinaron por prueba y error y que fue el conjunto de reglas, y no los conjuntos difusos, lo que se modificó. Definen la estabilidad como la condición de no saturarse ante un amplio rango de caudales y observan que, una vez diseñado, el algoritmo actúa de forma determinista \cite{Pappis1977}.
-
-\subsubsection{Trabajos posteriores}
-La literatura posterior amplía el alcance del control difuso de semáforos. Trabia \emph{et al.} \cite{Trabia1999} proponen un controlador difuso de dos etapas que, con detectores de lazo, decide si extender o terminar la fase y lo comparan en simulación con un controlador actuado. Niittymäki y Pursula \cite{Niittymaki2000} desarrollan principios y algoritmos de control difuso de señales dentro de un proyecto de la Universidad Tecnológica de Helsinki. Murat y Gedizlioglu \cite{Murat2005} presentan FLMuSiC, un modelo con dos subsistemas difusos que fijan las duraciones de verde y la secuencia de fases a partir de los volúmenes de tráfico en una intersección aislada de cuatro accesos; en simulación mejora a un controlador actuado y al modelo aaSIDRA, sobre todo cuando los volúmenes varían más. Bingham \cite{Bingham2001} combina un controlador difuso con una red neuronal que ajusta las funciones de pertenencia mediante aprendizaje por refuerzo para reducir el retardo. La Tabla~\ref{tab:difusos} los resume.
+La literatura posterior amplía el alcance (Tabla~\ref{tab:difusos}). Entre 1999 y 2005, Trabia \emph{et al.} \cite{Trabia1999} proponen un controlador de dos etapas con detectores de lazo; Niittymäki y Pursula \cite{Niittymaki2000} desarrollan principios y algoritmos de control difuso de señales y citan una comparación de 1996 entre el algoritmo de Pappis y Mamdani y el principio de extensión en simulación \cite{Pursula1996}, en la que el actuado resulta bueno con volúmenes muy bajos, sus ciclos largos son su debilidad y el difuso produce más detenciones; Bingham \cite{Bingham2001} combina un controlador difuso con una red neuronal que ajusta las funciones de pertenencia por aprendizaje por refuerzo; y Murat y Gedizlioglu \cite{Murat2005} presentan FLMuSiC, con dos subsistemas difusos que fijan duraciones de verde y secuencia de fases. Entre 2021 y 2026 la línea sigue activa: Ali \emph{et al.} \cite{Ali2021} combinan lógica difusa con la fórmula de Webster y una versión modificada para fijar el ciclo en una intersección aislada simulada en SUMO; Jiang \emph{et al.} \cite{Jiang2021} proponen un esquema difuso de dos etapas para una intersección de cuatro fases; Vuong \emph{et al.} \cite{Vuong2021} emplean ANFIS, un sistema neurodifuso, para tráfico mixto; y Dvorsky \emph{et al.} \cite{Dvorsky2026} comparan variantes difusas intuicionista y de tipo 2 intervalar en nueve escenarios. En conjunto, las obras conservan la estructura lingüística de Pappis y Mamdani (variables de tráfico, reglas «si–entonces», inferencia mínimo–máximo), pero aumentan el número de fases, incorporan la decisión de secuencia de fases, usan tipos de conjuntos más ricos o sustituyen el ajuste manual por uno aprendido. Entre las obras de 2021 a 2026 de la Tabla~\ref{tab:difusos} las comparaciones son con tiempo fijo, con Webster o con otros difusos; en las fuentes consultadas no se encontró una que use un controlador actuado por vehículo como referencia, comparación que se hace en este trabajo (Sección~\ref{sec:resultados}).
 
 \begin{table*}[!t]
-\caption{Controladores difusos de semáforos considerados en la revisión}
+\caption{Controladores difusos de semáforos considerados en la revisión (1977--2026)}
 \label{tab:difusos}
 \centering
 \footnotesize
-\begin{tabular}{@{}p{0.10\textwidth}p{0.045\textwidth}p{0.40\textwidth}p{0.33\textwidth}@{}}
+\begin{tabular}{@{}p{0.12\textwidth}p{0.04\textwidth}p{0.36\textwidth}p{0.40\textwidth}@{}}
 \toprule
 Obra & Año & Idea principal & Evaluación reportada \\
 \midrule
-Pappis y Mamdani \cite{Pappis1977} & 1977 & Extensión del verde (1 a 10\,s) con 25 reglas lingüísticas sobre tiempo, arribos y cola & Simulación frente a actuado eficaz (equivalente a ciclo fijo óptimo): mejora de 10\,\% a 21\,\% \\
+Pappis y Mamdani \cite{Pappis1977} & 1977 & Extensión del verde (1 a 10\,s) con 25 reglas lingüísticas sobre tiempo, arribos y cola & Simulación frente a un actuado eficaz (equivalente a ciclo fijo óptimo): mejora impresa de 10\,\% a 21\,\% \\
 Trabia \emph{et al.} \cite{Trabia1999} & 1999 & Controlador difuso de dos etapas con detectores de lazo que decide extender o terminar la fase & Simulación de una intersección de cuatro accesos frente a un controlador actuado \\
-Niittymäki y Pursula \cite{Niittymaki2000} & 2000 & Principios y algoritmos de control difuso de señales (proyecto FUSICO, Helsinki) & Ver la referencia \\
-Bingham \cite{Bingham2001} & 2001 & Controlador neurodifuso: una red ajusta las funciones de pertenencia por aprendizaje por refuerzo & Simulación con volúmenes constantes: menor retardo que las funciones iniciales \\
+Niittymäki y Pursula \cite{Niittymaki2000} & 2000 & Proyecto FUSICO: dos fases; reglas sobre $A$ y $Q$ con extensiones de 3, 6 y 9\,s y centro de gravedad & HUTSIM, 7200\,s, 100 a 1500\,veh/h: frente a un actuado por extensión, mayor demora con menos de unos 400\,veh/h y menor con más (aprox.\ 26 frente a 32\,s a 1500\,veh/h, de su Fig.~8); frente a Pappis y Mamdani, demoras 10\,\% a 20\,\% menores (100 a 1200\,veh/h) \\
+Bingham \cite{Bingham2001} & 2001 & Controlador neurodifuso: una red ajusta las funciones de pertenencia por aprendizaje por refuerzo & Simulación con volúmenes constantes: menor retardo que con las funciones iniciales \\
 Murat y Gedizlioglu \cite{Murat2005} & 2005 & FLMuSiC: dos subsistemas difusos fijan duraciones de verde y secuencia de fases según volúmenes & Intersección de cuatro accesos frente a actuado simulado y aaSIDRA: menor retardo, sobre todo con volúmenes variables \\
+Ali \emph{et al.} \cite{Ali2021} & 2021 & Difuso con la fórmula de Webster y una versión modificada para fijar el ciclo; intersección aislada, SUMO & Datos de campo de Kilis (3, 4 y 5 accesos) y demanda alta en 4 accesos, frente a Webster de tiempo fijo y a un controlador solo difuso (cifras no verificadas) \\
+Jiang \emph{et al.} \cite{Jiang2021} & 2021 & Difuso de dos etapas (fase y luego verde) con reglas optimizadas; intersección de cuatro fases & Menor demora que un controlador difuso tradicional y que el tiempo fijo, según el resumen \\
+Vuong \emph{et al.} \cite{Vuong2021} & 2021 & ANFIS para una intersección aislada con tráfico mixto (Hanoi); VISSIM--MATLAB & Supera al tiempo fijo y a métodos de lógica difusa, según el resumen \\
+Dvorsky \emph{et al.} \cite{Dvorsky2026} & 2026 & Lógica difusa intuicionista (MIFLA) y de tipo 2 intervalar (MIT2FL) en una intersección de cuatro ramales; SUMO & Nueve escenarios de volumen y desbalance: MIT2FL supera a MIFLA y a un Webster modificado (colas más cortas), según el resumen \\
 \bottomrule
 \end{tabular}
-\fuente{obras citadas en la columna «Obra»; cada fila resume la referencia correspondiente. La mejora de Pappis y Mamdani es la columna «Improvement» impresa en su Tabla~VIII (p.~715), de +10\,\% a +21\,\%.}
+\fuente{obras citadas en la columna «Obra»; cada fila resume su ficha y resumen. La mejora de Pappis y Mamdani es la columna «Improvement» impresa en su Tabla~VIII (p.~715), de +10\,\% a +21\,\%. La fila de Niittymäki y Pursula se elaboró con el texto completo; las filas «según el resumen» no se contrastaron con él.}
 \end{table*}
-
-En conjunto, las obras revisadas conservan la estructura lingüística de Pappis y Mamdani (variables de tráfico, reglas «si–entonces», inferencia mínimo–máximo), pero aumentan el número de fases controladas, incorporan la decisión de secuencia de fases y, en el caso neurodifuso, sustituyen el ajuste manual de las funciones de pertenencia por un ajuste aprendido \cite{Murat2005,Bingham2001}.
 
 \subsection{Aprendizaje por refuerzo y aprendizaje profundo}
 \label{sec:sota-rl}
+Una línea paralela formula el control de semáforos como un problema de decisión secuencial. Wiering \cite{Wiering2000} propone aprendizaje por refuerzo multiagente, y Abdulhai \emph{et al.} \cite{Abdulhai2003} aplican \emph{Q-learning} a una intersección aislada. El aprendizaje profundo por refuerzo \cite{Mnih2015} llega después a este dominio: Genders y Razavi \cite{Genders2016} entrenan una red convolucional en SUMO, IntelliLight \cite{Wei2018} se evalúa con datos reales de cámaras y Chu \emph{et al.} \cite{Chu2020} proponen una variante multiagente de \emph{advantage actor-critic}. Desde 2021, Noaeen \emph{et al.} \cite{Noaeen2022} revisan sistemáticamente 160 artículos de aprendizaje por refuerzo para redes (hasta marzo de 2020) y Michailidis \emph{et al.} \cite{Michailidis2025} comparan arquitecturas, recompensas y plataformas; Vlasceanu \emph{et al.} \cite{Vlasceanu2025} contrastan directamente un controlador difuso con \emph{Q-learning}, que lo supera en las condiciones de ese estudio. Además aparecen bancos de prueba abiertos: RESCO \cite{Ault2021} y LibSignal \cite{Mei2024}, que unifican métricas y simuladores (Tabla~\ref{tab:rl}). Frente a las reglas escritas por una persona, estos métodos aprenden la política de datos y simulaciones, pero dependen de la definición de estado y recompensa, del simulador y de hiperparámetros, cuya documentación incompleta dificulta la comparación \cite{Henderson2018}.
 
-Una línea paralela formula el control de semáforos como un problema de decisión secuencial. Wiering \cite{Wiering2000} propone aprendizaje por refuerzo multiagente para el control de semáforos, y Abdulhai \emph{et al.} \cite{Abdulhai2003} aplican \emph{Q-learning} a una intersección aislada con tráfico variable. El aprendizaje profundo por refuerzo \cite{Mnih2015} se traslada después a este dominio: Genders y Razavi \cite{Genders2016} entrenan una red convolucional con \emph{Q-learning} y repetición de experiencia en el simulador SUMO con una codificación discreta del estado, IntelliLight \cite{Wei2018} se evalúa con datos reales obtenidos de cámaras de vigilancia, y Chu \emph{et al.} \cite{Chu2020} proponen una variante descentralizada y multiagente de \emph{advantage actor-critic} evaluada en una malla sintética y en una red real de Mónaco. Yau \emph{et al.} \cite{Yau2017} revisan estos modelos según la representación del estado, la acción y la recompensa, y las medidas de desempeño; Wei \emph{et al.} \cite{Wei2019} revisan los métodos de control de semáforos, incluidos los basados en aprendizaje.
-
-\begin{table}[!t]
-\caption{Trabajos de aprendizaje por refuerzo considerados en la revisión}
+\begin{table*}[!t]
+\caption{Trabajos de aprendizaje por refuerzo y bancos de prueba considerados en la revisión (2000--2025)}
 \label{tab:rl}
 \centering
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.27\columnwidth}p{0.08\columnwidth}p{0.55\columnwidth}@{}}
+\begin{tabular}{@{}p{0.15\textwidth}p{0.04\textwidth}p{0.72\textwidth}@{}}
 \toprule
 Obra & Año & Método y evaluación \\
 \midrule
@@ -242,33 +153,105 @@ Abdulhai \emph{et al.} \cite{Abdulhai2003} & 2003 & \emph{Q-learning}; intersecc
 Genders y Razavi \cite{Genders2016} & 2016 & Red convolucional con \emph{Q-learning} y repetición de experiencia; simulador SUMO \\
 Wei \emph{et al.} \cite{Wei2018} & 2018 & IntelliLight; datos reales de cámaras de vigilancia \\
 Chu \emph{et al.} \cite{Chu2020} & 2020 & \emph{Advantage actor-critic} multiagente descentralizado; malla sintética y red de Mónaco \\
+Ault y Sharon \cite{Ault2021} & 2021 & RESCO: banco de pruebas sobre SUMO con escenarios realistas; según el resumen, los algoritmos previos pierden robustez cuando cambian los supuestos de sensado \\
+Noaeen \emph{et al.} \cite{Noaeen2022} & 2022 & Revisión sistemática de 160 artículos revisados por pares de 30 países, de 1994 a marzo de 2020, sobre aprendizaje por refuerzo en redes \\
+Mei \emph{et al.} \cite{Mei2024} & 2024 & LibSignal: biblioteca abierta con métricas unificadas que funciona con SUMO y CityFlow; primera comparación justa entre simuladores, según los autores \\
+Vlasceanu \emph{et al.} \cite{Vlasceanu2025} & 2025 & Difuso frente a \emph{Q-learning} en SUMO; \emph{Q-learning} mantiene esperas de 2.57 a 3.71\,s con índice de fluidez superior a 85\,\% y supera al difuso, que rinde peor con densidad alta, según el resumen \\
+Michailidis \emph{et al.} \cite{Michailidis2025} & 2025 & Revisión de aprendizaje por refuerzo para semáforos según arquitectura, recompensa, líneas base, escala y plataforma \\
 \bottomrule
 \end{tabular}
-\fuente{obras citadas en la columna «Obra»; cada fila resume la referencia correspondiente.}
-\end{table}
-
-Frente a las reglas escritas por una persona, estos métodos aprenden la política de datos y simulaciones, pero dependen de la definición de estado y recompensa, del simulador y de hiperparámetros, aspectos cuya documentación incompleta dificulta la comparación entre estudios \cite{Henderson2018}.
+\fuente{obras citadas en la columna «Obra»; cada fila resume su ficha y resumen. Las filas «según el resumen» o «según los autores» no se contrastaron con el texto completo.}
+\end{table*}
 
 \subsection{Reproducibilidad y réplica}
 \label{sec:sota-repro}
-
-La reproducibilidad computacional es una preocupación creciente. Peng \cite{Peng2011} la plantea como un espectro que va de la mera publicación del artículo a la réplica completa, pasando por la liberación del código y de los datos, y Sandve \emph{et al.} \cite{Sandve2013} proponen diez reglas simples para investigación computacional reproducible. En inteligencia artificial, Gundersen y Kjensmo \cite{Gundersen2018} revisan 400 artículos de IJCAI y AAAI y encuentran que entre 20\,\% y 30\,\% de las variables de cada factor están documentadas; Henderson \emph{et al.} \cite{Henderson2018} muestran que la no determinación de los entornos y la varianza de los métodos pueden alterar la interpretación de los resultados; Pineau \emph{et al.} \cite{Pineau2021} describen un programa de reproducibilidad con política de código, desafío comunitario y lista de verificación.
-
-Un trabajo de 1977 enfrenta una dificultad extrema: no hay código, el generador aleatorio es distinto y los parámetros de la simulación no se publicaron. La réplica solo puede ser estadística y debe separar con claridad lo que el artículo \emph{especifica} de lo que el replicador \emph{infiere}.
+Peng \cite{Peng2011} plantea la reproducibilidad como un espectro que va de la publicación del artículo a la réplica completa, y Sandve \emph{et al.} \cite{Sandve2013} proponen diez reglas simples para investigación computacional reproducible. En inteligencia artificial, Gundersen y Kjensmo \cite{Gundersen2018} hallan que solo entre 20\,\% y 30\,\% de las variables de cada factor están documentadas en 400 artículos; Henderson \emph{et al.} \cite{Henderson2018} muestran que la no determinación de los entornos y la varianza de los métodos pueden alterar la interpretación; Pineau \emph{et al.} \cite{Pineau2021} describen un programa con política de código y lista de verificación. En tráfico, RESCO y LibSignal \cite{Ault2021,Mei2024} son esfuerzos hacia protocolos comunes, no réplicas. Un trabajo de 1977 no tiene código ni generador aleatorio ni parámetros publicados: la réplica solo puede ser estadística y debe separar lo que el artículo \emph{especifica} de lo que el replicador \emph{infiere}.
 
 \subsection{Síntesis y brecha}
 \label{sec:sota-brecha}
-
-La revisión muestra que el controlador de Pappis y Mamdani es un antecedente de las líneas difusa, neurodifusa y de aprendizaje, pero no se encontró una validación pública de su implementación. En las fuentes consultadas para esta revisión no se encontró una réplica documentada del controlador original, ni una auditoría de qué partes de su descripción bastan para reproducir sus resultados. Este trabajo cubre esa brecha: implementa el controlador desde la publicación original, valida cada elemento impreso, identifica qué datos faltan y declara como inferencia la única lectura de las entradas compatible con los resultados.
+El controlador de Pappis y Mamdani es un antecedente de las líneas difusa, neurodifusa y de aprendizaje, pero en las fuentes consultadas no se encontró una réplica documentada ni una auditoría de qué partes de su descripción bastan para reproducir sus resultados: la comparación de 1996 citada arriba evalúa el desempeño, no la fidelidad de la reimplementación. Este trabajo cubre esa brecha: implementa el controlador desde la publicación original, valida cada elemento impreso, identifica los datos faltantes, declara como inferencia la única lectura de las entradas compatible con los resultados y lo contrasta con un actuado que el original no incluye.
 
 % =============================================================================
-\section{Fundamentos del controlador}
-\label{sec:fundamentos}
+\section{Modelo de la intersección y línea base de ciclo fijo}
+\label{sec:modelo}
 
-Esta sección describe el controlador tal como lo define el artículo original \cite{Pappis1977}. Todos los valores numéricos se transcribieron de las imágenes de sus tablas.
+Esta sección y la siguiente definen cada símbolo y cada ecuación una sola vez y en el orden en que se usan; la Tabla~\ref{tab:notacion} reúne la notación. Cada fórmula es de una de tres clases: (i) \emph{del artículo original}, con su página; (ii) \emph{deducida} aquí a partir de definiciones o de las hipótesis del modelo, con el desarrollo; o (iii) \emph{empírica o inferida}, lo que se declara. La Sección~\ref{sec:verif-formulas} las comprueba con cálculos numéricos independientes. Las páginas citadas son las de Pappis y Mamdani \cite{Pappis1977}; sus tablas se citan con cifras romanas («Tabla~VIII del original») y las de este artículo, con arábigas.
+
+\begin{table*}[!t]
+\caption{Notación (cada símbolo con un único significado)}
+\label{tab:notacion}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}cp{0.31\textwidth}cp{0.31\textwidth}@{}}
+\toprule
+Símbolo & Significado & Símbolo & Significado \\
+\midrule
+$\qbar_i$ & tasa media de llegada del brazo $i$ (veh/s) & $\alpha_n\in\{0,1\}$ & indicador de que llegó un vehículo en el segundo $n$ \\
+$q$ & longitud de la cola del brazo en rojo (veh), universo $4,\dots,32$ & $q_e$ & cola evaluada para la extensión candidata $e$ \\
+$Q_n$, $S_n$ & cola al final del segundo $n$ del rojo, del verde (veh) & $Q_G$, $Q_R$, $Q_V$ & cola residual del verde previo, cola al iniciar el verde, llegados al brazo en rojo desde el inicio del verde \\
+$D_R$, $D_G$, $D$ & retardo total en el rojo, en el verde y total (veh$\cdot$s) & $d_m$ & retardo medio por vehículo (s/veh) \\
+$s$, $L$ & flujo de saturación (1\,veh/s) y tiempo perdido por ciclo (10\,s) & $C$, $C_0$, $C_{\mathrm{ef}}$ & ciclo, ciclo óptimo de Webster y ciclo efectivo con verdes enteros (s) \\
+$y_i$, $Y$ & razón de flujo $\qbar_i/s$ y su suma & $g_i$, $\lambda=g/C$, $X$ & verde efectivo, fracción de verde y grado de saturación \\
+$T$, $E$ & tiempo y extensión del verde (variables difusas, $t,e=1,\dots,10$\,s) & $A$ & arribos previstos en el brazo con paso (variable difusa, $a=1,\dots,10$) \\
+$Q$ & cola del brazo en rojo (variable difusa; valores $q$) & $\mu_F(x)$ & pertenencia del elemento $x$ al conjunto $F$ \\
+$x_0$ & elemento donde $\mu_A$ es máxima (modo) & $mt(\cdot)$, $lt(\cdot)$ & operadores «más que» y «menos que» \\
+$\gamma(e)$, $\gamma_{\max}$ & grado del algoritmo para la extensión $e$ y su máximo & $e^*$ & extensión elegida ($0$: cambiar de fase) \\
+$H$, $n_r$ & horizonte de simulación (7200\,s) y número de réplicas (20) & $r$, $g$ & duración del rojo efectivo y del verde efectivo de una fase (s) \\
+\bottomrule
+\end{tabular}
+\fuente{elaboración propia. Los símbolos de Pappis y Mamdani \cite{Pappis1977} se conservan, salvo que la tasa de llegada ($q$ en el original) se escribe $\qbar_i$ y el indicador de llegada, $\alpha_n$, para reservar $q$ a la longitud de la cola.}
+\end{table*}
+
+\subsection{Modelo de tráfico y retardo}
+\label{ap:colas}
+El modelo es el del artículo original (pp.~707 a~709): dos brazos unidireccionales sin giros que comparten un cruce, con flujo de saturación $s=1$\,veh/s (3600\,veh/h) y un tiempo perdido de $L=10$\,s por ciclo. El tiempo avanza en pasos de 1\,s. En cada paso llega a lo sumo un vehículo al brazo $i$: $\alpha_n=1$ con probabilidad $\qbar_i$ (llegadas de Bernoulli; el original compara un número pseudoaleatorio con la tasa en cada segundo). Durante el rojo efectivo nadie sale; durante el verde efectivo salen $s$ vehículos por segundo mientras haya cola; un vehículo que llega con la cola vacía cruza sin esperar. Sean $Q_G$ los vehículos no despachados en el verde anterior y $Q_R$ la cola acumulada durante el rojo previo. La cola $n$ segundos después del inicio del rojo efectivo y el retardo acumulado durante el rojo ($r$ segundos) son
+\begin{align}
+Q_n &= Q_G+\sum_{i=1}^{n} \alpha_i, \label{eq:colaR}\\
+D_R &= \sum_{n=1}^{r} Q_n, \label{eq:retardoR}
+\end{align}
+y, durante el verde efectivo ($g$ segundos), los vehículos aún no despachados y el retardo que acumulan son
+\begin{align}
+S_n &= \Bigl[\,Q_R+\sum_{i=1}^{n} \alpha_i-s\,n\Bigr]^{+}, \label{eq:colaG}\\
+D_G &= \sum_{n=1}^{g} S_n, \qquad D=D_R+D_G, \label{eq:retardoG}
+\end{align}
+donde $[x]^{+}=\max\{x,0\}$. El retardo medio por vehículo es el retardo total entre los vehículos llegados,
+\begin{equation}
+d_m=\frac{D}{\sum_n \alpha_n}.
+\label{eq:dm}
+\end{equation}
+Las ecuaciones \eqref{eq:colaR} a~\eqref{eq:dm} son las del original (p.~708).
+
+\emph{Deducción.} Sin salidas, $Q_n=Q_{n-1}+\alpha_n$ con $Q_0=Q_G$, y por inducción resulta \eqref{eq:colaR}. El retardo de un vehículo es el número de finales de segundo en que está en cola; sumando sobre vehículos e intercambiando el orden de las sumas, $D=\sum_v\sum_n\mathbf{1}[v\text{ en cola en }n]=\sum_n Q_n$, que es \eqref{eq:retardoR} (el área bajo la curva de cola). En el verde, la cola cumple $U_n=[U_{n-1}+\alpha_n-s]^{+}$ con $U_0=Q_R$, y $U_n=S_n$ por inducción: con $b_n=Q_R+\sum_{i\le n}\alpha_i-sn$ y $U_{n-1}=[b_{n-1}]^{+}$, si $b_{n-1}\ge0$ entonces $U_n=[b_n]^{+}$; si $b_{n-1}\le-1$ (enteros), $U_{n-1}=0$ y $U_n=[\alpha_n-1]^{+}=0$, y además $b_n\le-1$, de modo que $[b_n]^{+}=0$. Que $\alpha_n\le s$ impide que la cola «se salte» el cero. El mismo intercambio de sumas da \eqref{eq:retardoG}, y \eqref{eq:dm} es la definición de media.
+
+\emph{Retardo al final del horizonte.} Las sumas \eqref{eq:retardoR} y \eqref{eq:retardoG} describen todo el retardo hasta $H$, pero el simulador lo acumula cuando el vehículo sale de la cola: los que siguen en cola en $t=H$ cuentan en el denominador de \eqref{eq:dm} y aportan retardo cero. El retardo omitido es $\Delta D=\sum_{v\in\text{cola}(H)}(H-t_v)$, con $t_v$ el instante de llegada. Con la opción \texttt{include\_residual} el simulador lo suma y la identidad $D=\sum_n Q_n$ es exacta (Sección~\ref{sec:verif-formulas}); los resultados oficiales no lo incluyen, como el original, y el error resultante se cuantifica en la Sección~\ref{sec:borde}.
+
+\subsection{Línea base de ciclo fijo de Webster}
+\label{ap:webster}
+La columna «vehicle-actuated» de la Tabla~VIII del original repite la columna «Model» de su Tabla~I: la línea base es un ciclo fijo con ajustes óptimos. Con $y_i=\qbar_i/s$, $Y=\sum_i y_i$, el ciclo y los verdes efectivos son
+\begin{equation}
+C_0=\frac{1.5\,L+5}{1-Y},\qquad g_i=\frac{y_i}{Y}\,(C_0-L),
+\label{eq:webster}
+\end{equation}
+tomados de Webster \cite{Webster1958} tal como los imprime el original (p.~709). \emph{Deducción del reparto.} El grado de saturación de la fase $i$ es $X_i=\qbar_i/(\lambda_i s)=y_iC/g_i$; igualarlos, $X_1=X_2$, equivale a $g_i\propto y_i$. Como $\sum_i g_i=C-L$, resulta $g_i=y_i(C-L)/Y$, la segunda expresión de \eqref{eq:webster}. Con ese reparto, $X_i=YC/(C-L)$, y la condición $X_i<1$ da $C>L/(1-Y)$. Webster minimizó numéricamente su fórmula de retardo y propuso $C_0=L/(1-Y)+(0.5L+5)/(1-Y)$, es decir, el ciclo mínimo más un margen; las constantes $1.5$ y $5$ son un ajuste empírico y no se deducen. \emph{Ejemplo} (primera fila de la Tabla~I del original): $\qbar_1=\qbar_2=0.1$\,veh/s dan $Y=0.2$, $C_0=(15+5)/0.8=25$\,s y $g_i=(0.1/0.2)(25-10)=7.5$\,s.
+
+El retardo medio de un brazo con fracción de verde $\lambda=g/C$ y grado de saturación $X=\qbar/(\lambda s)$ es, según el original (p.~709) y Webster \cite{Webster1958},
+\begin{equation}
+d=\frac{C(1-\lambda)^2}{2(1-\lambda X)}+\frac{X^2}{2\qbar(1-X)}-0.65\left(\frac{C}{\qbar^{2}}\right)^{1/3}X^{2+5\lambda}.
+\label{eq:retardo-webster}
+\end{equation}
+\emph{Primer término (llegadas uniformes).} Con $r=C(1-\lambda)$ el rojo efectivo, la cola crece a tasa $\qbar$ y alcanza $\qbar r$; en el verde se vacía a tasa $s-\qbar$ y tarda $\qbar r/(s-\qbar)$. El retardo del ciclo es el área del triángulo, $\tfrac12\,\qbar r\,(r+\tfrac{\qbar r}{s-\qbar})=\tfrac12\,\tfrac{\qbar s r^2}{s-\qbar}$; en un ciclo llegan $\qbar C$ vehículos, y el retardo medio es $\frac{s r^2}{2C(s-\qbar)}=\frac{C(1-\lambda)^2}{2(1-\lambda X)}$, pues $\qbar/s=\lambda X$. \emph{Segundo término (llegadas aleatorias).} Con llegadas de Poisson y servicio determinista de capacidad $c=\lambda s$, la fórmula de Pollaczek y Khinchine da la espera media $W_q=\qbar\,\mathbb{E}[\sigma^2]/(2(1-X))$, con tiempo de servicio $\sigma=1/c$ (de modo que $\mathbb{E}[\sigma^2]=1/c^2$) y $c=\qbar/X$, es decir, $W_q=X^2/(2\qbar(1-X))$. \emph{Tercer término.} La corrección empírica $-0.65(C/\qbar^2)^{1/3}X^{2+5\lambda}$ fue obtenida por Webster a partir de simulaciones; no se deduce analíticamente.
+
+\emph{Verdes enteros.} Como el modelo avanza en segundos, los verdes efectivos se redondean al entero más próximo (protocolo oficial). El redondeo independiente de $g_1$ y $g_2$ altera el ciclo efectivo $C_{\mathrm{ef}}=g_1'+g_2'+L$ respecto de $C_0$ en 7 de los 16 pares de flujo (Tabla~\ref{tab:tablaI}); su efecto se cuantifica en la Sección~\ref{sec:webster-res}.
+
+% =============================================================================
+\section{Controlador difuso}
+\label{sec:controlador}
+
+Esta sección describe el controlador tal como lo define el original \cite{Pappis1977}; todos los valores numéricos se transcribieron de las imágenes de sus tablas. El controlador interviene cada 10\,s durante el verde efectivo, la primera vez tras 7\,s, y decide la extensión $E$ del verde. Con $e^*=10$\,s en todas las intervenciones (a los 7, 17, 27, 37 y 47\,s) el verde efectivo es de $7+5\times10=57$\,s, el máximo.
 
 \subsection{Variables y universos}
-El controlador usa tres variables de entrada y una de salida, todas definidas sobre universos discretos (Tabla~\ref{tab:variables}). El tiempo $T$ es la extensión candidata del verde en segundos y la extensión $E$ toma los mismos valores lingüísticos que $T$. Los arribos $A$ son los vehículos que cruzarán el punto crítico en los $t$ segundos siguientes, y la cola $Q$ es el número de vehículos esperando en el brazo en rojo.
+Las variables y sus universos discretos se muestran en la Tabla~\ref{tab:variables}. El tiempo $T$ es la extensión candidata del verde y $E$ toma los mismos valores lingüísticos que $T$. Los arribos $A$ son los vehículos que cruzarán el punto crítico en los $t$ segundos siguientes, y la cola $Q$ es el número de vehículos esperando en el brazo en rojo. La Fig.~\ref{fig:fuzzificacion} muestra los conjuntos con los valores impresos en el original.
 
 \begin{table}[!t]
 \caption{Variables difusas del controlador}
@@ -276,7 +259,7 @@ El controlador usa tres variables de entrada y una de salida, todas definidas so
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.2\columnwidth}p{0.22\columnwidth}p{0.46\columnwidth}@{}}
+\begin{tabular}{@{}p{0.13\columnwidth}p{0.3\columnwidth}p{0.45\columnwidth}@{}}
 \toprule
 Variable & Universo & Valores lingüísticos \\
 \midrule
@@ -288,439 +271,197 @@ $Q$ & $q=4,\dots,32$\,veh & very small, small, small plus, medium, long, very lo
 \fuente{Tablas~II a~IV del artículo original (p.~711): universos y etiquetas lingüísticas de $T$, $E$, $A$ y $Q$.}
 \end{table}
 
-\subsection{Conjuntos y operadores «más que» y «menos que»}
-Los valores lingüísticos se definen mediante las Tablas~II a~IV del artículo original; sus curvas se muestran en la Fig.~\ref{fig:fuzzificacion}. Las reglas no usan esos conjuntos directamente, sino versiones monótonas obtenidas con dos operadores. Sea $x_0$ el elemento del universo donde $\mu_A$ alcanza su máximo. Las definiciones son las del artículo original (p.~710) y sus propiedades se demuestran en el Sección~\ref{sec:formulas}:
-\begin{align}
-\mu_{lt(A)}(x)&=\begin{cases}1-\mu_A(x), & x<x_0\\ 0, & x\ge x_0\end{cases} \label{eq:lt}\\
-\mu_{mt(A)}(x)&=\begin{cases}0, & x\le x_0\\ 1-\mu_A(x), & x>x_0\end{cases} \label{eq:mt}
-\end{align}
-La Tabla~V del artículo imprime $\mu_{mt(\text{none})}(1)=0.5$, es decir, $1-\mu_A(x_0)$ cuando el máximo es menor que 1; el código sigue los valores impresos. Fuera de los universos se adoptaron dos supuestos, declarados también en la Sección~\ref{sec:discusion}: $\mu_{lt(\cdot)}(q)=1$ para $q<4$ y $\mu_{mt(\cdot)}(0)=0$. El conjunto «any» vale 1 en todo su universo.
-
-\subsection{Base de reglas}
-El conocimiento del controlador son 25 reglas «si $T=t$ y $A=mt(a)$ y $Q=lt(q)$ entonces $E=e$», cinco por cada momento de intervención (7, 17, 27, 37 y 47\,s). La Tabla~\ref{tab:reglas} las resume. Dentro de cada intervención hay una regla por etiqueta de salida; a mayor extensión, la regla exige más arribos y admite menos cola en el brazo en rojo. Al aumentar el tiempo de verde, los umbrales de cola se vuelven más permisivos (de \emph{very small} a \emph{very long}), pues la cola del brazo en rojo crece de forma natural con el tiempo. El Apéndice~\ref{app:180} escribe, una por una, las 180 reglas posibles de $T$, $A$ y $Q$ y resalta en verde las que usa el autor: las 25 reglas ocupan solo 19 de las 180, porque varias se repiten en distintas intervenciones y la regla R1 no condiciona la cola (usa \emph{any}, y cubre las seis colas de su fila).
-
-\input{tabla_reglas}
-
-
-\subsection{Inferencia y decisión}
-Para cada extensión candidata $e=1,\dots,10$\,s, la regla $r$ aporta el grado
-\begin{equation}
-\mu_{P_r}(e)=\min\{\mu_{T_r}(e),\ \mu_{mt(A_r)}(a_e),\ \mu_{lt(Q_r)}(q_e),\ \mu_{E_r}(e)\},
-\label{eq:premisa}
-\end{equation}
-donde $a_e$ y $q_e$ son los arribos y la cola evaluados para esa extensión (Sección~\ref{sec:lecturas}). El grado del algoritmo es $g(e)=\max_r\mu_{P_r}(e)$, la unión de las reglas con el operador máximo (ecuación~\eqref{eq:mamdani}); sea $g_{\max}=\max_k g(k)$. La decisión no usa centroide:
-\begin{equation}
-e^*=\begin{cases}\max\{e:\ g(e)=g_{\max}\}, & g_{\max}\ge 0.5\\ 0, & g_{\max}<0.5\end{cases}
-\label{eq:decision}
-\end{equation}
-Con $e^*=0$ se cambia de fase de inmediato. El desempate toma la mayor extensión, como indica el artículo original. Si $e^*=10$ se vuelve a intervenir 10\,s después; si $0<e^*<10$ el verde termina tras $e^*$ segundos. Se llama \emph{activación} de una regla al máximo de $\mu_{P_r}(e)$ sobre $e$, y \emph{disparo} a que la regla cuya contribución en $e^*$ iguala el grado máximo; un corte del verde no tiene regla que dispare. Las ecuaciones \eqref{eq:premisa} y \eqref{eq:decision} formalizan lo descrito en las pp.~712 a~714 del artículo original; su deducción se da en el Sección~\ref{sec:formulas}.
-
-\subsection{Ejemplo trabajado del artículo original}
-\label{sec:ejemplo}
-El artículo ilustra la decisión con la segunda intervención (17\,s). Los arribos del brazo con paso son $\mathbf{x}=(0\,1\,0\,1\,1\,1\,1\,0\,0\,1)$, con acumulados $\beta=(0\,1\,1\,2\,3\,4\,5\,5\,5\,6)$; los del brazo en rojo, $\mathbf{x}'=(0\,1\,0\,0\,1\,0\,0\,1\,0\,0)$, con cola inicial $Q=5$ y cola prevista $\beta'=(5\,6\,6\,6\,7\,7\,7\,8\,8\,8)$. Con esos vectores, el grado del algoritmo es $(0,\,0.5,\,0,\,0.3,\,0.1,\,0.1,\,0.1,\,0.5,\,0.5,\,0.8)$ y la extensión elegida es $e^*=10$\,s. La Tabla~\ref{tab:tabla7} y la Fig.~\ref{fig:tabla7} muestran la contribución de cada regla.
-
-\input{tabla_VII}
-
-\begin{figure}[!t]
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\columnwidth]{fig_tabla7.png}
-\caption{Ejemplo de las págs. 7--8 del artículo original (intervención de 17\,s): contribución de cada regla y grado agregado. El máximo (0.8 en $e=10$\,s) supera el umbral 0.5.}
-\label{fig:tabla7}
-\end{figure}
-
-% =============================================================================
-\section{Desarrollo matemático de las fórmulas}
-\label{sec:formulas}
-Esta sección muestra de dónde nace cada fórmula del artículo. Cada una es de una de tres clases: (i) \emph{del artículo original}, con la página en que aparece; (ii) \emph{deducida} aquí a partir de definiciones o de las hipótesis del modelo, con el desarrollo paso a paso; o (iii) \emph{empírica o inferida}, lo que se declara. La Tabla~\ref{tab:origen-formulas} resume el origen de cada fórmula; los apartados siguientes dan los desarrollos y la Sección~\ref{sec:verif-formulas} los comprueba con cálculos numéricos independientes. Las páginas se refieren al artículo de Pappis y Mamdani \cite{Pappis1977}.
-
-\begin{table*}[!t]
-\caption{Origen de cada fórmula del artículo}
-\label{tab:origen-formulas}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.2\textwidth}p{0.22\textwidth}p{0.5\textwidth}@{}}
-\toprule
-Fórmula & Procedencia & Qué se deduce y qué no \\
-\midrule
-\eqref{eq:colaR}, \eqref{eq:retardoR} (cola y retardo en el rojo) & Artículo original, p.~708 & Deducidas por acumulación de llegadas e intercambio de sumas (Sección~\ref{ap:colas}) \\
-\eqref{eq:colaG}, \eqref{eq:retardoG} (cola y retardo en el verde) & Artículo original, p.~708 & Deducidas por inducción, con descarga a flujo de saturación (Sección~\ref{ap:colas}) \\
-\eqref{eq:dm} (retardo medio) & Artículo original, p.~708 & Definición de media: retardo total entre vehículos llegados \\
-\eqref{eq:retardo-webster} (retardo de Webster) & Artículo original, p.~709, de Webster \cite{Webster1958} & Primer término (cola uniforme) y segundo término (cola M/D/1) deducidos (Sección~\ref{ap:webster}); el tercero es una corrección empírica de Webster, no deducida \\
-\eqref{eq:webster} (ciclo y verdes óptimos) & Artículo original, p.~709, de Webster \cite{Webster1958} & Reparto $g_i$ y cota $C>L/(1-Y)$ deducidos (Sección~\ref{ap:ciclo}); constantes $1.5$ y $5$ empíricas \\
-\eqref{eq:lt}, \eqref{eq:mt} (operadores) & Artículo original, p.~710 & Definiciones; sus dos propiedades se demuestran (Sección~\ref{ap:mtlt}) \\
-\eqref{eq:mamdani}, \eqref{eq:premisa} (inferencia) & Artículo original, pp.~710 a~713 & Deducidas de «y»$=$mínimo, «si no»$=$máximo y de la regla composicional con entradas exactas (Sección~\ref{ap:inferencia}) \\
-\eqref{eq:decision} (decisión) & Artículo original, pp.~713 y~714 & Formalización de tres enunciados del texto; no hay deducción adicional (Sección~\ref{ap:decision}) \\
-Forma de las reglas «si\,\dots\,entonces\,\dots» & Artículo original, Apéndice (pp.~715 y~716) & Definición \\
-\eqref{eq:beta} (lectura calibrada) & No está en el artículo original & Inferencia: una parte deducida y otra empírica (Sección~\ref{ap:calibrada}) \\
-$180=5\times6\times6$, $25=5\times5$, $57=7+5\times10$ & Tablas~II a~IV (p.~711) y pp.~712 y~713 & Conteos (Sección~\ref{ap:conteos}) \\
-\bottomrule
-\end{tabular}
-\fuente{elaboración propia, cotejando cada fórmula con las páginas indicadas del artículo original.}
-\end{table*}
-
-\subsection{Cola y retardo en el rojo y en el verde}
-\label{ap:colas}
-\emph{Hipótesis} (p.~708): el tiempo avanza en pasos de 1\,s; en cada paso llega a lo sumo un vehículo, $q_n\in\{0,1\}$; durante el rojo efectivo nadie sale; durante el verde efectivo salen $s=1$\,veh/s mientras haya cola; un vehículo que llega con la cola vacía cruza sin esperar.
-
-\emph{Cola en el rojo.} Sea $Q_n$ la cola al final del segundo $n$ del rojo y $Q_0=Q_G$ los vehículos no despachados en el verde anterior. Como no hay salidas, $Q_n=Q_{n-1}+q_n$. Por inducción, $Q_n=Q_G+\sum_{i=1}^{n}q_i$, que es \eqref{eq:colaR}.
-
-\emph{Retardo en el rojo.} El retardo de un vehículo $v$ es el número de segundos $w_v$ que pasa en cola, es decir, el número de finales de segundo $n$ en que está en cola. El retardo total es
-\begin{align*}
-D&=\sum_v w_v=\sum_v\sum_n \mathbf{1}[v\text{ en cola al final del segundo }n]\\
-&=\sum_n \sum_v \mathbf{1}[v\text{ en cola al final del segundo }n]=\sum_n Q_n ,
-\end{align*}
-donde el último paso intercambia las sumas: para cada $n$, la suma sobre los vehículos cuenta cuántos hay en cola, que es $Q_n$. Aplicado a los $R$ segundos del rojo se obtiene $D_R=\sum_{n=1}^{R}Q_n$, que es \eqref{eq:retardoR}. Este es el área bajo la curva de la cola y equivale a decir que el área entre la curva acumulada de llegadas y la de salidas es la suma de los retardos individuales.
-
-\emph{Cola en el verde.} Sea $L_n$ la cola al final del segundo $n$ del verde, con $L_0=Q_R$. En cada segundo llega $q_n$ y sale un vehículo si hay cola, de modo que $L_n=[L_{n-1}+q_n-s]^{+}$. Se afirma que $L_n=S_n$, con $S_n=[Q_R+\sum_{i\le n}q_i-sn]^{+}$ de \eqref{eq:colaG}. Demostración por inducción. Para $n=1$ es inmediato. Supóngase $L_{n-1}=[a_{n-1}]^{+}$ con $a_n=Q_R+\sum_{i\le n}q_i-sn$. Si $a_{n-1}\ge0$, entonces $L_n=[a_{n-1}+q_n-s]^{+}=[a_n]^{+}$. Si $a_{n-1}<0$ (en enteros, $a_{n-1}\le-1$), entonces $L_{n-1}=0$ y $L_n=[q_n-1]^{+}=0$, porque $q_n\le1$; además $a_n=a_{n-1}+q_n-1\le-1$, por lo que $[a_n]^{+}=0=L_n$. En ambos casos $L_n=[a_n]^{+}$. El hecho de que $q_n\le s$ es lo que hace que la cola nunca se «salte» el cero.
-
-\emph{Retardo en el verde y total.} Con el mismo intercambio de sumas, $D_G=\sum_{n=1}^{G}S_n$ y el retardo de un ciclo para el brazo es $D=D_R+D_G$, que es \eqref{eq:retardoG}. Como el número de vehículos que llegan es $\sum_n q_n$, el retardo medio es el cociente $d_m=D/\sum_n q_n$, que es \eqref{eq:dm} y no necesita más demostración que la definición de media.
-
-\subsection{Retardo de Webster}
-\label{ap:webster}
-La fórmula \eqref{eq:retardo-webster} suma tres términos.
-
-\emph{Primer término: llegadas uniformes.} Sean $q$ la tasa de llegadas, $s$ el flujo de saturación, $\lambda=g/C$ la fracción de verde efectivo y $r=C(1-\lambda)$ el rojo efectivo. Con llegadas continuas y uniformes:
-\begin{enumerate}
-\item la cola crece a tasa $q$ durante el rojo y alcanza $qr$ al final;
-\item en el verde se vacía a tasa $s-q$, por lo que tarda $qr/(s-q)$;
-\item el retardo total del ciclo es el área del triángulo de la cola: $\tfrac12\,qr\,\bigl(r+\tfrac{qr}{s-q}\bigr)=\tfrac12\,\tfrac{q\,s\,r^{2}}{s-q}$;
-\item en un ciclo llegan $qC$ vehículos, así que el retardo medio es $\dfrac{s\,r^{2}}{2C(s-q)}=\dfrac{C(1-\lambda)^{2}}{2\,(1-q/s)}$;
-\item con $X=q/(\lambda s)$ se tiene $q/s=\lambda X$ y queda $\dfrac{C(1-\lambda)^{2}}{2\,(1-\lambda X)}$, el primer término.
-\end{enumerate}
-
-\emph{Segundo término: llegadas aleatorias.} Con llegadas de Poisson de tasa $q$ y servicio determinista de capacidad $c=\lambda s$, el servicio dura $1/c$ y la fórmula de Pollaczek y Khinchine da la espera media en régimen permanente, $W_q=q\,E[S^2]/\bigl(2(1-X)\bigr)$ con $X=q/c$. Como $E[S^2]=1/c^2$ y $c=q/X$, resulta $W_q=q\,X^{2}/\bigl(2q^{2}(1-X)\bigr)=X^{2}/\bigl(2q(1-X)\bigr)$, el segundo término.
-
-\emph{Tercer término.} La corrección $-0.65\,(C/q^{2})^{1/3}X^{2+5\lambda}$ fue obtenida por Webster de forma empírica, a partir de simulaciones, porque la suma de los dos primeros términos sobrestima el retardo. No se deduce analíticamente; se toma tal como la usa el artículo original (p.~709).
-
-\subsection{Ciclo y verdes óptimos}
-\label{ap:ciclo}
-Sea $y_i=q_i/s$, $Y=\sum_i y_i$ y $\lambda_i=g_i/C$. El grado de saturación de la fase $i$ es $X_i=q_i/(\lambda_i s)=y_iC/g_i$.
-\begin{enumerate}
-\item Igualar los grados de saturación, $X_1=X_2$, equivale a $y_1/g_1=y_2/g_2$, es decir, $g_i\propto y_i$.
-\item El verde efectivo total es el ciclo menos el tiempo perdido, $\sum_i g_i=C-L$. Con $g_i=k\,y_i$ se obtiene $k=(C-L)/Y$ y
-\[
-g_i=\frac{y_i}{Y}\,(C-L),
-\]
-que es la segunda expresión de \eqref{eq:webster} (tal como se imprime en la p.~709).
-\item Con ese reparto, $X_i=y_iC\big/\bigl[\tfrac{y_i}{Y}(C-L)\bigr]=\dfrac{YC}{C-L}$. La condición de no saturación $X_i<1$ da $YC<C-L$, es decir, $C>L/(1-Y)$ (ciclo mínimo).
-\item Webster minimizó numéricamente su fórmula de retardo y propuso la aproximación
-\[
-C_0=\frac{1.5L+5}{1-Y}=\frac{L}{1-Y}+\frac{0.5L+5}{1-Y},
-\]
-es decir, el ciclo mínimo más un margen. Los valores $1.5$ y $5$ son un ajuste empírico y no se deducen.
-\end{enumerate}
-\emph{Ejemplo} (primera fila de la Tabla~I del artículo): $q_1=q_2=360$\,veh/h$=0.1$\,veh/s y $s=1$\,veh/s dan $y_i=0.1$ e $Y=0.2$; con $L=10$\,s, $C_0=(15+5)/0.8=25$\,s y $g_i=(0.1/0.2)(25-10)=7.5$\,s. Aproximación: al minimizar numéricamente la fórmula completa de Webster, el mínimo cae en ciclos de 15\,\% a 21\,\% más cortos que $C_0$, pero el retardo en $C_0$ solo excede al mínimo en 4.0\,\% como máximo (Tabla~\ref{tab:verificacion}); por eso $C_0$ es una buena aproximación del óptimo, aunque no el óptimo exacto.
+\includegraphics[width=\textwidth]{fig_fuzzificacion_ieee.png}
+\caption{Curvas de fuzzificación del controlador de Pappis y Mamdani: (a) tiempo y extensión; (b) arribos con el operador «más que»; (c) colas; (d) colas con el operador «menos que». Trazadas con los valores impresos en el artículo original.}
+\label{fig:fuzzificacion}
+\end{figure*}
 
 \subsection{Operadores «más que» y «menos que»}
 \label{ap:mtlt}
-Sea $x_0$ el modo de $\mu_A$. Por definición \eqref{eq:lt} y \eqref{eq:mt}, $\mu_{lt(A)}$ vale $1-\mu_A$ a la izquierda de $x_0$ y $0$ a su derecha, y $\mu_{mt(A)}$ al revés. En cada $x\ne x_0$ solo una de las dos es no nula, luego
+Las reglas no usan los conjuntos directamente, sino versiones monótonas obtenidas con dos operadores del original (p.~710). Sea $A$ un conjunto difuso cualquiera (no solo la variable de arribos) y $x_0$ el elemento del universo donde $\mu_A$ alcanza su máximo. Los operadores son
+\begin{align}
+\mu_{lt(A)}(x)&=\begin{cases}1-\mu_A(x), & x<x_0\\ 0, & x\ge x_0\end{cases} \label{eq:lt}\\
+\mu_{mt(A)}(x)&=\begin{cases}0, & x<x_0\\ 1-\mu_A(x), & x\ge x_0\end{cases} \label{eq:mt}
+\end{align}
+Con estas desigualdades, $lt(A)$ y $mt(A)$ tienen soportes disjuntos que cubren todo el universo: en cada $x$ solo una de las dos puede ser no nula, de modo que
 \begin{gather*}
 \max\{\mu_{lt(A)}(x),\mu_{mt(A)}(x)\}=1-\mu_A(x),\\
-\min\{\mu_{lt(A)}(x),\mu_{mt(A)}(x)\}=0 .
+\min\{\mu_{lt(A)}(x),\mu_{mt(A)}(x)\}=0
 \end{gather*}
-Es decir, $lt(A)\cup mt(A)=\overline{A}$ (el complemento de $A$) salvo en $x_0$, y $lt(A)\cap mt(A)=\emptyset$: las dos propiedades que enuncia el artículo original en la p.~710.
+en \emph{todo} $x$, incluido $x_0$. Es decir, $lt(A)\cup mt(A)=\overline{A}$ y $lt(A)\cap mt(A)=\emptyset$, las dos propiedades que enuncia el original (p.~710), sin excepción en $x_0$: en $x_0$ vale $1-\mu_A(x_0)$, que es $0$ para los conjuntos normales y $0.5$ para el conjunto subnormal \emph{none} ($\mu_{none}(1)=0.5$, $x_0=1$), de modo que \eqref{eq:mt} reproduce $\mu_{mt(none)}(1)=0.5$ de la Tabla~V del original directamente. \emph{Nota sobre el texto impreso:} el original escribe el operador $mt$ con «$0$ para $x\le x_0$» (la misma redacción reaparece en \cite{Niittymaki2000}, p.~18); esa redacción coincide con \eqref{eq:mt} salvo en $x=x_0$ para \emph{none}, donde contradice su propia Tabla~V y la identidad anterior, por lo que se adopta \eqref{eq:mt}, que es también lo que ejecuta el código (\texttt{mt\_arr}, \texttt{lt\_queue} en \texttt{fuzzy\_logic.py}). Fuera de los universos se adoptaron dos supuestos, declarados en la Sección~\ref{sec:discusion}: $\mu_{lt(\cdot)}(q)=1$ para $q<4$ y $\mu_{mt(\cdot)}(0)=0$. El conjunto «any» vale 1 en todo su universo.
 
-\emph{Ejemplos.} Para el conjunto \emph{few} de la Tabla~III, $\mu_A=(0.5,\,1,\,0.5,\,0.2,\,0.1,\,0,\dots)$ y $x_0=2$; entonces $\mu_{mt(few)}=(0,\,0,\,0.5,\,0.8,\,0.9,\,1,\dots)$, que es la fila de la Tabla~V. Para \emph{small} de la Tabla~IV, con $x_0=12$ y $\mu_A=0.5,\,0.7,\,0.9$ en $q=9,10,11$, resulta $\mu_{lt(small)}=1$ hasta $q=8$ y $0.5,\,0.3,\,0.1$ en $q=9,10,11$, y $0$ desde $q=12$, como en la Tabla~VI.
+\emph{Ejemplos.} Para \emph{few} (Tabla~III), $\mu_A=(0.5,\,1,\,0.5,\,0.2,\,0.1,\,0,\dots)$ y $x_0=2$; entonces $\mu_{mt(few)}=(0,\,0,\,0.5,\,0.8,\,0.9,\,1,\dots)$, la fila de la Tabla~V. Para \emph{small} (Tabla~IV), con $x_0=12$ y $\mu_A=0.5,\,0.7,\,0.9$ en $q=9,10,11$, resulta $\mu_{lt(small)}=1$ hasta $q=8$ y $0.5,\,0.3,\,0.1$ en $q=9,10,11$, y $0$ desde $q=12$, como en la Tabla~VI.
 
-\subsection{Inferencia de Mamdani con entradas exactas}
+\subsection{Base de reglas}
+El conocimiento del controlador son 25 reglas
+\begin{equation*}
+\text{si } T=t \text{ y } A=mt(a) \text{ y } Q=lt(q) \text{ entonces } E=e,
+\end{equation*}
+con $E=T$ en todas, cinco por cada intervención (Tabla~\ref{tab:reglas}). Dentro de cada intervención hay una regla por etiqueta de salida: a mayor extensión, la regla exige más arribos y admite menos cola en el brazo en rojo, y los umbrales de cola se vuelven más permisivos con el tiempo de verde (de \emph{very small} a \emph{very long}). El espacio completo de antecedentes tiene $5\times6\times6=180$ combinaciones de las etiquetas de las Tablas~II a~IV (regla del producto). Las 25 reglas ocupan solo 19 de esas 180 (matriz del Apéndice~\ref{app:180}), porque varias se repiten entre intervenciones y la regla R1 usa $Q=\text{any}$ y cubre las seis colas de su fila; la lista literal de las 180 reglas está en el material suplementario y en \texttt{resultados/reglas\_180.csv}.
+
+\input{tabla_reglas}
+
+\subsection{Inferencia y decisión}
 \label{ap:inferencia}
-El artículo interpreta «y» como mínimo y «si no» como máximo (p.~712). Con ello:
-\begin{enumerate}
-\item El antecedente de la regla $r$ es $\mu_{P_r}(t,a,q)=\min\{\mu_{T_r}(t),\,\mu_{mt(A_r)}(a),\,\mu_{lt(Q_r)}(q)\}$ («y» es la intersección, es decir, el mínimo).
-\item La regla es la relación $R_r(t,a,q,e)=\min\{\mu_{P_r}(t,a,q),\,\mu_{E_r}(e)\}$ (producto cartesiano del antecedente y el consecuente).
-\item Las cinco reglas de una intervención, unidas por «si no» (unión, es decir, máximo), forman la cláusula $C$ con $\mu_C=\max_r R_r$, que es \eqref{eq:mamdani}.
-\end{enumerate}
-Con datos exactos, la regla composicional de inferencia (p.~710), $\mu_B(y)=\max_x\min\{\mu_R(x,y),\mu_A(x)\}$, se simplifica. Una medida exacta $x_0$ es un conjunto con $\mu_A(x_0)=1$ y $\mu_A(x)=0$ en los demás puntos; entonces, para $x\ne x_0$, $\min\{\mu_R(x,y),0\}=0$ y el máximo sobre $x$ conserva solo el término $x=x_0$, que vale $\mu_R(x_0,y)$. Por eso el grado de la extensión $e$ es la entrada $(t,a_e,q_e,e)$ del arreglo de las reglas, como hace el artículo (p.~713). En el ejemplo del artículo se toma $t=e$ y, como $T$ y $E$ comparten etiqueta, $\mu_{T_r}(e)$ y $\mu_{E_r}(e)$ son el mismo número; la contribución de cada regla queda en \eqref{eq:premisa}.
-
-\emph{Ejemplo} (intervención de 17\,s del artículo, $e=10$, regla R5: $T=E=$ very long, $A=mt(\text{many})$, $Q=lt(\text{small})$, con $\beta_{10}=6$ y $q_{10}=8$): $\mu_T(10)=1$; $\mu_{mt(many)}(6)=1-\mu_{many}(6)=1-0.2=0.8$; $\mu_{lt(small)}(8)=1$ (pues $8<x_0=12$ y $\mu_{small}(8)=0$); $\mu_E(10)=1$. El mínimo es $0.8$, el valor que el artículo imprime en la última columna de su Tabla~VII.
-
-\subsection{Regla de decisión}
-\label{ap:decision}
-La ecuación \eqref{eq:decision} reúne tres enunciados del artículo original: (i) se elige la extensión con el mayor grado de confianza (p.~713); (ii) si todos los grados son menores que 0.5, no se da extensión y la fase cambia (p.~714); (iii) si el máximo no es único, se toma la mayor de las extensiones empatadas (p.~714). La ecuación es su conjunción y no incorpora ninguna hipótesis adicional. En el ejemplo anterior, $g=(0,\,0.5,\,0,\,0.3,\,0.1,\,0.1,\,0.1,\,0.5,\,0.5,\,0.8)$ tiene máximo $0.8\ge0.5$ único en $e=10$, y por eso $e^*=10$\,s.
-
-\subsection{Lectura calibrada de $A$ y $Q$}
-\label{ap:calibrada}
-La ecuación \eqref{eq:beta} no está en el artículo original. Su primer factor se deduce de las hipótesis del modelo: en $e$ segundos no pueden cruzar más de $e$ vehículos, porque el flujo de saturación es de 1\,veh/s, ni más de los disponibles, $Q_G+\sum_{i\le e}x_i$; de ahí $a_e=\min(e,\,Q_G+\sum_{i\le e}x_i)$. La elección de $q_e=Q_V$ (llegados al brazo en rojo desde el inicio del verde actual) no se deduce: se eligió entre ocho lecturas probadas porque es la que reproduce la Tabla~VIII (Tabla~\ref{tab:auditoria}). Es una inferencia por falta de datos.
-
-\subsection{Conteos}
-\label{ap:conteos}
-Por la regla del producto, $5\times6\times6=180$: las Tablas~II a~IV (p.~711) definen 5 etiquetas para $T$, 6 para $A$ y 6 para $Q$. Las 25 reglas son $5\times5$: cinco intervenciones con cinco reglas cada una (p.~712). El verde efectivo máximo es $47+10=57$\,s, es decir $7+5\times10$: una primera espera de 7\,s y cinco intervenciones de hasta 10\,s (pp.~712 y~713).
-
-\subsection{Verificación numérica}
-\label{sec:verif-formulas}
-Para no depender solo del razonamiento, cada deducción se contrastó con un cálculo independiente (Tabla~\ref{tab:verificacion}). La suma de colas por segundo coincide exactamente con la suma de las esperas individuales en 1000 escenarios aleatorios; el primer término de Webster coincide con el área de la cola de un modelo fluido (error de 0.013\,\%) y el segundo con una cola M/D/1 simulada (error de 0.9\,\%, atribuible al ruido de la simulación); el reparto de verdes iguala los grados de saturación; las propiedades de $mt$ y $lt$ se cumplen en los 234 puntos de los 12 conjuntos de las Tablas~III y~IV; y los conteos son exactos. El código es \texttt{codigo/verificar\_formulas.py}.
-
-\input{tabla_verificacion}
-
-% =============================================================================
-\section{Modelo de la intersección y réplica}
-\label{sec:modelo}
-
-\subsection{Modelo de tráfico}
-Se reimplementó el modelo de la Sección~\ref{sec:sota-semaforos}: dos brazos unidireccionales sin giros; llegadas de Bernoulli en pasos de 1\,s con probabilidad igual a la tasa media en veh/s; descarga a 1\,veh/s (3600\,veh/h) durante el verde efectivo; y un tiempo perdido de 10\,s por ciclo, que se modela como 5\,s sin descarga en cada cambio de fase, durante los cuales ambos brazos acumulan cola. El retardo de cada vehículo es la diferencia entre su instante de cruce y su instante de llegada, y $d_m$ se calcula con \eqref{eq:dm}. Cada segundo se procesa una única vez: llegadas en ambos brazos y, si hay fase verde, una descarga.
-
-\subsection{Línea base de ciclo fijo}
-La columna «vehicle-actuated» de la Tabla~VIII del artículo repite la columna «Model» de su Tabla~I, de modo que la línea base de comparación es el ciclo fijo con ajustes óptimos \eqref{eq:webster}. Como el modelo avanza en segundos, los verdes efectivos se redondean al entero más próximo. La columna «Formula» de la Tabla~I se reproduce evaluando en cada brazo el retardo de Webster,
+El original interpreta «y» como mínimo y «si no» como máximo (p.~712). Con ello: (i) el antecedente de la regla $j$ es $\min\{\mu_{T_j}(t),\mu_{mt(A_j)}(a),\mu_{lt(Q_j)}(q)\}$ («y» es la intersección); (ii) la regla es la relación $\Phi_j=\min\{\text{antecedente},\mu_{E_j}(e)\}$ (producto cartesiano de antecedente y consecuente); y (iii) las cinco reglas de una intervención, unidas por «si no» (unión, es decir, máximo), forman la cláusula
 \begin{equation}
-d=\frac{C(1-\lambda)^2}{2(1-\lambda X)}+\frac{X^2}{2q(1-X)}-0.65\left(\frac{C}{q^2}\right)^{1/3}X^{2+5\lambda},
-\label{eq:retardo-webster}
+\mu_{\mathcal{K}}(\mathbf{x},e)=\max_{j}\ \min\{\mu_{P_j}(\mathbf{x}),\ \mu_{E_j}(e)\},
+\label{eq:mamdani}
 \end{equation}
-con $\lambda=g/C$ y $X=q/(\lambda s)$, y ponderando por el flujo de cada brazo. Es la fórmula de la p.~709 del artículo original, tomada de Webster; la deducción de sus dos primeros términos está en el Sección~\ref{sec:formulas}, y el tercero es una corrección empírica de Webster.
-
-\subsection{Temporización del controlador}
-La primera intervención ocurre tras exactamente 7\,s de verde y las siguientes cada 10\,s, hasta el 47. Con $e^*=10$ en todas las intervenciones el verde efectivo es de 57\,s, como indica el artículo. En la simulación, la decisión se toma al inicio del segundo correspondiente, con las colas y los arribos de los 10\,s siguientes. La Fig.~\ref{fig:fase} resume la estructura temporal de una fase, incluido el tiempo perdido que la sigue.
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_fase.png}
-\caption{Estructura temporal de una fase verde: mínimo de 7\,s, hasta cinco intervenciones con extensiones de hasta 10\,s (verde efectivo máximo de 57\,s) y tiempo perdido de 5\,s por cambio de fase, que el simulador muestra como 3\,s de ámbar y 2\,s de rojo.}
-\label{fig:fase}
-\end{figure*}
-
-\subsection{Entradas $A$ y $Q$: dos lecturas}
-\label{sec:lecturas}
-El ejemplo de la Sección~\ref{sec:ejemplo} entrega los vectores ya calculados; el artículo no dice cómo obtener $a_e$ y $q_e$ a lo largo de una simulación. Se implementaron dos lecturas:
-\begin{itemize}
-\item \textbf{Literal:} $a_e=\beta_e=\sum_{i\le e}x_i$ (arribos acumulados) y $q_e=Q+\sum_{i\le e}x'_i$ con $Q$ la cola total del brazo en rojo (cola prevista, como en el ejemplo).
-\item \textbf{Calibrada:} 
+donde $\mu_{P_j}$ es la pertenencia del antecedente de la regla $j$. Con datos exactos, la regla composicional de inferencia (p.~710), $\mu_B(y)=\max_x\min\{\mu_R(x,y),\mu_A(x)\}$, se simplifica: una medida exacta $x_0$ es un conjunto con $\mu_A(x_0)=1$ y $\mu_A(x)=0$ en los demás puntos, de modo que para $x\ne x_0$, $\min\{\mu_R(x,y),0\}=0$ y el máximo conserva solo $x=x_0$, que vale $\mu_R(x_0,y)$. Por eso el grado de la extensión $e$ es la entrada $(t,a_e,q_e,e)$ del arreglo de las reglas (p.~713). Como $T$ y $E$ comparten etiqueta y se evalúa $t=e$, la contribución de la regla $j$ a la extensión $e$ es
 \begin{equation}
-a_e=\min\bigl(e,\ Q_G+\textstyle\sum_{i\le e}x_i\bigr),\qquad q_e=Q_V,
+\mu_{P_j}(e)=\min\{\mu_{T_j}(e),\ \mu_{mt(A_j)}(a_e),\ \mu_{lt(Q_j)}(q_e),\ \mu_{E_j}(e)\},
+\label{eq:premisa}
+\end{equation}
+donde $a_e$ y $q_e$ son los arribos y la cola evaluados para esa extensión (Sección~\ref{sec:lecturas}). El grado del algoritmo es $\gamma(e)=\max_j\mu_{P_j}(e)$ y sea $\gamma_{\max}=\max_k \gamma(k)$. La decisión no usa centroide:
+\begin{equation}
+e^*=\begin{cases}\max\{e:\ \gamma(e)=\gamma_{\max}\}, & \gamma_{\max}\ge 0.5\\ 0, & \gamma_{\max}<0.5\end{cases}
+\label{eq:decision}
+\end{equation}
+Esta ecuación reúne tres enunciados del original: se elige la extensión con el mayor grado de confianza (p.~713); si todos los grados son menores que 0.5, no se extiende y la fase cambia (p.~714); y si el máximo no es único, se toma la mayor extensión empatada (p.~714). No incorpora hipótesis adicionales. Con $e^*=0$ se cambia de fase de inmediato; si $e^*=10$ se vuelve a intervenir 10\,s después; si $0<e^*<10$ el verde termina tras $e^*$ segundos. Se llama \emph{activación} de una regla al máximo de $\mu_{P_j}(e)$ sobre $e$, y \emph{disparo} a que su contribución en $e^*$ iguale el grado máximo; un corte del verde no tiene regla que dispare.
+
+\subsection{Ejemplo trabajado del artículo original}
+\label{sec:ejemplo}
+El original ilustra la decisión con la intervención de 17\,s. Los arribos del brazo con paso son $\mathbf{x}=(0\,1\,0\,1\,1\,1\,1\,0\,0\,1)$, con acumulados $\beta=(0\,1\,1\,2\,3\,4\,5\,5\,5\,6)$; los del brazo en rojo, $\mathbf{x}'=(0\,1\,0\,0\,1\,0\,0\,1\,0\,0)$, con cola inicial $5$ y cola prevista $\beta'=(5\,6\,6\,6\,7\,7\,7\,8\,8\,8)$. Con esos vectores, el grado del algoritmo es $\gamma=(0,\,0.5,\,0,\,0.3,\,0.1,\,0.1,\,0.1,\,0.5,\,0.5,\,0.8)$, el máximo $0.8\ge0.5$ es único en $e=10$ y la extensión elegida es $e^*=10$\,s. Por ejemplo, para $e=10$ y la regla R5 ($T=E=$ very long, $A=mt(\text{many})$, $Q=lt(\text{small})$, con $\beta_{10}=6$ y $q_{10}=8$): $\mu_T(10)=1$; $\mu_{mt(many)}(6)=1-\mu_{many}(6)=0.8$; $\mu_{lt(small)}(8)=1$, pues $8<x_0=12$; $\mu_E(10)=1$; el mínimo es $0.8$, el valor que el original imprime en la última columna de su Tabla~VII (Tabla~\ref{tab:tabla7}).
+
+\input{tabla_VII}
+
+\subsection{Lectura de las entradas $A$ y $Q$}
+\label{sec:lecturas}
+El ejemplo entrega los vectores ya calculados; el original no dice cómo obtener $a_e$ y $q_e$ a lo largo de una simulación. Se implementaron dos lecturas, con parámetros explícitos en el código (\texttt{LITERAL} y \texttt{CALIBRADA} en \texttt{traffic\_model.py}):
+\begin{itemize}
+\item \textbf{Literal} (\texttt{a\_mode=arrivals}, \texttt{q\_mode=predicted}): $a_e=\beta_e=\sum_{i\le e}x_i$ (arribos acumulados) y $q_e=Q+\sum_{i\le e}x'_i$, con $Q$ la cola total del brazo en rojo (cola prevista, como en el ejemplo).
+\item \textbf{Calibrada} (\texttt{a\_mode=crossing}, \texttt{q\_mode=current}, \texttt{predicted\_q=False}):
+\begin{equation}
+a_e=\min\Bigl(e,\ Q_G+\textstyle\sum_{i\le e}x_i\Bigr),\qquad q_e=Q_V,
 \label{eq:beta}
 \end{equation}
-con $Q_G$ la cola del brazo en verde (los vehículos que realmente cruzan están limitados por 1\,veh/s) y $Q_V$ los vehículos llegados al brazo en rojo desde que empezó el verde actual.
+con $Q_G$ la cola del brazo en verde y $Q_V$ los vehículos llegados al brazo en rojo desde que empezó el verde actual. La cola se evalúa en su valor actual, no predicho: $q_e$ no depende de $e$.
 \end{itemize}
-La lectura calibrada no está respaldada por el texto del artículo: se eligió porque es la única, entre las ocho probadas (Sección~\ref{sec:auditoria}), que reproduce sus resultados. Se presenta, por tanto, como una inferencia por falta de datos. De la ecuación~\eqref{eq:beta}, el factor $\min(e,\cdot)$ se deduce de la saturación de 1\,veh/s, y la elección de $Q_V$ es empírica (Sección~\ref{sec:formulas}); ninguna de las dos partes viene del artículo original.
+La lectura calibrada no está respaldada por el texto del original: se eligió porque es la única, entre las ocho probadas (Sección~\ref{sec:auditoria}), que reproduce sus resultados, y se presenta como una inferencia por falta de datos. Del primer factor de \eqref{eq:beta}, $\min(e,\cdot)$ se deduce de la saturación de 1\,veh/s (en $e$ segundos no cruzan más de $e$ vehículos ni más de los disponibles); la elección de $q_e=Q_V$ es empírica y no se deduce.
 
-\subsection{Correcciones de transcripción y de implementación}
-La réplica se validó contra las imágenes del artículo original y no contra el texto extraído del PDF ni contra su traducción. Esa comparación detectó los errores de la Tabla~\ref{tab:correcciones}, que se corrigieron antes de obtener los resultados de este trabajo.
+% =============================================================================
+\section{Implementación y simulador}
+\label{sec:implementacion}
 
-\begin{table}[!t]
-\caption{Correcciones realizadas al contrastar con el artículo original}
-\label{tab:correcciones}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.33\columnwidth}p{0.58\columnwidth}@{}}
-\toprule
-Elemento & Corrección \\
-\midrule
-Operador \emph{mt} (Tabla~V) & Vale 0 para $x\le x_0$; antes devolvía $\mu_A$ \\
-Conjunto \emph{very long} de colas (Tabla~IV) & Pico en $q=28$ (antes 29); también \emph{lt}(very long) \\
-Reglas de 27, 37 y 47\,s & 25 reglas, cinco por intervención, leídas de la imagen (antes 24 reglas copiadas del texto extraído, que mezcla las dos columnas) \\
-Momento de intervención & Tras 7\,s de verde y máximo 57\,s (antes 8\,s y 58\,s) \\
-Último segundo del verde difuso & Se reprocesaba y contaba dos veces sus arribos (6\,\% a 12\,\% más vehículos que los generados) \\
-Verdes del ciclo fijo y Tabla~I & Verdes enteros y fórmula de Webster completa \\
-\bottomrule
-\end{tabular}
-\fuente{comparación propia entre la primera versión del código y las imágenes de las páginas del artículo original: Tablas~V y~VI (p.~712), Tabla~IV (p.~711), Apéndice (pp.~715 y~716) y estructura temporal (p.~709); verificada con \texttt{test\_paper\_tables.py}.}
-\end{table}
+El código (Python, \texttt{numpy} y \texttt{matplotlib}) contiene el modelo, el controlador, un motor paso a paso con equivalencia comprobada frente a la simulación por lotes y un simulador gráfico de ventana (Tkinter) que ejecuta las 25 reglas. La réplica se validó contra las imágenes del original y no contra el texto extraído del PDF ni contra su traducción; esa comparación detectó seis errores, corregidos antes de obtener los resultados (verificados con \texttt{test\_paper\_tables.py}): el operador \emph{mt} devolvía $\mu_A$ para $x<x_0$ (Tabla~V del original); el conjunto \emph{very long} de colas tenía su pico en $q=29$ y no en 28 (Tabla~IV); las reglas de 27, 37 y 47\,s eran 24, copiadas del texto extraído que mezcla las dos columnas, y no 25 leídas de la imagen del apéndice (pp.~715 y~716); la primera intervención ocurría a los 8\,s y el máximo era 58\,s, y no 7 y 57\,s (p.~709); el último segundo del verde difuso se reprocesaba y contaba dos veces sus arribos (6\,\% a 12\,\% más vehículos que los generados); y los verdes del ciclo fijo no eran enteros ni usaban la fórmula completa de Webster (Tabla~I).
 
-\subsection{Implementación y visualización}
-El código (Python, \texttt{numpy} y \texttt{matplotlib}) contiene el modelo, el controlador, un motor paso a paso con equivalencia comprobada frente a la simulación por lotes, y un simulador gráfico. La Fig.~\ref{fig:simulador} muestra la ventana completa durante una simulación; sus apartados se presentan por separado en las Figs.~\ref{fig:sim-calle} a~\ref{fig:sim-registro}. Todas las figuras corresponden al mismo instante (720/2160\,veh/h, semilla 1, $t=118$\,s), en el que el controlador decide extender el verde del brazo E-W en 4\,s por la regla R2 de la intervención de 47\,s.
+
+La Fig.~\ref{fig:simulador} presenta la ventana completa durante una simulación (720/2160\,veh/h, semilla 1, $t=117$\,s) con sus seis apartados rotulados; el material suplementario los muestra por separado y ampliados. \textit{(a) La calle:} vehículos azules (N-S) y naranjas (E-W) que avanzan, frenan en rojo y arrancan en verde con separación segura, y semáforos de tres luces (el ámbar y el despeje son los 5\,s de tiempo perdido y no alteran el modelo numérico). \textit{(b) El panel de reglas:} las cinco reglas de la intervención vigente con su activación y la que dispara ($\star$). \textit{(c) El vector de grados:} $\gamma(e)$ para cada extensión candidata, el umbral 0.5 y la extensión elegida. \textit{(d) Los disparos acumulados:} activaciones y decisiones de cada una de las 25 reglas. \textit{(e) La traza del retardo:} $d_m$ en el tiempo con una marca por extensión y por corte. \textit{(f) El registro de decisiones:} tiempo, brazo, segundo de verde, extensión y regla que dispara. Además se pueden apagar reglas, pausar en cada decisión, agregar vehículos a mano y guardar los disparos (CSV) y la imagen (PNG).
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=\textwidth]{fig_simulador.png}
-\caption{Captura de la ventana del simulador: barra de parámetros (flujos, duración, semilla, umbral, velocidad, reglas y modo), calle, panel de reglas de la intervención, vector de grados, disparos acumulados, retardo medio $d_m$ y, a la derecha, los botones de control y el registro de decisiones.}
+\includegraphics[width=0.66\textwidth]{fig_simulador.png}
+\caption{Ventana del simulador con sus seis apartados: (a) la calle, (b) panel de reglas de la intervención de 37\,s ($e^*=10$\,s, regla R5), (c) vector de grados con el umbral 0.5, (d) disparos acumulados de las 25 reglas, (e) traza del retardo medio $d_m$ y (f) registro de decisiones. Escenario 720/2160\,veh/h, semilla 1, $t=117$\,s.}
 \label{fig:simulador}
 \end{figure*}
 
-\subsection{Apartados del simulador}
-\label{sec:apartados}
-\textit{La calle} (Fig.~\ref{fig:sim-calle}) representa el cruce de las dos calles unidireccionales. Los vehículos azules circulan por la calle N-S y los naranjas por la E-W; avanzan, frenan en rojo y arrancan en verde, y cada brazo tiene un semáforo de tres luces. El ámbar y el despeje corresponden a los 5\,s de tiempo perdido por cambio de fase (3\,s de ámbar y 2\,s de despeje) y no alteran el modelo numérico. El encabezado indica el tiempo, el brazo en verde, las colas y el retardo medio $d_m$; el número entre paréntesis en la etiqueta de cada brazo cuenta los vehículos en cola que no caben en el dibujo, que solo muestra siete.
-
-\textit{El panel de reglas} (Fig.~\ref{fig:sim-reglas}) lista las cinco reglas de la intervención vigente, con las entradas de esa decisión (cola del brazo en rojo, cola del brazo en verde y arribos esperados) y una barra con la activación de cada regla. La regla que dispara se resalta con $\star$.
-
-\textit{El vector de grados} (Fig.~\ref{fig:sim-decision}) muestra el grado $g(e)$ de cada extensión candidata de 1 a 10\,s, la línea del umbral 0.5 y la extensión elegida en verde. Si ningún grado alcanza el umbral, el controlador corta el verde.
-
-\textit{Los disparos acumulados} (Fig.~\ref{fig:sim-disparos}) muestran, para cada una de las 25 reglas, cuántas veces se activó (barra clara) y cuántas veces decidió (barra oscura).
-
-\textit{La traza del retardo} (Fig.~\ref{fig:sim-traza}) registra $d_m$ en el tiempo, con una marca por cada extensión y por cada corte. Por último, \textit{el registro de decisiones} (Fig.~\ref{fig:sim-registro}) resume cada decisión en una línea: el tiempo, el brazo, el segundo de verde, la extensión elegida y la regla que dispara. La ventana permite además guardar los disparos en un archivo CSV y la imagen en PNG.
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_sim_calle.png}
-\caption{La calle: cruce con vehículos en movimiento (azul: N-S; naranja: E-W), semáforos de tres luces, colas y encabezado con el tiempo y $d_m$.}
-\label{fig:sim-calle}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_sim_reglas.png}
-\caption{Panel de reglas de la intervención de 47\,s: entradas de la decisión, activación de cada regla y regla que dispara ($\star$, R2).}
-\label{fig:sim-reglas}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_sim_decision.png}
-\caption{Vector de grados $g(e)$ de las extensiones candidatas, umbral 0.5 y extensión elegida ($e^*=4$\,s, grado 0.50).}
-\label{fig:sim-decision}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.62\textwidth]{fig_sim_disparos.png}
-\caption{Disparos acumulados (barra oscura) y activaciones (barra clara) de las 25 reglas, agrupadas por intervención, hasta $t=118$\,s.}
-\label{fig:sim-disparos}
-\end{figure*}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.9\textwidth]{fig_sim_traza.png}
-\caption{Traza del retardo medio $d_m$ en el tiempo. Los triángulos verdes marcan las extensiones del verde y los cuadrados rojos, los cortes.}
-\label{fig:sim-traza}
-\end{figure*}
-
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{fig_sim_registro.png}
-\caption{Registro de decisiones del simulador: tiempo, brazo en verde, segundo de verde, extensión elegida y regla que dispara.}
-\label{fig:sim-registro}
-\end{figure}
-
 % =============================================================================
-\section{Metodología de validación}
+\section{Metodología experimental}
 \label{sec:metodologia}
 
 \subsection{Verificación contra lo impreso}
-Un conjunto de 42 comprobaciones automáticas compara el código con los valores impresos en el artículo: los conjuntos de las Tablas~II a~IV, los operadores de las Tablas~V y~VI, las 25 reglas, cada fila de la Tabla~VII del ejemplo, la regla de empate y de umbral, y la estructura temporal (intervenciones a 7, 17, 27, 37 y 47\,s, verde máximo de 57\,s). Otras comprobaciones verifican que el motor paso a paso devuelve el mismo $d_m$ que la simulación por lotes, y que lo mostrado en el panel de reglas (activaciones, regla que dispara, extensión elegida) coincide con lo calculado por el controlador.
+Un conjunto de comprobaciones automáticas compara el código con los valores impresos en el original: los conjuntos de las Tablas~II a~IV, los operadores de las Tablas~V y~VI, las 25 reglas, cada fila de la Tabla~VII del ejemplo, la regla de empate y de umbral, y la estructura temporal (intervenciones a 7, 17, 27, 37 y 47\,s, verde máximo de 57\,s). Otras comprueban que el motor paso a paso devuelve el mismo $d_m$ que la simulación por lotes, que lo mostrado en el panel de reglas coincide con lo calculado por el controlador, que los parámetros de las lecturas son explícitos y que cada deducción de las Secciones~\ref{sec:modelo} y~\ref{sec:controlador} coincide con un cálculo numérico independiente (Sección~\ref{sec:verif-formulas}). Todo se ejecuta con \texttt{python codigo/ejecutar\_pruebas.py}.
 
-\subsection{Protocolo estadístico}
-Cada combinación de caudal se simula durante 7200\,s, como en el artículo, con 20 réplicas independientes y semilla base 0; el controlador difuso usa semillas distintas de las del ciclo fijo. Las 16 combinaciones son las de las Tablas~I y~VIII. El artículo solo indica «muchas corridas»; el número de réplicas es, por tanto, una decisión de la réplica. Para cada celda se calcula el intervalo de confianza (IC) al 95\,\% de la media con la distribución $t$ de Student ($n=20$). La mejora del difuso sobre el ciclo fijo se contrasta con la prueba de Welch, porque ambos controladores no comparten llegadas; el sesgo entre la réplica y lo publicado se resume con la media de los errores relativos de las 16 celdas, su IC 95\,\%, una prueba $t$ de una muestra y una prueba de signos exacta. Como el artículo publica solo una cifra por celda, sin dispersión, la condición «el valor publicado cae dentro del IC de la réplica» es exigente y se usa como una medida adicional, no como criterio de aceptación.
+\subsection{Protocolo de simulación y estadístico}
+\label{sec:protocolo}
+Cada combinación de caudal se simula durante 7200\,s, como en el original, con $n_r=20$ réplicas y \emph{números aleatorios comunes} (CRN) \cite{Law2015}: la réplica $k=0,\dots,19$ usa la semilla $k$ para todos los controladores, de modo que comparten las mismas llegadas y las diferencias se analizan como pares. Las 16 combinaciones son las de las Tablas~I y~VIII del original, que solo indica «muchas corridas»; el número de réplicas es una decisión de la réplica, y todas las tablas experimentales de la Sección~\ref{sec:resultados} usan este protocolo. Se reporta la desviación estándar muestral (divisor $n_r-1$) y el intervalo de confianza (IC) al 95\,\% de la media con la distribución $t$ de Student. Las comparaciones entre controladores usan la prueba de rangos con signo de Wilcoxon pareada \cite{Wilcoxon1945}, exacta, con corrección de Holm \cite{Holm1979} para las 16 comparaciones por flujo (con $n_r=20$ pares el valor $p$ mínimo es $2/2^{20}\approx1.9\times10^{-6}$, muy inferior al umbral $0.05/16$); la comparación de más de dos variantes usa la prueba de Friedman \cite{Friedman1937}; y el sesgo respecto de lo publicado se resume con la media de los errores relativos de las 16 celdas, su IC 95\,\% y una prueba de signos exacta. Como el original publica una cifra por celda sin dispersión, que el valor publicado caiga dentro del IC de la réplica es una medida exigente y adicional, no un criterio de aceptación.
 
-\subsection{Métricas}
-Para cada tabla se reportan el error relativo de cada celda, su media y su máximo, y para el controlador difuso el número de combinaciones en que mejora a la línea base (el artículo reporta 16 de 16). La mejora porcentual se calcula respecto del ciclo fijo simulado.
+\subsection{Comparadores adicionales}
+\label{sec:comparadores}
+El original compara el controlador difuso con un ciclo fijo óptimo, equivalente a su «actuado eficaz». Para situarlo frente a alternativas de lazo cerrado se evalúan, bajo el mismo protocolo, tres comparadores que \emph{no} son del original: (i) un \emph{controlador actuado por detector} de extensión por hueco (verde mínimo 7\,s, máximo 57\,s, hueco de 3\,s, con el mismo tiempo perdido y los mismos límites que el difuso); (ii) una \emph{variante con defuzzificación por centroide} de las mismas 25 reglas, con la extensión $e^*=\mathrm{round}\bigl(\sum_k k\,\gamma(k)/\sum_k \gamma(k)\bigr)$ si $\gamma_{\max}\ge0.5$; y (iii) el ciclo fijo con verdes \emph{sin redondear} (reparto en enteros cuyo promedio es exactamente $g_i$), para aislar el efecto del redondeo de \eqref{eq:webster}. Una variante de Takagi y Sugeno \cite{TakagiSugeno1985} no se implementó: exigiría definir consecuentes funcionales que el original no da, de modo que ya no sería una réplica.
 
-\subsection{Auditoría de las lecturas de $A$ y $Q$}
+\subsection{Entorno, aleatoriedad y costo computacional}
+\label{sec:entorno}
+Los resultados oficiales se generaron con Python 3.13.16 (CPython) y NumPy 2.5.3 \cite{Harris2020}, sobre Linux 6.18 con una CPU Intel Xeon de 2.10\,GHz y 4 núcleos. El generador es PCG64 \cite{ONeill2014} (\texttt{numpy.random.default\_rng}); la llegada en el segundo $n$ es \texttt{rng.random(N) < tasa}. Con CRN, la semilla de la réplica $k$ es $k$ para todos los controladores (versiones anteriores del código usaban $100000+k$ para el difuso, lo que impedía el apareamiento). Una simulación de 7200\,s tarda 0.18\,s con el difuso, 0.0037\,s con el actuado y 0.0030\,s con el ciclo fijo; cada decisión, 0.31\,ms. La complejidad por decisión es $O(R\cdot|E|)=O(5\times10)=O(1)$, con $R=5$ reglas por intervención y $|E|=10$ extensiones candidatas. Las versiones y los parámetros se guardan en \texttt{resultados/entorno.json}, y las versiones exactas, en \texttt{requirements-resultados.txt}.
+
+\subsection{Auditoría de las lecturas y pruebas complementarias}
 \label{sec:auditoria-met}
-Con las reglas fijas se probaron las ocho combinaciones de: arribos (acumulados o cruces limitados por la saturación), valor en que se evalúa $Q$ (cola predicha o actual) y definición de la cola (total, o llegados desde el inicio del verde), y se midió el error frente a la Tabla~VIII (10 réplicas de 7200\,s).
-
-\subsection{Pruebas complementarias}
-Dos experimentos adicionales aportan evidencia sobre el modelo, sin modificar la réplica: la comparación entre llegadas aleatorias y llegadas fijas (un vehículo cada $1/\lambda$ segundos con desfase aleatorio), y un experimento exploratorio de reducción de reglas que conserva las reglas del artículo y quita algunas (Sección~\ref{sec:reglas-disparos}).
+Con las reglas fijas se probaron las ocho combinaciones de: arribos (acumulados o cruces limitados por la saturación), valor en que se evalúa $Q$ (cola predicha o actual) y definición de la cola (total, o llegados desde el inicio del verde), y se midió el error frente a la Tabla~VIII del original. Dos experimentos adicionales usan el mismo protocolo: la comparación entre llegadas aleatorias y fijas (un vehículo cada $1/\qbar$ segundos con desfase aleatorio), y un análisis de reducción de reglas que conserva reglas del original y quita otras.
 
 % =============================================================================
 \section{Resultados}
 \label{sec:resultados}
 
-\subsection{Fuzzificación}
-La Fig.~\ref{fig:validacion} superpone los valores impresos en el artículo sobre las curvas del código para las Tablas~II, IV, V y~VI. La diferencia máxima es 0.000 en los cuatro paneles: los conjuntos y los operadores \emph{mt} y \emph{lt} del código son exactamente los del artículo.
+\subsection{Verificación: fuzzificación, operadores y ejemplo}
+Los conjuntos y los operadores \emph{mt} y \emph{lt} del código coinciden con los impresos en las Tablas~II, IV, V y~VI del original: la diferencia máxima es 0.000 en los cuatro (la figura superpuesta está en el material suplementario). Con las entradas del ejemplo, el controlador reproduce cada fila de la Tabla~VII (las cinco reglas y la fila final) y selecciona $e^*=10$\,s (Tabla~\ref{tab:tabla7}). Cada deducción se compara con un cálculo independiente (Sección~\ref{sec:verif-formulas}).
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_validacion_curvas.png}
-\caption{Validación de la fuzzificación: curvas del código (líneas) y valores impresos en el artículo original ($\times$). Los marcadores coinciden con las curvas en todos los puntos.}
-\label{fig:validacion}
-\end{figure*}
-
-\subsection{Ejemplo trabajado}
-Con las entradas del ejemplo, el controlador reproduce cada fila de la Tabla~VII del artículo (las cinco reglas y la fila final) y selecciona $e^*=10$\,s (Fig.~\ref{fig:tabla7}). Las comprobaciones se hicieron con la lectura del ejemplo (arribos acumulados y cola prevista).
-
-\subsection{Tabla I: validación del modelo}
-La simulación de ciclo fijo reproduce la columna «Model» con un error relativo medio de 2.1\,\% y la fórmula de Webster reproduce la columna «Formula» con 0.8\,\% (Tabla~\ref{tab:tablaI}). La mayor desviación, $-7.9$\,\% en 360/2160, se debe a que el verde de 8.1\,s se redondea a 8\,s. Las Tablas~I y~VIII del artículo se comparan en la Fig.~\ref{fig:dispersion}.
+\subsection{Tabla I del original: validación del modelo y ajustes de Webster}
+\label{sec:webster-res}
+La simulación de ciclo fijo reproduce la columna «Model» con un error relativo medio de 2.1\,\% y la fórmula \eqref{eq:retardo-webster} reproduce la columna «Formula» con 0.8\,\% (Tabla~\ref{tab:tablaI}); la mayor desviación es $-7.9$\,\% en 360/2160. Con redondeo al entero más próximo, $C_{\mathrm{ef}}$ difiere de $C_0$ en 7 de los 16 flujos (por ejemplo, $25.0$\,s pasa a $26$\,s en 360/360, y $100.0$\,s a $101$\,s en 720/2160). El redondeo \emph{no} explica la desviación de 360/2160: con verdes sin redondear el retardo es 11.06\,s (frente a 11.33\,s), aún más lejano de los 12.3\,s publicados, y las diferencias entre ambas versiones son significativas solo en 2 de 16 flujos (360/1800, $+1.4$\,\%, y 360/2520, $-6.2$\,\%); la media de los 16 flujos pasa de 13.76 a 13.68\,s. En 360/2160 el sistema opera cerca de la saturación y el IC de la réplica es ancho ($\pm0.62$\,s), mientras el original publica una sola corrida.
 
 \input{tabla_I}
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{fig_dispersion.png}
-\caption{Réplica frente al artículo original (la diagonal es la coincidencia exacta; la banda es $\pm 10$\,\%): (a) Tabla~I; (b) Tabla~VIII con la lectura calibrada; (c) Tabla~VIII con la lectura literal, en escala logarítmica.}
-\label{fig:dispersion}
-\end{figure*}
-
-\subsection{Tabla VIII: controlador difuso frente al ciclo fijo}
-Con la lectura calibrada, el controlador difuso mejora al ciclo fijo en las 16 combinaciones, con mejoras entre 14\,\% y 30\,\% (el artículo imprime entre +10\,\% y +21\,\%; recalculadas con los retardos impresos, entre 9.7\,\% y 23.7\,\%, pues en la celda 720/720 imprime +21\,\% y sus retardos de 9.7 y 7.4\,s dan 23.7\,\%). El error relativo frente a los retardos publicados es 9.3\,\% en promedio y 19.8\,\% como máximo; en los caudales altos (1080/1800 y 1440/1440) la diferencia es de $\pm$2\,\%, mientras que en caudales medios el difuso simulado queda entre 10\,\% y 20\,\% por debajo del publicado (Tabla~\ref{tab:tabla8} y Fig.~\ref{fig:tabla8}). Con la lectura literal, solo 5 de 16 combinaciones mejoran al ciclo fijo y el sistema se satura desde 360/1440; en 1440/1440 el retardo supera 600\,s.
+\subsection{Tabla VIII del original: controlador difuso, ciclo fijo y comparadores}
+\label{sec:tabla8}
+Con la lectura calibrada, el controlador difuso mejora al ciclo fijo en las 16 combinaciones, con mejoras entre 12.5\,\% y 29.8\,\% (el original imprime entre +10\,\% y +21\,\%; recalculadas con los retardos impresos, entre 9.7\,\% y 23.7\,\%, pues en 720/720 imprime +21\,\% y sus retardos de 9.7 y 7.4\,s dan 23.7\,\%). La mejora es significativa en las 16 combinaciones (Wilcoxon exacto pareado con Holm, $p\le3.1\times10^{-5}$) y se da en las 20 réplicas en 15 de ellas. El error relativo frente a los retardos publicados es 9.2\,\% en promedio y 18.6\,\% como máximo; en los caudales altos (1080/1800 y 1440/1440) la diferencia es de $+3.4$\,\% y $+1.2$\,\%, mientras que en caudales medios el difuso simulado queda hasta 18.6\,\% por debajo del publicado (Tabla~\ref{tab:tabla8}; el diagrama de dispersión réplica--original está en el material suplementario). Con la lectura literal solo 5 de 16 combinaciones mejoran al ciclo fijo y el sistema se satura desde 360/1440.
 
 \input{tabla_VIII}
 
-La Fig.~\ref{fig:mejora} compara la mejora porcentual sobre el ciclo fijo. La mejora de la réplica es mayor que la publicada en los caudales medios, y de orden comparable en los altos.
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{fig_mejora.png}
-\caption{Mejora porcentual del controlador difuso sobre el ciclo fijo, en la réplica y en el artículo original. Fuente: la mejora del artículo se recalcula como (fijo $-$ difuso)/fijo con los retardos impresos en su Tabla~VIII (p.~715).}
-\label{fig:mejora}
-\end{figure}
-
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=0.92\textwidth]{fig_tabla8.png}
-\caption{Retardo medio de la réplica y del artículo original en las 16 combinaciones de caudal.}
-\label{fig:tabla8}
-\end{figure*}
+\emph{Comparación con el actuado.} Frente al controlador actuado por detector (Tabla~\ref{tab:tabla8}, últimas columnas), el difuso es significativamente mejor en 10 flujos (de 5.6\,\% a 22.2\,\% menos retardo, con caudales bajos y medios), indistinguible en 1 (360/2520) y significativamente peor en 5 (de 3.2\,\% a 29.4\,\% más retardo, con caudales altos: 720/1800, 720/2160, 1080/1440, 1080/1800 y 1440/1440). La media de los 16 flujos es 10.93\,s para el difuso y 10.88\,s para el actuado (Wilcoxon sobre flujos, $p=0.50$): en promedio son indistinguibles, y la ventaja sobre el ciclo fijo no se traslada a un controlador de lazo cerrado simple con caudales altos. Esto no contradice al original, cuyo «actuado» es el ciclo fijo óptimo de su Tabla~I. La variante con \emph{centroide} es inestable (retardo medio 230.9\,s; solo 6 de 16 flujos mejoran al ciclo fijo): la defuzzificación por máximo con umbral no es un detalle intercambiable del método.
 
 \subsection{Incertidumbre estadística y sesgo}
 \label{sec:estadistica}
-La Tabla~\ref{tab:estadistica} y la Fig.~\ref{fig:incertidumbre} añaden los intervalos de confianza de cada celda. Tres resultados se desprenden de ellas.
-
-\textit{Primero}, la mejora del difuso sobre el ciclo fijo es estadísticamente clara: la prueba de Welch da $p<0.001$ en las 16 combinaciones. Este es el resultado cualitativo central del artículo original y se reproduce sin ambigüedad.
-
-\textit{Segundo}, el ciclo fijo se reproduce con un sesgo pequeño: el error medio respecto de lo publicado es $-1.6$\,\% (IC 95\,\% de $-2.8$ a $-0.3$), y el valor publicado cae dentro del IC de la réplica en 6 de 16 celdas. El sesgo es estadísticamente distinto de cero (prueba de signos, $p=0.02$), pero su magnitud es mucho menor que la diferencia entre controladores.
-
-\textit{Tercero}, el controlador difuso muestra un sesgo mayor y sistemático: el error medio es $-8.8$\,\% (IC 95\,\% de $-12.3$ a $-5.4$; 14 de 16 celdas negativas, prueba de signos $p=0.004$), y el valor publicado cae dentro del IC solo en 3 de 16 celdas (360/360, 1080/1800 y 1440/1440). En consecuencia, el controlador de esta réplica produce retardos algo menores que los publicados, y su mejora sobre el ciclo fijo (14\,\% a 30\,\%) es mayor que la publicada (10\,\% a 21\,\% impresa). La réplica de la mejora cualitativa es sólida; la réplica de la magnitud, no. Una posible causa es el punto abierto de la Sección~\ref{sec:lecturas}: el modo de medir $A$ y $Q$ no está especificado, y la lectura elegida reproduce la tendencia pero no el nivel exacto. Esta interpretación es una hipótesis y no se probó con datos adicionales.
+La Fig.~\ref{fig:incertidumbre} muestra el error relativo de cada celda con su IC. El ciclo fijo se reproduce con un sesgo pequeño: $-1.6$\,\% de error medio respecto de lo publicado (IC 95\,\% de $-2.8$ a $-0.3$; 13 de 16 celdas negativas, prueba de signos $p=0.021$), con el valor publicado dentro del IC en 6 de 16 celdas. El difuso muestra un sesgo mayor y sistemático: $-8.6$\,\% (IC 95\,\% de $-12.0$ a $-5.3$; 14 de 16 negativas, $p=0.004$), con el valor publicado dentro del IC solo en 2 de 16. El controlador de esta réplica produce, pues, retardos algo menores que los publicados y una mejora sobre el ciclo fijo (12.5\,\% a 29.8\,\%) mayor que la impresa: la mejora cualitativa se reproduce de forma sólida; la magnitud, no. Una posible causa es el modo de medir $A$ y $Q$ (Sección~\ref{sec:lecturas}); es una hipótesis no probada con datos adicionales.
 
 \begin{figure}[!t]
 \centering
-\includegraphics[width=\columnwidth]{fig_incertidumbre.png}
-\caption{Error relativo (réplica $-$ publicado) con IC 95\,\% en cada caudal, para el ciclo fijo y el controlador difuso. Las líneas punteadas son el sesgo medio de cada serie.}
+\includegraphics[width=0.88\columnwidth]{fig_incertidumbre.png}
+\caption{Error relativo (réplica $-$ publicado) con IC 95\,\% en cada caudal, para el ciclo fijo y el controlador difuso. Las líneas punteadas son el sesgo medio de cada serie. Fuente: \texttt{analisis\_estadistico.py}.}
 \label{fig:incertidumbre}
 \end{figure}
 
-\input{tabla_estadistica}
-
 \subsection{Auditoría de las lecturas}
 \label{sec:auditoria}
-La Tabla~\ref{tab:auditoria} y la Fig.~\ref{fig:auditoria} muestran el resultado de las ocho lecturas. Solo una, la calibrada, reproduce la Tabla~VIII en todo el rango (error medio 9.3\,\%, máximo 19.3\,\% con 10 réplicas); las otras siete tienen un error medio superior a 175\,\% y empeoran sobre todo con caudales altos. La razón es estructural: con la cola total real del brazo en rojo, las reglas de 7, 17 y 27\,s solo extienden si esa cola es de unos 5 vehículos o menos (\emph{lt}(very small)); en cuanto el flujo sube se corta el verde hacia los 9\,s, la capacidad no alcanza y el sistema se satura. La lectura calibrada es sensible: contar la cola completa, o los dos vehículos que llegan durante el tiempo perdido, la vuelve inestable.
+La Tabla~\ref{tab:auditoria} muestra el resultado de las ocho lecturas con $n_r=20$ y CRN. Solo la calibrada reproduce la Tabla~VIII del original en todo el rango (error medio $9.2\pm1.5$\,\%, máximo 19\,\%); las otras siete tienen un error medio entre 178\,\% y 641\,\% y empeoran con caudales altos. La razón es estructural: con la cola total real del brazo en rojo, las reglas de 7, 17 y 27\,s solo extienden si esa cola es de unos 5 vehículos o menos (\emph{lt}(very small)); en cuanto el flujo sube se corta el verde hacia los 9\,s, la capacidad no alcanza y el sistema se satura. La lectura calibrada es sensible: contar la cola completa, o los dos vehículos que llegan durante el tiempo perdido, la vuelve inestable.
 
 \input{tabla_auditoria}
 
-\begin{figure}[!t]
-\centering
-\includegraphics[width=\columnwidth]{fig_auditoria.png}
-\caption{Error medio de cada lectura de $A$ y $Q$ frente a la Tabla~VIII (escala logarítmica). En verde la lectura calibrada y en rojo la literal.}
-\label{fig:auditoria}
-\end{figure}
 
 \subsection{Llegadas aleatorias frente a llegadas fijas}
-El artículo describe llegadas aleatorias en cada segundo; una entrada fija de 1\,veh/s por brazo equivaldría a 3600\,veh/h, mientras que sus tablas usan entre 360 y 2520\,veh/h. Se comprobó además la alternativa de llegadas fijas (Tabla~\ref{tab:llegadas}): con ellas el ciclo fijo queda sistemáticamente por debajo de la Tabla~I (error medio de 10.4\,\% frente a 2.0\,\% con llegadas aleatorias). La Tabla~VIII no distingue entre ambos modelos. La Tabla~I respalda, por tanto, las llegadas aleatorias.
+Con llegadas fijas el ciclo fijo queda sistemáticamente por debajo de la Tabla~I del original (error medio de $10.3\pm0.8$\,\% frente a $2.1\pm2.0$\,\% con llegadas aleatorias; Wilcoxon, $p<0.001$), mientras que la Tabla~VIII no distingue entre ambos modelos ($p=0.94$; Tabla~\ref{tab:llegadas}). La Tabla~I respalda las llegadas aleatorias.
 
 \input{tabla_llegadas}
 
-\subsection{Reglas usadas y disparos en la simulación}
+\subsection{Reglas que disparan}
 \label{sec:reglas-disparos}
-La Fig.~\ref{fig:disparos} muestra qué reglas deciden en una simulación de 1800\,s con 720/2160\,veh/h y lectura calibrada. De las 148 decisiones, 11 fueron cortes del verde y 137 extensiones; en 114 de estas últimas la regla que dispara es la de extensión muy larga (R5 de cada intervención), y la extensión elegida es de 10\,s. Las reglas intermedias se activan con frecuencia pero casi nunca deciden.
+La Fig.~\ref{fig:disparos} y la Tabla~\ref{tab:disparos} agregan activaciones y disparos sobre 20 réplicas de 7200\,s en cuatro regímenes (simétrico bajo 360/360, medio 720/720, asimétrico 720/2160 y pesado 1440/1440). La regla que decide depende del régimen: con tráfico bajo hay sobre todo cortes (80.5\,\% en 360/360) y, al extender, decide R1 (71.5\,\% de las extensiones); con tráfico alto los cortes son solo 6\,\% y decide R5 en 80.6\,\% (720/2160) y 71.9\,\% (1440/1440) de las extensiones. Las reglas intermedias (R2 a R4) se activan con frecuencia pero casi nunca deciden, salvo en 720/720, donde suman 47.8\,\%: las cinco reglas de cada intervención solapan sus conclusiones y se decide por el máximo, de modo que una regla activa no implica una regla que dispara.
 
-\begin{figure*}[!t]
+\input{tabla_disparos}
+
+\begin{figure}[!t]
 \centering
-\includegraphics[width=0.92\textwidth]{fig_disparos.png}
-\caption{Reglas usadas en una simulación (720/2160\,veh/h, 1800\,s, lectura calibrada): (a) activaciones y disparos de cada una de las 25 reglas; (b) distribución de la extensión elegida.}
+\includegraphics[width=\columnwidth]{fig_disparos.png}
+\caption{Regla que dispara (R1 a R5, de cualquier intervención) como porcentaje de las extensiones, en cuatro regímenes de tráfico; media $\pm$ desviación estándar de 20 réplicas de 7200\,s. Los cortes y las extensiones máximas están en la Tabla~\ref{tab:disparos}.}
 \label{fig:disparos}
-\end{figure*}
+\end{figure}
 
-Para estimar cuántas reglas son necesarias se realizó un experimento exploratorio que conserva las reglas del artículo y quita algunas (Tabla~\ref{tab:ablacion}). Conservar solo las reglas extremas (10 reglas) o tres por intervención (15) da el mismo retardo medio que las 25, dentro del ruido de 10 réplicas; usar una sola base para todas las intervenciones lo empeora claramente, lo que muestra que importa que haya una base por intervención; y conservar solo la regla de extensión más corta colapsa el sistema. El experimento se hizo con una única lectura de las entradas y pocas réplicas, por lo que no demuestra que 10 reglas sean mejores en general.
+\subsection{Reducción de reglas}
+\label{sec:ablacion}
+La Tabla~\ref{tab:ablacion} compara las 25 reglas con subconjuntos que conservan reglas del original. La prueba de Friedman entre las seis variantes es significativa ($\chi^2_5=93.5$, $p<0.001$) y \emph{todos} los subconjuntos reducidos son significativamente peores que las 25 reglas (Wilcoxon pareado con Holm, $p<0.001$). El costo es de $+1.6$\,\% con 15 reglas (very short, medium y very long de cada intervención), $+4.1$\,\% con las 10 extremas y $+4.8$\,\% sin la regla very short; una sola base para las cinco intervenciones lo empeora claramente ($+55.3$\,\%) y conservar solo la regla más corta colapsa el sistema ($+3118$\,\%). Con $n_r=20$ y CRN no se sostiene que 10 o 15 reglas den «el mismo retardo» que las 25: son peores, aunque con pérdida pequeña, y el resultado depende de una sola lectura de las entradas.
 
 \input{tabla_ablacion}
 
-\subsection{Desglose por intervención}
-La Tabla~\ref{tab:intervenciones} separa las decisiones según el instante de intervención. Las decisiones disminuyen de 49 en la intervención de 7\,s a 17 en la de 47\,s, porque un verde solo llega a una intervención tardía si las anteriores lo extendieron. En todas las intervenciones, la extensión máxima de 10\,s coincide con el disparo de la regla R5: 114 de 114 casos. Los cortes del verde ($e^*=0$) son 11 y aparecen sobre todo en las primeras intervenciones; la tabla no permite atribuirlos a una causa concreta.
+\subsection{Efecto de borde del horizonte}
+\label{sec:borde}
+Los vehículos que siguen en cola en $t=H=7200$\,s no aportan retardo (Sección~\ref{ap:colas}). Sumar su espera residual $\Delta D$ aumenta $d_m$ en promedio 0.28\,\% (máximo 0.87\,\%) en el ciclo fijo y 0.17\,\% (máximo 0.33\,\%) en el difuso calibrado: es despreciable sin saturación. Con la lectura literal, que satura el sistema, el aumento promedio es 8.1\,\% y llega a 51.8\,\%, por lo que los retardos reportados para esa lectura son una cota inferior. El detalle por flujo, con y sin $\Delta D$, está en el material suplementario y en \texttt{resultados/efecto\_borde.json}.
 
-La activación media de las reglas intermedias (R2--R4) es comparable a la de R5 en la intervención de 7\,s (entre 0.65 y 0.76), pero estas reglas casi no deciden porque el grado de la extensión de 10\,s es mayor en la mayoría de los casos. Esto es coherente con el diseño del artículo: las cinco reglas de cada intervención solapan sus conclusiones y la decisión se toma por el máximo de grado, de modo que una regla activa no implica una regla que dispara. En la intervención de 47\,s la regla R4 se activa en solo 7 de 17 decisiones, lo que indica que la combinación de antecedentes que la define es rara en este régimen de tráfico.
-
-\input{tabla_intervenciones}
+\subsection{Verificación numérica de las deducciones}
+\label{sec:verif-formulas}
+Cada deducción se contrastó con un cálculo independiente (tabla S2 del material suplementario): la suma de colas coincide exactamente con la suma de las esperas individuales (1000 escenarios) y con el simulador una vez sumado el residual; los dos primeros términos de Webster coinciden con un modelo fluido (error de 0.013\,\%) y con una cola M/D/1 simulada (0.9\,\%); el reparto de verdes iguala los grados de saturación; el retardo en $C_0$ excede al mínimo numérico en 4.0\,\% como máximo, de modo que $C_0$ aproxima el óptimo sin ser exacto; $mt$ y $lt$ cumplen sus propiedades en los 234 puntos de los 12 conjuntos de las Tablas III y IV, incluido $x_0$; y los conteos son exactos.
 
 \subsection{Amenazas a la validez}
-\textit{Validez interna.} Las cifras de esta sección provienen de una sola semilla y de 1800\,s simulados, por lo que describen un régimen y no una distribución; sirven para mostrar el mecanismo de disparo y no para estimar frecuencias poblacionales. \textit{Validez de construcción.} La lectura calibrada de $A$ y $Q$ es una inferencia por falta de datos; con la lectura literal las frecuencias de disparo serían distintas. \textit{Validez externa.} Los resultados corresponden a una intersección aislada de dos fases con saturación de 1\,veh/s, igual que el artículo original, y no deben extrapolarse a redes ni a flujos con giros.
+\textit{Validez interna.} Las cifras provienen de 20 réplicas con CRN; los horizontes de 7200\,s pueden dejar vehículos en cola (Sección~\ref{sec:borde}). \textit{Construcción.} La lectura calibrada de $A$ y $Q$ es una inferencia, y las frecuencias de disparo y la reducción de reglas dependen de ella. \textit{Externa.} Los resultados valen para una intersección aislada de dos fases con llegadas de Bernoulli, no para redes, giros ni tráfico mixto; los parámetros de los comparadores no se optimizaron.
 
 % =============================================================================
 \section{Discusión}
 \label{sec:discusion}
 
 \subsection{Qué se reproduce y qué se infiere}
-Todo lo que el artículo especifica se reproduce exactamente o dentro de la variabilidad estadística: conjuntos, operadores, reglas, ejemplo, tiempos, modelo y Tabla~I. La conclusión cualitativa de la Tabla~VIII (el difuso supera al ciclo fijo en todas las combinaciones, con mejoras de un orden comparable) también se reproduce, pero solo con una lectura de las entradas que no está en el texto. Esa lectura es, por tanto, una inferencia por falta de datos, y los resultados de la Tabla~VIII deben leerse con esa salvedad.
-
-\subsection{Información ausente en el artículo}
-La Tabla~\ref{tab:ausente} reúne los datos que el artículo no contiene y la decisión adoptada en la réplica.
+Todo lo que el original especifica se reproduce exactamente o dentro de la variabilidad estadística: conjuntos, operadores, reglas, ejemplo, tiempos, modelo y Tabla~I. La conclusión cualitativa de la Tabla~VIII (el difuso supera al ciclo fijo en todas las combinaciones) también se reproduce, pero solo con una lectura de las entradas que no está en el texto: una inferencia por falta de datos. Contra un actuado por detector la ventaja desaparece con caudales altos, lo que acota la afirmación del original a su propia línea base. Niittymäki y Pursula \cite{Niittymaki2000} describen la tendencia contraria para su actuado tradicional (bueno con volúmenes muy bajos, débil por sus ciclos largos con volúmenes altos); una posible razón es que el actuado de este trabajo (hueco de 3\,s, máximo de 57\,s) no reproduce los detectores ni los ajustes de aquel, que no se calibraron. La Tabla~\ref{tab:ausente} reúne los datos que el original no contiene y la decisión adoptada.
 
 \begin{table*}[!t]
 \caption{Información que el artículo original no contiene y decisión adoptada en la réplica}
@@ -733,73 +474,46 @@ La Tabla~\ref{tab:ausente} reúne los datos que el artículo no contiene y la de
 Dato ausente & Qué dice el artículo & Decisión en la réplica \\
 \midrule
 Cálculo de $A$ y $Q$ en cada intervención & El ejemplo da vectores ya calculados ($\beta$ y $\beta'$) & Dos lecturas; la calibrada se infiere por reproducir la Tabla~VIII (inferencia) \\
-Velocidades y distancia de los detectores & Cada vehículo se registra con $N=l/v-1.5$\,s sin dar $l$ ni $v$ & No se modela; los arribos por segundo son los cruces del punto crítico (suposición) \\
+Detectores (velocidades y distancias) & Cada vehículo se registra con $N=l/v-1.5$\,s sin dar $l$ ni $v$ & No se modela; los arribos por segundo son los cruces del punto crítico (suposición) \\
 Valores fuera de los universos & Colas de 4 a 32 y arribos de 1 a 10 & $\mu_{lt}(q)=1$ para $q<4$; $\mu_{mt}(0)=0$ (suposición) \\
-Réplicas, semillas y generador aleatorio & «Muchas corridas»; 7200\,s; computador ICL-1900 & 20 réplicas de 7200\,s, semilla base 0 \\
-Condiciones iniciales & No se mencionan & Colas vacías, empieza la fase N--S, sin calentamiento \\
-Reparto del tiempo perdido & 10\,s por ciclo; ámbar de 3\,s con verde efectivo hasta su mitad & 5\,s sin descarga por cambio de fase; sus arribos se acumulan \\
+Réplicas, semillas y generador & «Muchas corridas»; 7200\,s; computador ICL-1900 & 20 réplicas de 7200\,s, semillas $0,\dots,19$, PCG64 \\
+Condiciones iniciales y tiempo perdido & No se mencionan; 10\,s por ciclo, ámbar de 3\,s & Colas vacías, empieza N--S, sin calentamiento; 5\,s sin descarga por cambio de fase con arribos acumulados \\
+Cola al final del horizonte & No se menciona & No se suma el retardo residual; efecto $\le0.9$\,\% (Sección~\ref{sec:borde}) \\
 \bottomrule
 \end{tabular}
 \fuente{revisión propia del texto del artículo original (pp.~707 a~717); la columna central cita lo que el artículo dice y la derecha, la decisión tomada en este trabajo.}
 \end{table*}
 
 \subsection{Tamaño de la base de reglas}
-Al combinar todas las etiquetas de las tres entradas se obtienen $5\times6\times6=180$ combinaciones de antecedentes por intervención (900 para las cinco; es el producto del número de etiquetas de las Tablas~II a~IV, p.~711), que se listan completas en el Apéndice~\ref{app:180}. Las 25 reglas del artículo ocupan solo 19 de esas 180 combinaciones; las otras 161 no tienen regla propia. El artículo utiliza 25 reglas, por varias razones: cada regla establece qué se exige para una etiqueta de salida; los operadores \emph{mt} y \emph{lt} hacen que una regla cubra una región completa del espacio de entradas («al menos \emph{many}», «menos que \emph{small}»), de modo que la rejilla completa sería muy redundante; el tiempo no entra como una cuarta variable sino como una base de reglas por intervención; y las reglas proceden de un protocolo de operador humano afinado por prueba y error. Ese diseño evita el crecimiento exponencial de una base completa, un problema general del control difuso.
-
-La literatura revisada ofrece alternativas con menos reglas o con ajuste automático: los consecuentes funcionales de Takagi y Sugeno \cite{TakagiSugeno1985}, la descomposición en etapas o subsistemas de Trabia \emph{et al.} \cite{Trabia1999} y de Murat y Gedizlioglu \cite{Murat2005}, el ajuste de funciones de pertenencia por aprendizaje \cite{Jang1993,Bingham2001} y el aprendizaje por refuerzo \cite{Abdulhai2003}. Si un modelo es «más eficiente» depende del criterio (número de reglas, retardo o esfuerzo de ajuste), y en las fuentes revisadas no se encontró una comparación directa de número de reglas frente a retardo para este controlador. El experimento de la Sección~\ref{sec:reglas-disparos} sugiere que, en la réplica, pocas reglas extremas concentran la decisión.
-
-\subsection{Reproducibilidad de este trabajo}
-Siguiendo la idea de las listas de verificación de reproducibilidad \cite{Pineau2021,Sandve2013}, la Tabla~\ref{tab:repro} indica qué se publica aquí para que otras personas repitan o auditen los resultados.
-
-\begin{table}[!t]
-\caption{Elementos de reproducibilidad de este trabajo}
-\label{tab:repro}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.3\columnwidth}p{0.6\columnwidth}@{}}
-\toprule
-Elemento & Qué se publica \\
-\midrule
-Código & Modelo, controlador, motor paso a paso y simulador gráfico \\
-Valores de referencia & Valores impresos del artículo transcritos de las imágenes y pruebas que los comparan con el código \\
-Protocolo & 20 réplicas de 7200\,s, semilla base 0, 16 caudales \\
-Resultados & Archivos con todas las cifras de las tablas y la auditoría \\
-Decisiones & Lecturas de las entradas y supuestos, declarados como tales \\
-Figuras y tablas & Generadas por programa a partir de esos archivos \\
-\bottomrule
-\end{tabular}
-\fuente{elaboración propia: archivos del proyecto que acompaña a este manuscrito (carpetas \texttt{codigo/}, \texttt{resultados/} y \texttt{articulo\_ieee/}).}
-\end{table}
+Las 25 reglas ocupan solo 19 de las 180 combinaciones de antecedentes (Apéndice~\ref{app:180}). El diseño evita el crecimiento exponencial de una base completa: los operadores \emph{mt} y \emph{lt} hacen que cada regla cubra una región entera del espacio de entradas, el tiempo no entra como cuarta variable sino como una base por intervención, y las reglas proceden de un protocolo de operador humano afinado por prueba y error. Con la lectura calibrada, quitar reglas empeora el retardo de forma significativa, aunque con pérdidas pequeñas con 15 reglas (Sección~\ref{sec:ablacion}). La literatura ofrece alternativas con menos reglas o con ajuste automático: consecuentes funcionales \cite{TakagiSugeno1985}, descomposición en etapas \cite{Trabia1999,Murat2005,Jiang2021}, ajuste de funciones de pertenencia por aprendizaje \cite{Jang1993,Bingham2001,Vuong2021} y aprendizaje por refuerzo \cite{Abdulhai2003,Vlasceanu2025}; no se encontró una comparación directa de número de reglas frente a retardo para este controlador.
 
 \subsection{Limitaciones}
-La réplica es estadística y no dígito a dígito: no se dispone del programa ni del generador aleatorio de 1977. El difuso simulado queda en promedio $8.8$\,\% por debajo de lo publicado (hasta 19.8\,\% en una celda), un sesgo estadísticamente significativo (Sección~\ref{sec:estadistica}) que no se corrigió con ajustes de las reglas, porque eso modificaría el método replicado. El experimento de reducción de reglas y la comparación de llegadas se hicieron con pocas réplicas y una sola lectura. Por último, la revisión de la literatura se limita a las fuentes citadas.
+La réplica es estadística y no dígito a dígito: no se dispone del programa ni del generador aleatorio de 1977. El difuso simulado queda en promedio 8.6\,\% por debajo de lo publicado (hasta 18.6\,\% en una celda), sesgo significativo que no se corrigió ajustando las reglas, porque modificaría el método replicado. La lectura de las entradas es una inferencia; el actuado es una implementación propia con un hueco no optimizado; la variante de Takagi y Sugeno no se evaluó; y la revisión de la literatura se limita a las fuentes citadas y, para varias obras de 2021 a 2026, a su ficha y resumen.
 
 % =============================================================================
 \section{Conclusiones}
 \label{sec:conclusiones}
 
-Se replicó el controlador de lógica difusa de Pappis y Mamdani a partir de la publicación original y se validó elemento por elemento: los conjuntos y operadores coinciden exactamente con las tablas impresas, las 25 reglas se transcribieron de la imagen del original corrigiendo errores de transcripción, el ejemplo trabajado se reproduce en cada fila, y la tabla de validación del modelo se reproduce con un error medio de 2.1\,\%. La tabla de resultados del controlador se reproduce en su conclusión cualitativa (mejora al ciclo fijo en 16 de 16 combinaciones, con $p<0.001$ en todas; error medio de 9.3\,\%), aunque con un sesgo sistemático de $-8.8$\,\% en el retardo del difuso respecto de lo publicado, pero solo con una lectura de las entradas que el artículo no especifica; de ocho lecturas plausibles, solo una lo logra, y se presenta como inferencia por falta de datos.
+Se replicó el controlador de lógica difusa de Pappis y Mamdani a partir de la publicación original y se validó elemento por elemento: los conjuntos y operadores coinciden exactamente con las tablas impresas (con una definición de \emph{mt} que satisface la identidad de complementariedad en todo el universo), las 25 reglas se transcribieron de la imagen del original corrigiendo errores de transcripción, el ejemplo trabajado se reproduce en cada fila y la tabla de validación del modelo, con un error medio de 2.1\,\%. Con 20 réplicas y números aleatorios comunes, el difuso mejora al ciclo fijo en 16 de 16 combinaciones ($p\le3.1\times10^{-5}$; error medio de 9.2\,\% respecto de lo publicado), con un sesgo sistemático de $-8.6$\,\% en el retardo, y solo con una lectura de las entradas que el original no especifica: de ocho, solo una lo logra, y se presenta como inferencia por falta de datos.
 
-Como aportes adicionales, la comparación de llegadas respalda el modelo aleatorio, un simulador abierto muestra las reglas usadas y los disparos de cada decisión, y un experimento exploratorio indica que unas pocas reglas extremas concentran la decisión en la réplica. Como trabajo futuro se propone repetir el experimento de reducción de reglas con más réplicas y con otras lecturas de las entradas, comparar el controlador con variantes de Takagi y Sugeno y con aprendizaje por refuerzo bajo el mismo protocolo, y aplicar el protocolo de réplica a otros controladores difusos de semáforos.
+Frente a un actuado por detector, el difuso mejora con caudales bajos y medios y empeora con caudales altos, y en promedio son indistinguibles; la defuzzificación por centroide degrada el sistema; y todos los subconjuntos reducidos de reglas son significativamente peores que las 25 reglas, aunque con 15 la pérdida es de $1.6$\,\%. Como trabajo futuro se propone optimizar los parámetros del actuado, comparar con variantes de Takagi y Sugeno y con aprendizaje por refuerzo bajo el mismo protocolo, y aplicar el protocolo de réplica a otros controladores difusos de semáforos.
 
 % =============================================================================
-\clearpage
-\onecolumn
 \appendices
-\section{Las 180 reglas del espacio $T\times A\times Q$}
+\section{Matriz de las 180 combinaciones $T\times A\times Q$}
 \label{app:180}
-Las tablas siguientes escriben literalmente las $5\times6\times6=180$ reglas que resultan de combinar las etiquetas de tiempo $T$ (very short, short, medium, long, very long), de arribos $A$ (none, a few, few, medium, many, too many) y de cola $Q$ (very small, small, small plus, medium, long, very long), con $E=T$ en todas. El artículo original emplea 25 de ellas: cinco reglas (R1 a R5) en cada una de las cinco intervenciones. Las reglas del autor aparecen resaltadas en verde y con $\checkmark$; las 161 restantes, con $\times$. Las cinco columnas de intervención indican, para cada regla, con qué número de regla la usa cada intervención. Los mismos datos están en \texttt{resultados/reglas\_180.csv}.
+La Tabla~\ref{tab:matriz180} presenta las $5\times6\times6=180$ combinaciones de etiquetas de $T$ (5), $A$ (6) y $Q$ (6), con $E=T$ en todas, como cinco matrices de $6\times6$ (una por valor de $T$). Cada celda sombreada es una combinación que el original usa y su contenido indica en qué intervenciones (1 a 5 $=$ 7, 17, 27, 37 y 47\,s). Las 25 reglas ($5\times5$) ocupan 19 celdas: la regla R1 de cada intervención ($T=$ very short, $A=mt(\text{none})$) usa $Q=\text{any}$ y cubre las seis celdas de su fila (tono más oscuro), y R2 a R5 aportan 20 reglas en 13 celdas distintas porque se repiten entre intervenciones. Las 161 celdas sin sombrear no tienen regla propia. La enumeración literal está en el material suplementario y en \texttt{resultados/reglas\_180.csv}.
 
-La cuenta de las 25 reglas se lee en las columnas de intervención. Las reglas R2 a R5 de cada intervención son una regla cada una (20 en total). La regla R1 de cada intervención (5 en total) no condiciona la cola, por lo que en el listado de 180 reglas ocupa las seis filas de $T=$ very short y $A=$ none (marcada R1*). Como varias reglas coinciden entre intervenciones, las 25 reglas del autor ocupan solo 19 filas de las 180.
-
-\input{tabla_180}
-
-\clearpage
-\twocolumn
+\begin{table*}[!t]
+\caption{Matriz de las 180 combinaciones de antecedentes: cada celda sombreada indica las intervenciones (1 a 5 $=$ 7 a 47\,s) en que el artículo original usa esa combinación. Abreviaturas de $Q$ ($lt(\cdot)$): vs very small, s small, s+ small plus, m medium, l long, vl very long.}
+\label{tab:matriz180}
+\centering
+\input{tabla_matriz180}
+\fuente{etiquetas de $T$, $A$ y $Q$ de las Tablas~II a~IV del artículo original (p.~711), combinadas por la regla del producto ($5\times6\times6=180$); reglas sombreadas: Apéndice del original (pp.~715 y~716). Código: \texttt{gen\_tabla\_180.py}; mismos datos en \texttt{resultados/reglas\_180.csv}.}
+\end{table*}
 
 \section*{Disponibilidad del código}
-El código, las pruebas, los resultados y el simulador se entregan en el proyecto que acompaña a este manuscrito. Las pruebas de validación se ejecutan con \texttt{python ejecutar\_pruebas.py}; los resultados completos, con \texttt{python run\_experiments.py}; la auditoría de lecturas, con \texttt{python fidelity\_audit.py}; y el simulador con el panel de reglas y disparos, con \texttt{python simulador\_gui.py}.
+El código, las pruebas, los resultados y el simulador están en el repositorio público \url{https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION}. Las pruebas y la verificación de las deducciones se ejecutan con \texttt{python codigo/ejecutar\_pruebas.py} (con \texttt{-{}-rapido} recalcula una Tabla~VIII reducida); los resultados completos, con \texttt{run\_experiments.py}; la auditoría, los comparadores y el simulador, con \texttt{fidelity\_audit.py}, \texttt{comparadores.py} y \texttt{simulador\_gui.py}. Las tablas y figuras se regeneran con \texttt{gen\_tablas\_latex.py}, \texttt{gen\_tabla\_180.py} y los \texttt{gen\_fig\_*.py}.
 
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}

@@ -8,6 +8,8 @@ sistema funciona. Deja el texto en salidas/pruebas.txt.
   2. test_sim_engine.py   : el simulador paso a paso == la simulacion por lotes
   3. test_disparos.py     : el panel de reglas/disparos muestra lo que calcula el controlador
   3b. test_autos.py       : autos con separacion segura, reglas apagadas, autos a mano y explicaciones
+  3c. test_parametros.py, test_estadistica.py, verificar_formulas.py : parametros explicitos, estadistica y deducciones
+  3d. test_archivos_citados.py : todo archivo citado por el articulo existe (reproducibilidad del paquete)
   4. Resultados oficiales : Tabla I y Tabla VIII (leidos de resultados/resultados_oficiales.json)
 
 Uso:
@@ -66,6 +68,10 @@ def main():
     ok &= run_test("test_sim_engine.py", r"\d+/\d+ equivalencias", "Simulador paso a paso == simulacion por lotes")
     ok &= run_test("test_disparos.py", r"TODO OK", "Panel de reglas y disparos == controlador")
     ok &= run_test("test_autos.py", r"TODO OK", "Autos sin superponerse, reglas apagadas, autos a mano, explicaciones")
+    ok &= run_test("test_parametros.py", r"TODO OK", "Lecturas de A y Q explicitas, mt/lt = Tabla V, contabilidad del retardo")
+    ok &= run_test("test_estadistica.py", r"TODO OK", "Wilcoxon, Friedman, Holm, t y chi2 (valores conocidos)")
+    ok &= run_test("verificar_formulas.py", r"TODO OK", "Deducciones matematicas del articulo = calculos independientes")
+    ok &= run_test("test_archivos_citados.py", r"TODO OK", "Todo script, JSON, CSV y fuente LaTeX citado existe y compila")
 
     say("\n2) Resultados oficiales (20 replicas x 7200 s, ver resultados/resultados_oficiales.json)")
     path = "resultados/resultados_oficiales.json"

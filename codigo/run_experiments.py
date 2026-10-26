@@ -8,8 +8,8 @@ Replica los resultados de Pappis & Mamdani (1977), IEEE SMC-7(10):
                 'vehicle-actuated' repite los valores de la Tabla I ('Model'),
                 es decir, la simulacion de ciclo fijo optimo (pag. 3).
 
-Protocolo oficial (por defecto): 20 replicas x 7200 s por combinacion, semilla
-base 0 (el difuso usa base+100000; fijo y difuso NO comparten llegadas).
+Protocolo oficial (por defecto): 20 replicas x 7200 s por combinacion, semillas 0..19 con numeros
+aleatorios comunes (CRN): el ciclo fijo y el difuso ven las mismas llegadas en cada replica.
 
 Uso:
   python run_experiments.py                       # oficial, ambas lecturas

@@ -135,34 +135,18 @@ ax.set_xlim(5, 1500); ax.grid(True, axis="x", lw=0.3, color="#d5dbe0")
 ax.text(0.99, 0.02, "A / Q evaluada / cola Q", transform=ax.transAxes, ha="right", fontsize=5.8, color="#555")
 fig.tight_layout(pad=0.3); fig.savefig(f"{OUT}/fig_auditoria.png", dpi=300); plt.close(fig)
 
-# ---------------------------------------------------------------- 6. disparos (simulacion 720/2160, 1800 s)
-rows = list(csv.DictReader(open("muestras/disparos_reglas.csv", encoding="utf-8-sig")))
-rules = []
-for r in rows:
-    if r["regla"] not in [x[0] for x in rules]:
-        rules.append((r["regla"], int(r["intervencion"])))
-fire = {k: 0 for k, _ in rules}; act = {k: 0 for k, _ in rules}
-estar = {}
-for r in rows:
-    fire[r["regla"]] += int(r["dispara"]); act[r["regla"]] += float(r["activacion"]) > 0
-    estar[r["t"]] = int(r["e_star"])
-fig, axs = plt.subplots(1, 2, figsize=(W, 3.2), gridspec_kw=dict(width_ratios=[1.45, 1]))
-ax = axs[0]
-ys = np.arange(len(rules))[::-1]
-ax.barh(ys, [act[k] for k, _ in rules], color=[INT_COL[i] for _, i in rules], alpha=0.28, height=0.8)
-ax.barh(ys, [fire[k] for k, _ in rules], color=[INT_COL[i] for _, i in rules], height=0.55)
-ax.set_yticks(ys); ax.set_yticklabels([k.replace("s-", " s · ") for k, _ in rules], fontsize=5.4)
-for j, (k, i) in enumerate(rules):
-    if fire[k]:
-        ax.text(fire[k] + 0.4, ys[j], str(fire[k]), va="center", fontsize=5.4)
-ax.set_xlabel("decisiones"); ax.set_title("(a) Activaciones (claro) y disparos (oscuro)")
-ax.grid(True, axis="x", lw=0.3, color="#d5dbe0")
-ax = axs[1]
-vals = np.array(list(estar.values()))
-cnt = [int((vals == v).sum()) for v in range(0, 11)]
-ax.bar(range(0, 11), cnt, color=["#c53030"] + ["#2b6cb0"] * 10)
-ax.set_xticks(range(0, 11)); ax.set_xticklabels(["corte"] + [str(i) for i in range(1, 11)], fontsize=5.6)
-ax.set_xlabel("extensión elegida $e^*$ (s)"); ax.set_ylabel("decisiones"); ax.set_title(f"(b) {len(vals)} decisiones")
+# ---------------------------------------------------------------- 6. disparos agregados (20 replicas x 7200 s, 4 regimenes)
+dsp = json.load(open("resultados/disparos_agregados.json"))
+fig, ax = plt.subplots(figsize=(C, 2.35))
+FL_COL = ["#2f855a", "#2b6cb0", "#c05621", "#6b46c1"]
+wbar = 0.2
+for k, fl_ in enumerate(dsp["flujos"]):
+    m = 100 * np.array(fl_["dispara"]["mean"]); sd = 100 * np.array(fl_["dispara"]["sd"])
+    ax.bar(np.arange(5) + (k - 1.5) * wbar, m, wbar, yerr=sd, color=FL_COL[k], capsize=1.5, error_kw=dict(lw=0.6),
+           label=f"{fl_['ns']}/{fl_['ew']}")
+ax.set_xticks(range(5)); ax.set_xticklabels([f"R{i}" for i in range(1, 6)])
+ax.set_ylabel("extensiones en que dispara (%)"); ax.set_xlabel("regla (de cualquier intervención)")
+ax.legend(frameon=False, ncol=2, title="N-S/E-W (veh/h)", title_fontsize=6, loc="upper center")
 ax.grid(True, axis="y", lw=0.3, color="#d5dbe0")
 fig.tight_layout(pad=0.3); fig.savefig(f"{OUT}/fig_disparos.png", dpi=300); plt.close(fig)
 

@@ -45,12 +45,24 @@ proyecto como directorio de trabajo. Los nombres de archivo de las tablas siguie
 | Ejemplo trabajado de las págs. 7–8 (Tabla VII, cada regla y la fila final, e\* = 10 s) | ✅ exacto |
 | Estructura temporal: intervenciones a 7, 17, 27, 37, 47 s; verde efectivo ≤ 57 s | ✅ |
 | Tabla I (modelo con ciclo fijo óptimo de Webster) | ✅ error medio 2.1 % (simulación) y 0.8 % (fórmula) |
-| Tabla VIII (difuso vs. línea base), lectura **calibrada** | ⚠️ 16/16 celdas mejoran al ciclo fijo; error medio 9.3 %, máximo 19.8 % |
+| Tabla VIII (difuso vs. línea base), lectura **calibrada** | ⚠️ 16/16 celdas mejoran al ciclo fijo (Wilcoxon + Holm, p ≤ 3.1·10⁻⁵); error medio 9.2 %, máximo 18.6 % |
 | Tabla VIII, lectura **literal** (A y Q tal como en el ejemplo) | ❌ inestable desde 360/1440 (§5) |
 
 **El punto que sigue abierto** es cómo obtenía el programa original las entradas A y Q a partir
 del estado de la simulación: el paper no lo dice y las lecturas literales no reproducen su
 Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
+
+---
+
+### 1.1 Versión revisada (respuesta a la revisión «Avance 8»)
+
+* Parámetros explícitos de las lecturas (`traffic_model.LITERAL` / `CALIBRADA`): ningún parámetro se ignora (`test_parametros.py`).
+* Números aleatorios comunes (semilla *k* para todos los controladores), 20 réplicas en todas las tablas, desviación estándar muestral (n−1),
+  pruebas exactas de Wilcoxon + Holm y Friedman (`estadistica.py`, `analisis_estadistico.py`).
+* Comparadores que no son del paper: actuado por detector, difuso con centroide, ciclo fijo sin redondeo (`comparadores.py`).
+* Efecto de borde del horizonte (`efecto_borde.py`), disparos agregados (`informe_agregado.py`), entorno y costo (`entorno.py`).
+* `test_archivos_citados.py`: todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila.
+* `python codigo/ejecutar_pruebas.py` corre 132 comprobaciones; con `--rapido` recalcula además una Tabla VIII reducida.
 
 ---
 
@@ -150,18 +162,19 @@ tiene Q cuando la simulación avanza (¿cola total?, ¿llegados en esta fase?), 
 en A los vehículos que ya esperan en el brazo con verde.
 
 `fidelity_audit.py` prueba las 8 combinaciones razonables, con las reglas fijas, y mide el error
-frente a la Tabla VIII (10 réplicas × 7200 s):
+frente a la Tabla VIII (20 réplicas × 7200 s, números aleatorios comunes; error medio ± desviación
+estándar entre réplicas):
 
 | A | Q evaluada en | cola Q | error medio | máximo | mejor que el fijo |
 |---|---|---|--:|--:|--:|
-| arribos acumulados | predicha β′ | total | 631.0 % | 2622.5 % | 5/16 (≈ `LITERAL`) |
-| arribos acumulados | predicha β′ | desde inicio del verde | 323.1 % | 1869.0 % | 6/16 |
-| arribos acumulados | actual | total | 566.6 % | 2609.7 % | 5/16 |
-| arribos acumulados | actual | desde inicio del verde | 227.6 % | 1184.9 % | 6/16 |
-| cruces (limit. por saturación) | predicha β′ | total | 421.0 % | 2403.6 % | 11/16 |
-| cruces (limit. por saturación) | predicha β′ | desde inicio del verde | 175.4 % | 1161.9 % | 11/16 |
-| cruces (limit. por saturación) | actual | total | 374.1 % | 2362.4 % | 12/16 |
-| cruces (limit. por saturación) | actual | desde inicio del verde | 9.3 % | 19.3 % | 16/16 ◀ `CALIBRADA` |
+| arribos acumulados | predicha β′ | total | 641.3 % ± 54.5 | 2620 % | 5/16 (≈ `LITERAL`) |
+| arribos acumulados | predicha β′ | desde inicio del verde | 331.4 % ± 42.9 | 1897 % | 5/16 |
+| arribos acumulados | actual | total | 569.1 % ± 43.9 | 2607 % | 5/16 |
+| arribos acumulados | actual | desde inicio del verde | 218.9 % ± 29.0 | 1142 % | 5/16 |
+| cruces (limit. por saturación) | predicha β′ | total | 418.1 % ± 47.2 | 2398 % | 11/16 |
+| cruces (limit. por saturación) | predicha β′ | desde inicio del verde | 178.0 % ± 27.1 | 1141 % | 11/16 |
+| cruces (limit. por saturación) | actual | total | 371.1 % ± 44.0 | 2341 % | 12/16 |
+| cruces (limit. por saturación) | actual | desde inicio del verde | 9.2 % ± 1.5 | 19 % | 16/16 ◀ `CALIBRADA` |
 
 Las dos lecturas que se dejan en el código:
 
@@ -181,35 +194,37 @@ Las dos lecturas que se dejan en el código:
 
 ---
 
-## 6. Resultados oficiales (20 réplicas × 7200 s, lectura calibrada)
+## 6. Resultados oficiales (20 réplicas × 7200 s, números aleatorios comunes, lectura calibrada)
 
 **Tabla I** (ciclo fijo; error medio 2.1 % simulación, 0.8 % fórmula; mayor desviación 360/2160: −7.9 %).
 
-**Tabla VIII** (retardo medio en s/veh):
+**Tabla VIII** (retardo medio en s/veh; la columna «mejora paper» se recalcula con los retardos impresos):
 
 | N–S | E–W | fijo (sim.) | fijo (paper) | **difuso (sim.)** | difuso (paper) | error | mejora sim. | mejora paper |
 |--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| 360 | 360 | 7.29 | 7.2 | **5.63** | 5.7 | -1.2 % | +23 % | +21 % |
-| 360 | 720 | 7.48 | 7.4 | **5.97** | 6.1 | -2.1 % | +20 % | +18 % |
-| 360 | 1080 | 7.76 | 7.9 | **6.30** | 6.6 | -4.5 % | +19 % | +16 % |
-| 360 | 1440 | 8.24 | 8.4 | **6.72** | 7.3 | -7.9 % | +18 % | +13 % |
-| 360 | 1800 | 9.19 | 9.3 | **7.36** | 8.4 | -12.3 % | +20 % | +10 % |
-| 360 | 2160 | 11.33 | 12.3 | **8.68** | 10.0 | -13.2 % | +23 % | +19 % |
-| 360 | 2520 | 16.17 | 15.8 | **12.17** | 13.6 | -10.5 % | +25 % | +14 % |
-| 720 | 720 | 9.36 | 9.7 | **6.55** | 7.4 | -11.5 % | +30 % | +24 % |
-| 720 | 1080 | 10.63 | 10.8 | **7.52** | 8.8 | -14.6 % | +29 % | +19 % |
-| 720 | 1440 | 12.49 | 12.7 | **9.16** | 10.9 | -16.0 % | +27 % | +14 % |
-| 720 | 1800 | 15.35 | 15.9 | **12.10** | 14.1 | -14.2 % | +21 % | +11 % |
-| 720 | 2160 | 21.21 | 21.8 | **17.49** | 18.5 | -5.5 % | +18 % | +15 % |
-| 1080 | 1080 | 13.53 | 13.6 | **9.62** | 12.0 | -19.8 % | +29 % | +12 % |
-| 1080 | 1440 | 17.77 | 17.9 | **13.63** | 15.4 | -11.5 % | +23 % | +14 % |
-| 1080 | 1800 | 25.54 | 25.8 | **22.04** | 21.6 | +2.0 % | +14 % | +16 % |
-| 1440 | 1440 | 26.86 | 27.3 | **23.18** | 22.9 | +1.2 % | +14 % | +16 % |
+| 360 | 360 | 7.29 | 7.2 | **5.58** | 5.7 | -2.2 % | +23 % | +21 % |
+| 360 | 720 | 7.48 | 7.4 | **5.96** | 6.1 | -2.2 % | +20 % | +18 % |
+| 360 | 1080 | 7.76 | 7.9 | **6.25** | 6.6 | -5.4 % | +19 % | +16 % |
+| 360 | 1440 | 8.24 | 8.4 | **6.69** | 7.3 | -8.4 % | +19 % | +13 % |
+| 360 | 1800 | 9.19 | 9.3 | **7.39** | 8.4 | -12.0 % | +20 % | +10 % |
+| 360 | 2160 | 11.33 | 12.3 | **8.69** | 10.0 | -13.1 % | +23 % | +19 % |
+| 360 | 2520 | 16.17 | 15.8 | **12.00** | 13.6 | -11.7 % | +26 % | +14 % |
+| 720 | 720 | 9.36 | 9.7 | **6.57** | 7.4 | -11.3 % | +30 % | +24 % |
+| 720 | 1080 | 10.63 | 10.8 | **7.53** | 8.8 | -14.4 % | +29 % | +19 % |
+| 720 | 1440 | 12.49 | 12.7 | **9.33** | 10.9 | -14.4 % | +25 % | +14 % |
+| 720 | 1800 | 15.35 | 15.9 | **12.19** | 14.1 | -13.5 % | +21 % | +11 % |
+| 720 | 2160 | 21.21 | 21.8 | **17.64** | 18.5 | -4.6 % | +17 % | +15 % |
+| 1080 | 1080 | 13.53 | 13.6 | **9.76** | 12.0 | -18.6 % | +28 % | +12 % |
+| 1080 | 1440 | 17.77 | 17.9 | **13.79** | 15.4 | -10.4 % | +22 % | +14 % |
+| 1080 | 1800 | 25.54 | 25.8 | **22.34** | 21.6 | +3.4 % | +13 % | +16 % |
+| 1440 | 1440 | 26.86 | 27.3 | **23.17** | 22.9 | +1.2 % | +14 % | +16 % |
 
-Mejora respecto del ciclo fijo en **16/16** celdas (paper: 16/16). Error relativo frente al
-paper: medio 9.3 %, máximo 19.8 % (1080/1080). Las celdas pesadas (1080/1800 y 1440/1440)
-quedan a ±2 %. El difuso simulado es sistemáticamente algo más bajo que el publicado
+Mejora respecto del ciclo fijo en **16/16** celdas (paper: 16/16; Wilcoxon exacto pareado con Holm, p ≤ 3.1·10⁻⁵). Error relativo frente al
+paper: medio 9.2 %, máximo 18.6 % (1080/1080); sesgo medio del difuso −8.6 % (IC 95 % −12.0 a −5.3), del ciclo fijo −1.6 %.
+Las celdas pesadas (1080/1800 y 1440/1440) quedan a ±3.4 %. El difuso simulado es sistemáticamente algo más bajo que el publicado
 en caudales medios; esa diferencia no se corrigió con ningún ajuste de reglas.
+
+**Comparadores que no son del paper** (`comparadores.py`, mismo protocolo): media de los 16 flujos fijo 13.76 s, difuso 10.93 s, **actuado por detector 10.88 s**, difuso con centroide 230.9 s. El difuso es mejor que el actuado en 10 flujos (caudales bajos y medios), peor en 5 (caudales altos, hasta +29 %) y no se distingue en 1; en promedio son indistinguibles (Wilcoxon sobre flujos, p = 0.50).
 
 Figuras: `figures/fig4_delay_comparison.png` (calibrada) y `fig4b_delay_comparison_literal.png`.
 

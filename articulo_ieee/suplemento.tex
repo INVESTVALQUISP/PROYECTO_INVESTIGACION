@@ -1,0 +1,120 @@
+%% =============================================================================
+%%  Material suplementario del articulo (documento aparte; compilar con pdfLaTeX)
+%%  Contiene: la lista literal de las 180 reglas, los seis apartados del simulador por separado,
+%%  figuras y tablas adicionales. Las etiquetas del articulo principal vienen de suplemento_etiquetas.tex
+%%  (se regenera con codigo/gen_suplemento_etiquetas.py despues de compilar main.tex).
+%% =============================================================================
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[margin=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{url}
+\usepackage{float}
+\graphicspath{{figures/}}
+
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\newcommand{\fuente}[1]{\par\vspace{3pt}\noindent{\scriptsize\textit{Fuente:} #1\par}}
+\newcommand{\qbar}{\bar{q}}
+
+% referencias cruzadas al articulo principal (etiquetas generadas desde main.aux)
+\input{suplemento_etiquetas}
+\makeatletter
+\renewcommand{\ref}[1]{\@ifundefined{lbl@#1}{??}{\csname lbl@#1\endcsname}}
+\renewcommand{\eqref}[1]{(\ref{#1})}
+\makeatother
+% las tablas del suplemento se quedan donde se escriben (ignoran el [!t] de los archivos tabla_*.tex)
+\let\origtable\table\let\endorigtable\endtable
+\renewenvironment{table}[1][]{\origtable[H]}{\endorigtable}
+
+\begin{document}
+\begin{center}
+{\Large\bfseries Material suplementario}\\[4pt]
+{\large Réplica y validación del controlador de lógica difusa para una intersección de tráfico de Pappis y Mamdani (1977): un estudio de reproducibilidad}\\[4pt]
+Raul Nolberto Quispe Saya y Kevin Luis Valero Ccacya\\
+{\small Escuela Profesional de Ingeniería Electrónica, Universidad Nacional de San Agustín de Arequipa}
+\end{center}
+
+Este documento acompaña al artículo principal. Las referencias a secciones, ecuaciones y tablas del artículo principal usan su numeración (las tablas y figuras de este suplemento se numeran S1, S2, \dots). Contiene: (S1) la lista literal de las 180 reglas del espacio $T\times A\times Q$ con las 25 reglas del original resaltadas; (S2) los seis apartados del simulador por separado; (S3) figuras adicionales; y (S4) tablas adicionales.
+
+\section{Las 180 reglas del espacio $T\times A\times Q$}
+Cada regla tiene la forma «si $T=t$ y $A=mt(a)$ y $Q=lt(q)$ entonces $E=t$». Las 180 reglas son las $5\times6\times6$ combinaciones de las etiquetas de las Tablas~II a~IV del original; el original usa 25 de ellas (cinco por intervención), resaltadas en verde y marcadas con $\checkmark$; las 161 restantes se marcan con $\times$. Las 25 reglas ocupan 19 filas porque varias se repiten entre intervenciones y la regla R1 usa $Q=$ any (marcada R1*), que cubre las seis filas de $T=$ very short y $A=$ none. La matriz compacta está en el Apéndice~\ref{app:180} del artículo principal; los mismos datos están en \texttt{resultados/reglas\_180.csv}.
+
+\input{tabla_180}
+
+\clearpage
+\section{Los seis apartados del simulador}
+Las figuras siguientes muestran, ampliados, los seis apartados de la ventana del simulador (Fig.~\ref{fig:simulador} del artículo principal). Corresponden al escenario 720/2160\,veh/h, lectura calibrada y semilla 1, en $t=118$\,s (un instante posterior en 1\,s al de la Fig.~\ref{fig:simulador} del artículo principal), cuando el controlador decide extender 4\,s el verde del brazo E-W en la intervención de 47\,s, por la regla R2.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_sim_calle.png}
+\caption{(a) La calle: cruce con vehículos en movimiento (azul: N-S; naranja: E-W), semáforos de tres luces, colas y encabezado con el tiempo y $d_m$.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.8\textwidth]{fig_sim_reglas.png}
+\caption{(b) Panel de reglas de la intervención de 47\,s: entradas de la decisión, activación de cada regla y regla que dispara ($\star$, R2).}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_sim_decision.png}
+\caption{(c) Vector de grados $\gamma(e)$ de las extensiones candidatas, umbral 0.5 y extensión elegida ($e^*=4$\,s, grado 0.50).}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_sim_disparos.png}
+\caption{(d) Disparos acumulados (barra oscura) y activaciones (barra clara) de las 25 reglas, agrupadas por intervención, hasta $t=118$\,s.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.95\textwidth]{fig_sim_traza.png}
+\caption{(e) Traza del retardo medio $d_m$ en el tiempo. Los triángulos verdes marcan las extensiones del verde y los cuadrados rojos, los cortes.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=0.55\textwidth]{fig_sim_registro.png}
+\caption{(f) Registro de decisiones: tiempo, brazo en verde, segundo de verde, extensión elegida y regla que dispara.}
+\end{figure}
+
+\clearpage
+\section{Figuras adicionales}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{fig_validacion_curvas.png}
+\caption{Validación de la fuzzificación: curvas del código (líneas) y valores impresos en el artículo original ($\times$) para las Tablas~II, IV, V y~VI del original. La diferencia máxima es 0.000 en los cuatro paneles.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{fig_dispersion.png}
+\caption{Réplica frente al artículo original (la diagonal es la coincidencia exacta; la banda es $\pm 10$\,\%): (a) Tabla~I del original; (b) Tabla~VIII del original con la lectura calibrada; (c) Tabla~VIII del original con la lectura literal, en escala logarítmica.}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{fig_bloques.png}
+\caption{Diagrama de bloques del sistema de control de Pappis y Mamdani (elaboración propia a partir del artículo original).}
+\end{figure}
+
+\clearpage
+\section{Tablas adicionales}
+
+\input{tabla_verificacion}
+
+\input{tabla_borde}
+
+\end{document}

@@ -1,5 +1,5 @@
 \begin{table}[!t]
-\caption{Llegadas aleatorias frente a llegadas fijas (un vehículo cada $1/\lambda$ segundos): error relativo medio respecto del artículo (10 réplicas de 7200\,s).}
+\caption{Llegadas aleatorias frente a llegadas fijas (un vehículo cada $1/\lambda$ segundos con desfase aleatorio): error relativo medio de los retardos medios respecto del artículo $\pm$ desviación estándar entre réplicas del error por réplica (20 réplicas de 7200\,s). $p$: prueba de Wilcoxon pareada entre los errores de las 16 celdas.}
 \label{tab:llegadas}
 \centering
 \footnotesize
@@ -7,9 +7,10 @@
 \toprule
 Modelo de llegadas & Tabla I (\%) & Tabla VIII (\%) \\
 \midrule
-Aleatorias (Bernoulli por segundo) & 2.0 & 9.3 \\
-Fijas & 10.4 & 10.0 \\
+Aleatorias (Bernoulli por segundo) & 2.1\,$\pm$\,2.0 & 9.2\,$\pm$\,1.5 \\
+Fijas & 10.3\,$\pm$\,0.8 & 10.1\,$\pm$\,0.5 \\
+$p$ (Wilcoxon) & $<0.001$ & 0.940 \\
 \bottomrule
 \end{tabular}
-\fuente{simulaciones propias (\texttt{arrival\_model\_check.py}, \texttt{resultados/llegadas\_fijas\_vs\_aleatorias.json}) comparadas con las Tablas~I y~VIII del artículo original (pp.~708 y~715).}
+\fuente{simulaciones propias (\texttt{arrival\_model\_check.py}) comparadas con las Tablas~I y~VIII del artículo original (pp.~708 y~715).}
 \end{table}

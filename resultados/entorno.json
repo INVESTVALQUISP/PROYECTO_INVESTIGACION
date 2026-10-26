@@ -1,0 +1,17 @@
+{
+ "python": "3.13.16",
+ "implementacion": "CPython",
+ "numpy": "2.5.3",
+ "generador": "PCG64 (np.random.default_rng)",
+ "semillas": "ciclo fijo y difuso: semilla k = 0..19 en la replica k (numeros aleatorios comunes); llegadas: rng.random(N) < tasa por segundo",
+ "so": "Linux-6.18.44-fc-v153-x86_64-with-glibc2.39",
+ "cpu": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+ "nucleos": 4,
+ "segundos_por_simulacion_7200s": {
+  "ciclo_fijo": 0.0030005790000586785,
+  "actuado": 0.003675869999938186,
+  "difuso": 0.18326316599996062
+ },
+ "segundos_por_decision_difuso": 0.00031392503649999525,
+ "complejidad_por_decision": "O(R·|E|) = O(5 reglas x 10 extensiones) = O(1)"
+}

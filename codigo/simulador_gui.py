@@ -379,7 +379,10 @@ def run_gui(test_hook=None):
                 lam_ns=self.v_ns.get() / 3600.0, lam_ew=self.v_ew.get() / 3600.0,
                 seed=self.v_seed.get(), duration=self.v_dur.get(),
                 ruleset=self.v_rules.get(), threshold=self.v_thr.get(),
-                mode=self.v_mode.get(), disabled=frozenset(self.disabled))
+                mode=self.v_mode.get(), disabled=frozenset(self.disabled),
+                # lectura explicita de A y Q (ver traffic_model.CALIBRADA / LITERAL)
+                **(dict(a_mode="crossing", q_mode="current", predicted_q=False) if self.v_mode.get() == "capacity"
+                   else dict(a_mode="arrivals", q_mode="predicted", predicted_q=True)))
 
         # ---------- personalizacion didactica ----------
         def _on_preset(self):

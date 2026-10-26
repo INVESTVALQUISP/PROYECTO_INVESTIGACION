@@ -128,6 +128,10 @@ def check_ciclo():
 
 # ------------------------------------------------------------------ 5. mt / lt
 def check_mtlt():
+    """Definicion operativa (la del codigo y la de la Tabla V impresa):
+         lt(A)(x) = 1 - mu_A(x) si x <  x0, 0 si x >= x0
+         mt(A)(x) = 0           si x <  x0, 1 - mu_A(x) si x >= x0
+    Entonces, en TODO x del universo (incluido x0): max{lt, mt} = 1 - mu_A y min{lt, mt} = 0."""
     pts, bad_prop, dif_mt, dif_lt = 0, 0, 0, 0
     for name, f in fl.MU_ARR.items():
         f = np.array(f, float)
@@ -135,30 +139,28 @@ def check_mtlt():
         for x in range(1, 11):
             mu = f[x - 1]
             lt = (1 - mu) if x < x0 else 0.0
-            mt = (1 - mu) if x > x0 else 0.0
+            mt = (1 - mu) if x >= x0 else 0.0
             pts += 1
-            if x != x0 and (abs(max(lt, mt) - (1 - mu)) > 1e-12):
-                bad_prop += 1
-            if min(lt, mt) != 0:
-                bad_prop += 1
-            if abs(fl.mt_arr(name, x) - mt) > 1e-12:
-                dif_mt += 1                  # solo debe ocurrir en x0 (valor impreso 1 - mu(x0))
+            bad_prop += abs(max(lt, mt) - (1 - mu)) > 1e-12
+            bad_prop += min(lt, mt) != 0
+            dif_mt += abs(fl.mt_arr(name, x) - mt) > 1e-12
     for name, f in fl.MU_QUEUE.items():
         f = np.array(f, float)
         x0 = int(np.argmax(f)) + 4
         for x in range(4, 33):
             mu = f[x - 4]
             lt = (1 - mu) if x < x0 else 0.0
-            mt = (1 - mu) if x > x0 else 0.0
+            mt = (1 - mu) if x >= x0 else 0.0
             pts += 1
-            if x != x0 and (abs(max(lt, mt) - (1 - mu)) > 1e-12):
-                bad_prop += 1
-            if min(lt, mt) != 0:
-                bad_prop += 1
-            if abs(fl.lt_queue(name, x) - lt) > 1e-12:
-                dif_lt += 1
-    return dict(puntos=pts, fallos_propiedad=bad_prop, dif_mt_codigo_vs_definicion=dif_mt,
-                dif_lt_codigo_vs_definicion=dif_lt, conjuntos_llegadas=len(fl.MU_ARR), conjuntos_colas=len(fl.MU_QUEUE))
+            bad_prop += abs(max(lt, mt) - (1 - mu)) > 1e-12
+            bad_prop += min(lt, mt) != 0
+            dif_lt += abs(fl.lt_queue(name, x) - lt) > 1e-12
+    # el unico conjunto subnormal (maximo < 1) es 'none': es donde la definicion impresa en el texto del paper (mt = 0 en x0)
+    # y su Tabla V (mt(none)(1) = 0.5) se contradicen; el codigo y la definicion operativa siguen la Tabla V
+    sub = [n for n, f in fl.MU_ARR.items() if max(f) < 1] + [n for n, f in fl.MU_QUEUE.items() if max(f) < 1]
+    return dict(puntos=pts, fallos_propiedad=int(bad_prop), dif_mt_codigo_vs_definicion=int(dif_mt),
+                dif_lt_codigo_vs_definicion=int(dif_lt), conjuntos_llegadas=len(fl.MU_ARR), conjuntos_colas=len(fl.MU_QUEUE),
+                conjuntos_subnormales=sub, mt_none_en_1=float(fl.mt_arr("none", 1)))
 
 
 # ------------------------------------------------------------------ 6. entrada exacta
@@ -183,6 +185,32 @@ def check_conteos():
                 verde_max=verde, verde_max_alt=max(fl.INTERVENTIONS) + 10)
 
 
+# ------------------------------------------------------------------ 8. contabilidad del simulador (observacion sobre el borde del horizonte)
+def check_sim_real():
+    """En la clase Sim real: suma por segundo de las colas == espera de los que salieron + espera residual de los que siguen en cola."""
+    import traffic_model as tm
+    worst, casos = 0.0, 0
+    for ns, ew, seed in ((720, 2160, 1), (1440, 1440, 3), (360, 2520, 2), (1080, 1800, 4)):
+        for kw in (tm.CALIBRADA, tm.LITERAL):
+            arr_ns, arr_ew = tm._make_arrivals(ns / 3600, ew / 3600, seed, 1800)
+            sim = tm.Sim(arr_ns, arr_ew)
+            acc = [0]
+            orig = sim.tick
+
+            def tick(t, g, orig=orig, sim=sim, acc=acc):
+                orig(t, g)
+                acc[0] += len(sim.q_ns) + len(sim.q_ew)
+            sim.tick = tick
+            t, phase = 0, 0
+            while t < 1800:
+                t = sim.run_green_fuzzy(phase, t, 1800, **kw)
+                t = sim.transition(t, 1800)
+                phase = 1 - phase
+            worst = max(worst, abs(acc[0] - (sim.total_delay + sim.residual_delay(1800))))
+            casos += 1
+    return dict(casos=casos, max_dif=float(worst))
+
+
 if __name__ == "__main__":
     out["colas"] = check_colas()
     out["uniforme"] = check_uniforme()
@@ -191,6 +219,26 @@ if __name__ == "__main__":
     out["mtlt"] = check_mtlt()
     out["singleton"] = check_singleton()
     out["conteos"] = check_conteos()
+    out["sim_real"] = check_sim_real()
     json.dump(out, open("resultados/verificacion_formulas.json", "w"), indent=1)
     for k, v in out.items():
         print(k, {a: b for a, b in v.items() if a != "detalle"})
+    c = out["conteos"]
+    criterios = [
+        ("cola y retardo = suma de esperas individuales", out["colas"]["max_dif"] == 0),
+        ("primer termino de Webster = area fluida", out["uniforme"]["max_err_rel"] < 1e-3),
+        ("segundo termino de Webster = cola M/D/1 simulada", out["md1"]["max_err_rel"] < 0.03),
+        ("reparto de verdes iguala grados de saturacion", out["ciclo"]["max_dif_X"] < 1e-9),
+        ("C0 cerca del minimo numerico (<= 6 %)", out["ciclo"]["max_exceso_retardo"] < 0.06),
+        ("mt / lt: max = 1 - mu y min = 0 en todo el universo, y el codigo coincide con la definicion",
+         out["mtlt"]["fallos_propiedad"] == 0 and out["mtlt"]["dif_mt_codigo_vs_definicion"] == 0 and out["mtlt"]["dif_lt_codigo_vs_definicion"] == 0),
+        ("regla composicional con entrada exacta", out["singleton"]["max_dif"] == 0),
+        ("conteos 180, 25 y 57", (c["producto"], c["reglas"], c["verde_max"]) == (180, 25, 57)),
+        ("contabilidad del simulador (suma de colas = espera + residual)", out["sim_real"]["max_dif"] == 0),
+    ]
+    fallos = [n for n, ok in criterios if not ok]
+    for n, ok in criterios:
+        print(f"  [{'OK' if ok else 'FALLO'}] {n}")
+    print("TODO OK" if not fallos else f"{len(fallos)} FALLOS")
+    import sys
+    sys.exit(1 if fallos else 0)

@@ -1,0 +1,16 @@
+\begin{table}[!t]
+\caption{Efecto de borde del horizonte: aumento relativo del retardo medio al sumar la espera residual de los vehículos que siguen en cola en $t=H$ (20 réplicas de 7200\,s, 16 flujos).}
+\label{tab:borde}
+\centering
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Controlador & Media (\%) & Máximo (\%) \\
+\midrule
+Ciclo fijo & 0.28 & 0.87 \\
+Difuso, lectura calibrada & 0.17 & 0.33 \\
+Difuso, lectura literal (saturada) & 8.1 & 51.8 \\
+\bottomrule
+\end{tabular}
+\fuente{simulaciones propias (\texttt{efecto\_borde.py}) con las mismas llegadas, con y sin \texttt{Sim.residual\_delay}.}
+\end{table}

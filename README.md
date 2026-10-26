@@ -28,14 +28,18 @@ las páginas del original y verificadas por pruebas automáticas.
 
 ## Resultados
 
-Con las 25 reglas, 20 réplicas de 7200 s por combinación de flujos y la semilla base 0:
+Con las 25 reglas, 20 réplicas de 7200 s por combinación de flujos y números aleatorios comunes (la réplica *k* usa la semilla *k* en todos los controladores):
 
 - **Verificación contra lo impreso:** conjuntos difusos, operadores «más que» y «menos que», las 25 reglas y el ejemplo trabajado del
   artículo coinciden con el original (diferencia 0.000).
 - **Tabla I** (modelo de ciclo fijo con ajustes de Webster): error relativo medio de 2.1 % (simulación) y 0.8 % (fórmula).
-- **Tabla VIII** (difuso frente a ciclo fijo): el difuso mejora al ciclo fijo en **16 de 16** combinaciones de flujo (p < 0.001 en todas),
-  con un error medio de 9.3 % y máximo de 19.8 % respecto de los retardos publicados. El retardo del difuso queda en promedio 8.8 % por
-  debajo del publicado; esa discrepancia se documenta en el artículo.
+- **Tabla VIII** (difuso frente a ciclo fijo): el difuso mejora al ciclo fijo en **16 de 16** combinaciones de flujo (Wilcoxon exacto pareado
+  con corrección de Holm, p ≤ 3.1·10⁻⁵), con un error medio de 9.2 % y máximo de 18.6 % respecto de los retardos publicados. El retardo del
+  difuso queda en promedio 8.6 % por debajo del publicado (IC 95 % de −12.0 a −5.3); esa discrepancia se documenta y no se explica.
+- **Comparadores que no son del paper** (`comparadores.py`): frente a un controlador actuado por detector (hueco de 3 s, verde de 7 a 57 s) el
+  difuso es mejor en 10 flujos (caudales bajos y medios), peor en 5 (caudales altos, hasta +29 %) e indistinguible en 1; en promedio de los
+  16 flujos son equivalentes (10.93 frente a 10.88 s/veh). La defuzzificación por centroide degrada el sistema (230.9 s) y todos los
+  subconjuntos reducidos de reglas son significativamente peores que las 25 reglas (con 15 reglas, +1.6 %).
 - **Inferencia por falta de datos:** el artículo no dice cómo se miden los arribos *A* y la cola *Q* en la simulación. De ocho lecturas
   probadas, solo una («calibrada») reproduce la Tabla VIII; se presenta como una inferencia, no como una cita del original.
 
@@ -66,6 +70,7 @@ python codigo/simulador_gui.py         # simulador gráfico con calle, reglas y 
 python codigo/web_sim.py               # simulador web en http://localhost:8000
 python codigo/informe_disparos.py      # CSV y PNG de qué reglas disparan
 python codigo/run_experiments.py       # Tablas I y VIII oficiales (unos 2 min)
+python codigo/comparadores.py          # actuado por detector, centroide y ciclo fijo sin redondeo
 ```
 
 Los scripts se pueden ejecutar desde cualquier carpeta. En Visual Studio Code, abra la carpeta y use **Ejecutar y depurar (F5)**;
@@ -82,13 +87,15 @@ palabras simples, agregar autos a mano y ocultar o mostrar apartados.
 
 ### Artículo
 
-`articulo_ieee/` contiene el manuscrito (`main.tex`, `referencias.bib`, tablas y figuras). En Overleaf: suba la carpeta como
+`articulo_ieee/` contiene el manuscrito (`main.tex`, 15 páginas, con su PDF), el material suplementario (`suplemento.tex`: lista literal de
+las 180 reglas y los apartados del simulador por separado), `referencias.bib`, las tablas y las figuras. En Overleaf: suba la carpeta como
 proyecto, deje `main.tex` como documento principal y compile con pdfLaTeX. Las tablas y figuras se regeneran con los scripts
-`codigo/gen_tablas_latex.py`, `gen_tabla_180.py` y `gen_fig_articulo*.py`.
+`codigo/gen_tablas_latex.py`, `gen_tabla_180.py` y `gen_fig_*.py`. Las versiones exactas de Python y NumPy de los resultados están en
+`requirements-resultados.txt`.
 
 ## Pruebas
 
-`python codigo/ejecutar_pruebas.py` corre 87 comprobaciones automáticas:
+`python codigo/ejecutar_pruebas.py` corre 132 comprobaciones automáticas:
 
 | Prueba | Qué verifica |
 |---|---|
@@ -96,8 +103,12 @@ proyecto, deje `main.tex` como documento principal y compile con pdfLaTeX. Las t
 | `test_sim_engine.py` (10) | El simulador paso a paso da el mismo resultado que la simulación por lotes. |
 | `test_disparos.py` (22) | El panel de reglas y disparos muestra lo que calcula el controlador. |
 | `test_autos.py` (13) | Los autos nunca se superponen, apagar reglas afecta el resultado, y las explicaciones coinciden con las decisiones. |
+| `test_parametros.py` (14) | Las lecturas de las entradas A y Q son explícitas y ningún parámetro se ignora; `mt`/`lt` coinciden con la Tabla V; la contabilidad del retardo. |
+| `test_estadistica.py` (10) | Wilcoxon, Friedman, Holm, t de Student y χ² contra valores conocidos. |
+| `verificar_formulas.py` (9) | Las deducciones del artículo contra cálculos independientes. |
+| `test_archivos_citados.py` (12) | Todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila. |
 
-`codigo/verificar_formulas.py` contrasta además las deducciones matemáticas del artículo con cálculos numéricos independientes.
+Con `--rapido` recalcula además una Tabla VIII reducida (unos 20 s).
 
 ## Más documentación
 

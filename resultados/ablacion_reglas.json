@@ -1,60 +1,121 @@
 {
- "reps": 10,
+ "reps": 20,
  "duration": 7200,
+ "semillas": "k = 0..19 (CRN)",
  "variants": [
   {
    "key": "A",
    "name": "Paper: 5 reglas por intervenci\u00f3n",
    "n_rules": 25,
-   "mean_dm": 10.931596625529421,
-   "max_dm": 23.555072878374244,
-   "err_vs_paper": 9.348379046285732,
-   "wins": 16
+   "mean_dm": 10.92996056507873,
+   "max_dm": 23.165476897928137,
+   "err_vs_paper": 9.18051880047307,
+   "wins": 16,
+   "dm_rep_mean": 10.92996056507873,
+   "dm_rep_sd": 0.4186587183930934,
+   "dm_rep_lo": 10.734022253497463,
+   "dm_rep_hi": 11.125898876659997
   },
   {
    "key": "B",
    "name": "Una sola base (la de 7 s) en las 5 intervenciones",
    "n_rules": 5,
-   "mean_dm": 16.91131867424601,
-   "max_dm": 67.8180492314851,
-   "err_vs_paper": 36.402276872387674,
-   "wins": 13
+   "mean_dm": 16.971916116394578,
+   "max_dm": 73.08157588040902,
+   "err_vs_paper": 36.217546838900425,
+   "wins": 13,
+   "dm_rep_mean": 16.971916116394578,
+   "dm_rep_sd": 3.2650703451856495,
+   "dm_rep_lo": 15.443816156873234,
+   "dm_rep_hi": 18.500016075915923,
+   "wilcoxon_vs_A_p": 1.9073486328125e-06,
+   "wilcoxon_vs_A_p_holm": 9.5367431640625e-06,
+   "wilcoxon_vs_A_metodo": "exacta"
   },
   {
    "key": "C",
    "name": "Sin la regla veryshort",
    "n_rules": 20,
-   "mean_dm": 11.589045455877734,
-   "max_dm": 26.932724194138313,
-   "err_vs_paper": 10.527383003084054,
-   "wins": 15
+   "mean_dm": 11.45393875189952,
+   "max_dm": 24.662026075213696,
+   "err_vs_paper": 9.3254689834788,
+   "wins": 16,
+   "dm_rep_mean": 11.45393875189952,
+   "dm_rep_sd": 0.524431151296334,
+   "dm_rep_lo": 11.208497417917451,
+   "dm_rep_hi": 11.699380085881588,
+   "wilcoxon_vs_A_p": 3.814697265625e-06,
+   "wilcoxon_vs_A_p_holm": 9.5367431640625e-06,
+   "wilcoxon_vs_A_metodo": "exacta"
   },
   {
    "key": "D",
    "name": "Tres reglas (veryshort, medium, verylong)",
    "n_rules": 15,
-   "mean_dm": 11.057172015323305,
-   "max_dm": 23.797356631199566,
-   "err_vs_paper": 8.239563931930666,
-   "wins": 16
+   "mean_dm": 11.10485991255426,
+   "max_dm": 23.359699702784592,
+   "err_vs_paper": 7.93814130940235,
+   "wins": 16,
+   "dm_rep_mean": 11.104859912554257,
+   "dm_rep_sd": 0.4082692736934985,
+   "dm_rep_lo": 10.913784010767102,
+   "dm_rep_hi": 11.295935814341412,
+   "wilcoxon_vs_A_p": 4.76837158203125e-05,
+   "wilcoxon_vs_A_p_holm": 4.76837158203125e-05,
+   "wilcoxon_vs_A_metodo": "exacta"
   },
   {
    "key": "E",
    "name": "Solo extremos (veryshort, verylong)",
    "n_rules": 10,
-   "mean_dm": 11.293578190001803,
-   "max_dm": 23.6025010126826,
-   "err_vs_paper": 7.262985616434141,
-   "wins": 16
+   "mean_dm": 11.375539806058043,
+   "max_dm": 23.569351782832847,
+   "err_vs_paper": 6.818230041026199,
+   "wins": 16,
+   "dm_rep_mean": 11.375539806058043,
+   "dm_rep_sd": 0.408514264305342,
+   "dm_rep_lo": 11.184349245135108,
+   "dm_rep_hi": 11.566730366980979,
+   "wilcoxon_vs_A_p": 1.9073486328125e-06,
+   "wilcoxon_vs_A_p_holm": 9.5367431640625e-06,
+   "wilcoxon_vs_A_metodo": "exacta"
   },
   {
    "key": "F",
    "name": "Solo veryshort",
    "n_rules": 5,
-   "mean_dm": 355.09011567986227,
-   "max_dm": 795.1019855907327,
-   "err_vs_paper": 2726.2193377984913,
-   "wins": 3
+   "mean_dm": 351.759416869631,
+   "max_dm": 785.2403610315488,
+   "err_vs_paper": 2700.259812977851,
+   "wins": 3,
+   "dm_rep_mean": 351.7594168696311,
+   "dm_rep_sd": 10.083859470531538,
+   "dm_rep_lo": 347.04002536510836,
+   "dm_rep_hi": 356.4788083741538,
+   "wilcoxon_vs_A_p": 1.9073486328125e-06,
+   "wilcoxon_vs_A_p_holm": 9.5367431640625e-06,
+   "wilcoxon_vs_A_metodo": "exacta"
   }
+ ],
+ "friedman": {
+  "chi2": 93.48571428571427,
+  "df": 5,
+  "p": 1.2434617903457009e-18,
+  "rangos_medios": [
+   1.2,
+   5.0,
+   3.5,
+   1.9,
+   3.4,
+   6.0
+  ]
+ },
+ "friedman_variantes": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F"
  ]
 }

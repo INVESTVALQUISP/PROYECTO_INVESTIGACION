@@ -1,22 +1,23 @@
-\begin{table*}[!t]
-\caption{Verificación numérica de las deducciones de la Sección~\ref{sec:formulas}: cada fórmula se compara con un cálculo independiente.}
+\begin{table}[!t]
+\caption{Verificación numérica de las deducciones de las Secciones~\ref{sec:modelo} y~\ref{sec:controlador}: cada fórmula se compara con un cálculo independiente.}
 \label{tab:verificacion}
 \centering
-\footnotesize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.2\textwidth}p{0.34\textwidth}p{0.17\textwidth}p{0.2\textwidth}@{}}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}p{0.34\columnwidth}p{0.33\columnwidth}p{0.24\columnwidth}@{}}
 \toprule
-Fórmula & Cálculo independiente con que se compara & Casos & Resultado \\
+Fórmula & Cálculo independiente & Resultado \\
 \midrule
-\eqref{eq:retardoR}, \eqref{eq:retardoG}: $D=\sum_n$ colas & suma de las esperas individuales de cada vehículo (cola FIFO con vehículos explícitos) & 1000 escenarios aleatorios & diferencia máxima 0 s$\cdot$veh \\
-Término uniforme de \eqref{eq:retardo-webster} & área de la cola de un modelo fluido determinista (paso de 1\,ms) & 5 ciclos $(C,\lambda,q)$ & error relativo máximo 0.013\,\% \\
-Término aleatorio de \eqref{eq:retardo-webster} & cola M/D/1 simulada con la recursión de Lindley ($1.5\cdot10^{6}$ clientes) & $X=0.3,\ 0.6,\ 0.8$ & error relativo máximo 0.9\,\% (ruido de la simulación) \\
-Reparto $g_i=(y_i/Y)(C_0-L)$ de \eqref{eq:webster} & igualdad de los grados de saturación $X_1=X_2$ & 4 pares de caudales & diferencia máxima $<10^{-15}$ \\
-Ciclo $C_0$ de \eqref{eq:webster} & mínimo numérico del retardo de Webster completo, con el mismo reparto de verdes & 4 pares de caudales & el retardo en $C_0$ excede al mínimo en 4.0\,\% como máximo \\
-\eqref{eq:lt}, \eqref{eq:mt}: $\max=1-\mu_A$ y $\min=0$ & valores de $\mu_A$ de las Tablas~III y~IV con $x\neq x_0$ & 234 puntos de 12 conjuntos & 0 fallos \\
-Regla composicional con entrada exacta & $\max_x\min\{R(x,y),A(x)\}$ frente a la fila $R(x_0,y)$ & 200 relaciones aleatorias & diferencia máxima 0 \\
-Conteos & $5\cdot6\cdot6$; $5\cdot5$; $7+5\cdot10$ & 3 conteos & 180; 25; 57 \\
+\eqref{eq:retardoR}, \eqref{eq:retardoG}: $D=\sum_n$ colas & suma de esperas individuales (FIFO), 1000 escenarios & dif. máx. 0 \\
+Simulador: $\sum_n$ colas & espera de los que salieron $+$ residual (8 corridas) & dif. máx. 0 \\
+Primer término de \eqref{eq:retardo-webster} & área de la cola de un modelo fluido & error 0.013\,\% \\
+Segundo término de \eqref{eq:retardo-webster} & cola M/D/1 simulada (Lindley) & error 0.9\,\% (ruido) \\
+Reparto $g_i$ de \eqref{eq:webster} & igualdad $X_1=X_2$ & dif. $<10^{-15}$ \\
+Ciclo $C_0$ de \eqref{eq:webster} & mínimo numérico de Webster & retardo $\le$ 4.0\,\% sobre el mínimo \\
+\eqref{eq:lt}, \eqref{eq:mt}: $\max=1-\mu_A$, $\min=0$ & 234 puntos de 12 conjuntos & 0 fallos \\
+Regla composicional exacta & 200 relaciones aleatorias & dif. máx. 0 \\
+Conteos & $5\cdot6\cdot6$; $5\cdot5$; $7+5\cdot10$ & 180; 25; 57 \\
 \bottomrule
 \end{tabular}
-\fuente{\texttt{verificar\_formulas.py} (\texttt{resultados/verificacion\_formulas.json}); los casos aleatorios usan la semilla 2026. La comparación $C_0$ frente al mínimo numérico usa los caudales de la Tabla~VIII (360/360, 720/1080, 1080/1440 y 1440/1440).}
-\end{table*}
+\fuente{\texttt{verificar\_formulas.py} (semilla 2026); caudales de la Tabla~VIII para la comparación de $C_0$.}
+\end{table}

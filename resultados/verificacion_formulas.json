@@ -115,10 +115,14 @@
  "mtlt": {
   "puntos": 234,
   "fallos_propiedad": 0,
-  "dif_mt_codigo_vs_definicion": 1,
+  "dif_mt_codigo_vs_definicion": 0,
   "dif_lt_codigo_vs_definicion": 0,
   "conjuntos_llegadas": 6,
-  "conjuntos_colas": 6
+  "conjuntos_colas": 6,
+  "conjuntos_subnormales": [
+   "none"
+  ],
+  "mt_none_en_1": 0.5
  },
  "singleton": {
   "casos": 200,
@@ -132,5 +136,9 @@
   "reglas": 25,
   "verde_max": 57,
   "verde_max_alt": 57
+ },
+ "sim_real": {
+  "casos": 8,
+  "max_dif": 0.0
  }
 }

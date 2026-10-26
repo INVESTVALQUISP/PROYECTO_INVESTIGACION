@@ -164,7 +164,7 @@ INTERVENTIONS = [7, 17, 27, 37, 47]
 
 
 def _resolve_modes(mode, predicted_q, a_mode, q_mode):
-    """Traduce el par historico (mode, predicted_q) a (a_mode, q_mode).
+    """Traduce los parametros historicos (mode, predicted_q) a (a_mode, q_mode).
 
     a_mode : como se cuenta A, los vehiculos que cruzan el punto critico en e s
         'arrivals' -> beta_e = arribos acumulados detectados (ejemplo, pag. 7)
@@ -173,11 +173,19 @@ def _resolve_modes(mode, predicted_q, a_mode, q_mode):
     q_mode : en que valor se evalua la membresia de Q
         'predicted' -> beta'_e = Q + arribos acumulados del brazo en rojo (ejemplo, pag. 7)
         'current'   -> la cola actual Q (constante en e)
+
+    Regla de resolucion (ningun parametro se ignora):
+      * a_mode y q_mode, si se dan, mandan.
+      * si no se da a_mode: 'crossing' para mode='capacity' y 'arrivals' para mode='literal'.
+      * si no se da q_mode: 'predicted' si predicted_q es verdadero y 'current' si es falso;
+        predicted_q=None toma el valor por defecto del modo (capacity -> False, literal -> True).
     """
     if a_mode is None:
         a_mode = "crossing" if mode == "capacity" else "arrivals"
     if q_mode is None:
-        q_mode = "current" if (mode == "capacity" or not predicted_q) else "predicted"
+        if predicted_q is None:
+            predicted_q = mode != "capacity"
+        q_mode = "predicted" if predicted_q else "current"
     return a_mode, q_mode
 
 
@@ -194,7 +202,7 @@ def _beta_and_q(arrivals_green, arrivals_cross, q_cross, q_green, a_mode, q_mode
 
 
 def fuzzy_decision(arrivals_green, arrivals_cross, q_cross, rules,
-                   predicted_q=True, q_green=0, mode="literal",
+                   predicted_q=None, q_green=0, mode="literal",
                    a_mode=None, q_mode=None):
     """
     Calcula el vector de confianza grade[e] para e = 1..10 s (extensiones).
@@ -231,7 +239,7 @@ def fuzzy_decision(arrivals_green, arrivals_cross, q_cross, rules,
 
 
 def fuzzy_decision_per_rule(arrivals_green, arrivals_cross, q_cross, rules,
-                             predicted_q=True, q_green=0, mode="literal",
+                             predicted_q=None, q_green=0, mode="literal",
                              a_mode=None, q_mode=None):
     """
     Igual que fuzzy_decision pero devuelve la matriz de grados FILA POR REGLA
@@ -261,6 +269,19 @@ def decide_extension(grade, threshold=0.5):
         return 0
     candidates = [e for e in range(1, 11) if grade[e] == best]
     return max(candidates)
+
+
+def decide_extension_centroid(grade, threshold=0.5):
+    """VARIANTE (no es la del paper): defuzzificacion por centroide del grado agregado g(e), e = 1..10.
+
+      * si max(grade) < threshold -> 0 (se corta el verde, igual que en el paper)
+      * sino                      -> e* = redondeo del centroide  sum(e g(e)) / sum(g(e)),  1 <= e* <= 10
+    """
+    g = np.asarray(grade[1:11], dtype=float)
+    if g.max() < threshold:
+        return 0
+    c = float((np.arange(1, 11) * g).sum() / g.sum())
+    return int(min(10, max(1, round(c))))
 
 
 # ---------------------------------------------------------------------------

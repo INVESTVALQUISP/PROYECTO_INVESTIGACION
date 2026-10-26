@@ -1,0 +1,18 @@
+\begin{table*}[!t]
+\caption{Activación y disparo de las reglas agregados sobre 20 réplicas de 7200\,s en cuatro regímenes de tráfico (media $\pm$ desviación estándar entre réplicas). «Decisiones»: por réplica; «cortes»: fracción de decisiones con $e^*=0$; «$e^*=10$»: fracción con extensión máxima; R1 a R5: porcentaje de las extensiones en que la regla R$i$ (de cualquier intervención) dispara.}
+\label{tab:disparos}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+N--S/E--W & Decisiones & Cortes (\%) & $e^*=10$ (\%) & R1 & R2 & R3 & R4 & R5 \\
+\midrule
+360/360 & 575 & 80.5\,$\pm$\,1.5 & 0.1\,$\pm$\,0.1 & 71.5\,$\pm$\,3.1 & 20.5\,$\pm$\,2.9 & 5.3\,$\pm$\,2.0 & 2.1\,$\pm$\,1.0 & 0.5\,$\pm$\,0.4 \\
+720/720 & 536 & 54.5\,$\pm$\,1.7 & 3.9\,$\pm$\,0.9 & 43.7\,$\pm$\,3.7 & 26.0\,$\pm$\,2.5 & 14.5\,$\pm$\,2.3 & 7.3\,$\pm$\,1.5 & 8.5\,$\pm$\,1.9 \\
+720/2160 & 601 & 6.0\,$\pm$\,1.1 & 75.8\,$\pm$\,1.5 & 11.1\,$\pm$\,1.0 & 4.5\,$\pm$\,0.9 & 2.0\,$\pm$\,0.8 & 1.8\,$\pm$\,0.7 & 80.6\,$\pm$\,1.4 \\
+1440/1440 & 633 & 6.3\,$\pm$\,1.0 & 67.4\,$\pm$\,0.9 & 23.6\,$\pm$\,1.4 & 2.5\,$\pm$\,0.6 & 0.9\,$\pm$\,0.5 & 1.0\,$\pm$\,0.5 & 71.9\,$\pm$\,1.0 \\
+\bottomrule
+\end{tabular}
+\fuente{simulaciones propias (\texttt{informe\_agregado.py}, \texttt{resultados/disparos\_agregados.json}), lectura calibrada y 25 reglas del Apéndice del artículo original (pp.~715 y~716).}
+\end{table*}

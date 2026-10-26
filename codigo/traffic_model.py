@@ -27,7 +27,7 @@ Controlador difuso (Apendice):
 import math
 
 import numpy as np
-from fuzzy_logic import RULES, INTERVENTIONS, fuzzy_decision, decide_extension
+from fuzzy_logic import RULES, INTERVENTIONS, fuzzy_decision, decide_extension, decide_extension_centroid
 
 SAT = 1.0          # flujo de saturacion (veh/s)
 LOST = 5.0         # tiempo perdido por cambio de fase (s) -> 10 s / ciclo
@@ -48,8 +48,9 @@ LOST = 5.0         # tiempo perdido por cambio de fase (s) -> 10 s / ciclo
 #                 actual (cola "construida durante la fase"), en su valor actual.
 #             Es la unica lectura de las probadas que reproduce la Tabla VIII en
 #             todo el rango de caudales (ver fidelity_audit.py).
-LITERAL = dict(mode="literal", predicted_q=True, queue_source="total")
-CALIBRADA = dict(mode="capacity", predicted_q=True, queue_source="green_arrivals")
+# Ambas lecturas se dan de forma explicita (a_mode, q_mode, predicted_q, queue_source): ningun parametro se ignora.
+LITERAL = dict(mode="literal", a_mode="arrivals", q_mode="predicted", predicted_q=True, queue_source="total")
+CALIBRADA = dict(mode="capacity", a_mode="crossing", q_mode="current", predicted_q=False, queue_source="green_arrivals")
 
 
 class Sim:
@@ -68,6 +69,14 @@ class Sim:
         q = self.q_ns if phase == 0 else self.q_ew
         q.append(t)
         self.total_arrivals += 1
+
+    def residual_delay(self, horizon):
+        """Espera acumulada hasta 'horizon' de los vehiculos que siguen en cola al final de la simulacion.
+
+        El acumulador total_delay solo suma la espera de quien ya salio; con esta cantidad, total_delay +
+        residual_delay es exactamente la suma por segundo de las colas (ecuaciones del articulo):
+        sum_{n=0}^{T-1} (Q_NS,n + Q_EW,n)."""
+        return float(sum(horizon - t0 for t0 in self.q_ns) + sum(horizon - t0 for t0 in self.q_ew))
 
     def _discharge(self, phase, t):
         q = self.q_ns if phase == 0 else self.q_ew
@@ -101,9 +110,9 @@ class Sim:
         return arr_g[t:t + 10].tolist(), arr_r[t:t + 10].tolist(), q_red, q_green
 
     # -- fase con derecho de paso, controlada por el controlador difuso -------
-    def run_green_fuzzy(self, phase, t_start, duration, mode="capacity", predicted_q=True,
+    def run_green_fuzzy(self, phase, t_start, duration, mode="capacity", predicted_q=None,
                         ruleset=None, threshold=0.5, trace=None,
-                        queue_source="green_arrivals", a_mode=None, q_mode=None):
+                        queue_source="green_arrivals", a_mode=None, q_mode=None, defuzz="max"):
         """Intervenciones tras 7, 17, 27, 37 y 47 s de verde efectivo (pag. 3).
 
         En cada una se decide la extension e* (0 = cambiar de fase ya). Si e* = 10
@@ -120,7 +129,7 @@ class Sim:
                 grade = fuzzy_decision(wg, wr, q_red, rules[INTERVENTIONS[ii]],
                                        predicted_q=predicted_q, q_green=q_green, mode=mode,
                                        a_mode=a_mode, q_mode=q_mode)
-                e_star = decide_extension(grade, threshold)
+                e_star = (decide_extension_centroid if defuzz == "centroid" else decide_extension)(grade, threshold)
                 if trace is not None:
                     trace(phase, t - t_start, q_green, q_red, grade, e_star)
                 green_end = t + e_star
@@ -128,6 +137,35 @@ class Sim:
             if green_end is not None and t >= green_end:
                 break
             self.tick(t, phase)
+            t += 1
+        return t
+
+    # -- fase con derecho de paso, control ACCIONADO por vehiculo (comparador adicional) ----
+    def run_green_actuated(self, phase, t_start, duration, min_green=7, max_green=57, gap=3):
+        """Verde accionado por detector (extension por hueco, 'gap-out'), con los mismos limites que el difuso.
+
+          * verde minimo de min_green s (7 s, como la primera intervencion del difuso);
+          * pasado el minimo, el verde sigue mientras haya demanda en el brazo con paso (vehiculos en cola o una
+            llegada en los ultimos 'gap' s); termina cuando no la hay (hueco) y el brazo contrario tiene vehiculos
+            esperando; si el contrario esta vacio, el verde se mantiene;
+          * verde maximo de max_green s (57 s, el maximo del difuso).
+        Parametros fijos y no ajustados a ningun resultado."""
+        arr_g = self.arr_ns if phase == 0 else self.arr_ew
+        q_g = self.q_ns if phase == 0 else self.q_ew
+        q_o = self.q_ew if phase == 0 else self.q_ns
+        t = t_start
+        last_arr = t_start
+        while t < duration:
+            el = t - t_start
+            if el >= max_green:
+                break
+            if el >= min_green:
+                demanda = len(q_g) > 0 or (t - last_arr) < gap
+                if (not demanda) and len(q_o) > 0:
+                    break
+            self.tick(t, phase)
+            if arr_g[t]:
+                last_arr = t
             t += 1
         return t
 
@@ -200,8 +238,8 @@ def _make_arrivals(lam_ns, lam_ew, seed, duration):
 
 
 def simulate_fuzzy(lam_ns, lam_ew, seed, duration=7200, lost=LOST,
-                  mode="capacity", predicted_q=True, ruleset=None, threshold=0.5,
-                  queue_source="green_arrivals", a_mode=None, q_mode=None):
+                  mode="capacity", predicted_q=None, ruleset=None, threshold=0.5,
+                  queue_source="green_arrivals", a_mode=None, q_mode=None, include_residual=False, defuzz="max"):
     arr_ns, arr_ew = _make_arrivals(lam_ns, lam_ew, seed, duration)
     sim = Sim(arr_ns, arr_ew, lost=lost)
     t = 0
@@ -209,32 +247,62 @@ def simulate_fuzzy(lam_ns, lam_ew, seed, duration=7200, lost=LOST,
     while t < duration:
         t = sim.run_green_fuzzy(phase, t, duration, mode=mode, predicted_q=predicted_q,
                                 ruleset=ruleset, threshold=threshold,
-                                queue_source=queue_source, a_mode=a_mode, q_mode=q_mode)
+                                queue_source=queue_source, a_mode=a_mode, q_mode=q_mode, defuzz=defuzz)
         t = sim.transition(t, duration)
         phase = 1 - phase
-    return sim.total_delay / sim.total_arrivals
+    extra = sim.residual_delay(duration) if include_residual else 0.0
+    return (sim.total_delay + extra) / sim.total_arrivals
 
 
-def simulate_fixed_cycle(lam_ns, lam_ew, seed, duration=7200, lost=LOST):
+def simulate_fixed_cycle(lam_ns, lam_ew, seed, duration=7200, lost=LOST, include_residual=False, rounding="nearest"):
+    """Ciclo fijo con los ajustes optimos de Webster.
+
+    rounding="nearest": cada verde efectivo se redondea al entero mas proximo (protocolo oficial; el modelo avanza en
+                        pasos de 1 s).
+    rounding="dither" : los verdes se reparten en numeros enteros de modo que su PROMEDIO sea exactamente g1 y g2 sin
+                        redondear (redondeo acumulado: g_k = round(k g) - round((k-1) g)); mide el efecto de redondear.
+    """
     C0, g1, g2 = webster_optimum(lam_ns, lam_ew)
     arr_ns, arr_ew = _make_arrivals(lam_ns, lam_ew, seed, duration)
     sim = Sim(arr_ns, arr_ew, lost=lost)
     t = 0
     phase = 0
+    cycle = 0
     # el modelo avanza en unidades de 1 s (pag. 2): verde efectivo en s enteros
     g = [math.floor(g1 + 0.5), math.floor(g2 + 0.5)]
     while t < duration:
+        if rounding == "dither" and phase == 0:
+            k = cycle + 1
+            g = [math.floor(k * g1 + 0.5) - math.floor((k - 1) * g1 + 0.5),
+                 math.floor(k * g2 + 0.5) - math.floor((k - 1) * g2 + 0.5)]
+            cycle += 1
         t = sim.run_green_fixed(phase, t, g[phase], duration)
         t = sim.transition(t, duration)
         phase = 1 - phase
-    return sim.total_delay / sim.total_arrivals
+    extra = sim.residual_delay(duration) if include_residual else 0.0
+    return (sim.total_delay + extra) / sim.total_arrivals
+
+
+def simulate_actuated(lam_ns, lam_ew, seed, duration=7200, lost=LOST, include_residual=False,
+                      min_green=7, max_green=57, gap=3):
+    """Comparador accionado por vehiculo (extension por hueco), ver Sim.run_green_actuated."""
+    arr_ns, arr_ew = _make_arrivals(lam_ns, lam_ew, seed, duration)
+    sim = Sim(arr_ns, arr_ew, lost=lost)
+    t = 0
+    phase = 0
+    while t < duration:
+        t = sim.run_green_actuated(phase, t, duration, min_green=min_green, max_green=max_green, gap=gap)
+        t = sim.transition(t, duration)
+        phase = 1 - phase
+    extra = sim.residual_delay(duration) if include_residual else 0.0
+    return (sim.total_delay + extra) / sim.total_arrivals
 
 
 def average(sim_func, lam_ns, lam_ew, reps=30, duration=7200, base_seed=0, **kwargs):
     """Promedia 'reps' replicas independientes para reducir la varianza."""
     vals = [sim_func(lam_ns, lam_ew, base_seed + k, duration=duration, **kwargs)
             for k in range(reps)]
-    return float(np.mean(vals)), float(np.std(vals))
+    return float(np.mean(vals)), float(np.std(vals, ddof=1))   # desviacion estandar de la muestra (n-1)
 
 
 # Combinaciones de caudal del Cuadro VIII del paper (veh/h)
@@ -247,17 +315,19 @@ COMBINATIONS = [
 ]
 
 
-def run_table(reps=30, duration=7200, base_seed=0, mode="capacity", predicted_q=True,
-              queue_source="green_arrivals"):
+def run_table(reps=30, duration=7200, base_seed=0, mode="capacity", predicted_q=None,
+              queue_source="green_arrivals", a_mode=None, q_mode=None):
     """Reproduce el Cuadro VIII: compara control de ciclo fijo (linea base de
-    actuation por vehiculo eficaz) contra controlador difuso."""
+    actuation por vehiculo eficaz) contra controlador difuso, con numeros aleatorios comunes
+    (semillas base_seed .. base_seed + reps - 1 para ambos controladores)."""
     rows = []
     for ns, ew in COMBINATIONS:
         lns, lew = ns / 3600.0, ew / 3600.0
         dm_fixed, sd_fixed = average(simulate_fixed_cycle, lns, lew, reps, duration, base_seed)
+        # numeros aleatorios comunes (CRN): fijo y difuso ven las MISMAS llegadas en cada replica
         dm_fz, sd_fz = average(simulate_fuzzy, lns, lew, reps, duration,
-                               base_seed + 100000, mode=mode, predicted_q=predicted_q,
-                               queue_source=queue_source)
+                               base_seed, mode=mode, predicted_q=predicted_q,
+                               queue_source=queue_source, a_mode=a_mode, q_mode=q_mode)
         imp = (dm_fixed - dm_fz) / dm_fixed * 100.0
         rows.append((ns, ew, dm_fixed, dm_fz, imp))
     return rows

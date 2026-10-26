@@ -28,63 +28,78 @@ def box(ax, x0, y0, x1, y1, text, fc, ec, fs=6.8, bold=False, lw=1.0):
     ax.text((x0 + x1) / 2, (y0 + y1) / 2, text, ha="center", va="center", fontsize=fs, fontweight="bold" if bold else "normal")
 
 
-# ------------------------------------------------------------------ timeline
-events = [(1958, "Webster:\nciclo fijo óptimo", "t"), (1963, "Miller", "t"), (1965, "Zadeh:\nconjuntos difusos", "f"),
-          (1969, "TRANSYT", "t"), (1971, "Allsop", "t"), (1975, "Mamdani y Assilian:\nprimer control difuso", "f"),
-          (1977, "Pappis y Mamdani:\nsemáforo difuso", "f"), (1982, "SCOOT y SCATS", "t"),
-          (1999, "Trabia et al.", "f"), (2000, "Niittymäki\ny Pursula", "f"), (2001, "Bingham\n(neurodifuso)", "a"),
-          (2003, "Abdulhai et al.\n(Q-learning)", "a"), (2005, "Murat y\nGedizlioglu", "f"),
-          (2015, "Mnih et al.\n(DQN)", "a"), (2016, "Genders\ny Razavi", "a"), (2018, "IntelliLight", "a"), (2020, "Chu et al.", "a")]
-col = {"t": BL, "f": OR, "a": GR}
-LV = {1958: 1.0, 1963: -1.0, 1965: 2.1, 1969: -1.0, 1971: 1.0, 1975: -2.1, 1977: 2.1, 1982: -1.0,
-      1999: 1.0, 2000: -1.0, 2001: 2.3, 2003: -2.3, 2005: 1.0, 2015: -1.0, 2016: 1.0, 2018: -2.2, 2020: 2.3}
-fig, ax = plt.subplots(figsize=(W, 3.0))
-ax.axhline(0, color="#444", lw=1.2)
-for yr, lab, cat in events:
-    lv = LV[yr]
-    ax.plot([yr, yr], [0, lv * 0.82], color=col[cat], lw=0.8)
-    ax.plot(yr, 0, "o", color=col[cat], ms=4)
-    ax.text(yr, lv, f"{yr}\n{lab}", ha="center", va="bottom" if lv > 0 else "top", fontsize=5.6, color=col[cat],
-            bbox=dict(boxstyle="round,pad=0.18", fc="white", ec=col[cat], lw=0.5))
-ax.set_ylim(-3.9, 3.9); ax.set_xlim(1952, 2025); ax.axis("off")
-for c, t in (("t", "Ingeniería de tránsito"), ("f", "Lógica difusa"), ("a", "Aprendizaje (RL / neurodifuso)")):
-    ax.plot([], [], "o", color=col[c], label=t, ms=4)
-ax.legend(loc="lower center", ncol=3, frameon=False, bbox_to_anchor=(0.5, -0.03))
-fig.tight_layout(pad=0.3)
+# ------------------------------------------------------------------ cronologia (por linea de trabajo)
+# Se dibuja al TAMANO FINAL de impresion (7.16 in de ancho) con texto de 6 a 6.5 pt, legible sin escalar.
+ERAS = [("1958 a 1982", 0), ("1999 a 2005", 1), ("2015 a 2020", 2), ("2021 a 2026", 3)]
+LANES = [
+    ("Ingeniería de tránsito", BL, "#dbeafe",
+     [["1958 Webster: ciclo fijo óptimo", "1963 Miller", "1969 TRANSYT", "1971 Allsop", "1982 SCOOT y SCATS"], ["2001 RHODES"], [], []]),
+    ("Lógica difusa", OR, "#ffedd5",
+     [["1965 Zadeh: conjuntos difusos", "1975 Mamdani y Assilian", "1977 Pappis y Mamdani"],
+      ["1999 Trabia et al.", "2000 Niittymäki y Pursula", "2005 Murat y Gedizlioglu"], [],
+      ["2021 Ali; Jiang; Vuong (ANFIS)", "2026 Dvorsky et al. (tipo 2)"]]),
+    ("Aprendizaje y bancos de prueba", GR, "#dcfce7",
+     [[], ["2001 Bingham (neurodifuso)", "2003 Abdulhai et al. (Q-learning)"],
+      ["2015 Mnih et al. (DQN)", "2016 Genders y Razavi", "2018 IntelliLight", "2020 Chu et al."],
+      ["2021 Ault (RESCO)", "2022 Noaeen et al. (revisión)", "2024 Mei et al. (LibSignal)", "2025 Vlasceanu; Michailidis"]]),
+]
+LH = 0.092                         # pulgadas por linea de 6 pt
+x_lab, x_era0, w_era = 0.05, 1.2, 1.46
+hts = [max(1, max(len(c) for c in L[3])) * LH + 0.1 for L in LANES]
+H = 0.26 + sum(hts) + 0.05
+fig, ax = plt.subplots(figsize=(W, H))
+ax.set_xlim(0, W); ax.set_ylim(0, H); ax.axis("off")
+y = H - 0.05
+for lab, i in ERAS:                                    # encabezados de epoca
+    ax.add_patch(plt.Rectangle((x_era0 + i * w_era, y - 0.2), w_era - 0.04, 0.2, fc="#e8edf5", ec="#1a2b4a", lw=0.6))
+    ax.text(x_era0 + i * w_era + (w_era - 0.04) / 2, y - 0.1, lab, ha="center", va="center", fontsize=6.5, fontweight="bold")
+ax.annotate("", xy=(W - 0.03, y - 0.1), xytext=(x_era0 + 4 * w_era - 0.03, y - 0.1), arrowprops=dict(arrowstyle="->", lw=0.8, color="#1a2b4a"))
+y -= 0.26
+for (nombre, col, fc, celdas), h in zip(LANES, hts):
+    ax.add_patch(plt.Rectangle((x_lab, y - h), x_era0 - 0.1, h, fc=fc, ec=col, lw=0.8))
+    ax.text(x_lab + (x_era0 - 0.1) / 2, y - h / 2, nombre.replace(" y bancos", "\ny bancos").replace("Ingeniería de ", "Ingeniería\nde "), ha="center", va="center",
+            fontsize=6.3, fontweight="bold", color=col)
+    for i, items in enumerate(celdas):
+        ax.add_patch(plt.Rectangle((x_era0 + i * w_era, y - h), w_era - 0.04, h, fc="white", ec=col, lw=0.6))
+        for k, t in enumerate(items):
+            ax.text(x_era0 + i * w_era + 0.04, y - 0.05 - k * LH, t, ha="left", va="top", fontsize=6, color="#222")
+    y -= h + 0.0
+fig.subplots_adjust(0, 0, 1, 1)
 fig.savefig(f"{OUT}/fig_timeline.png", dpi=300); plt.close(fig)
 
-# ------------------------------------------------------------------ taxonomia
-fig, ax = plt.subplots(figsize=(W, 3.1))
-ax.set_xlim(0, 100); ax.set_ylim(0, 64); ax.axis("off")
-
-
-def link(xa, ya, xb, yb):
-    ym = (ya + yb) / 2
-    ax.plot([xa, xa, xb, xb], [ya, ym, ym, yb], color="#555", lw=0.8)
-
-
-box(ax, 32, 55, 68, 62, "Control de señales de una intersección", "#e8edf5", "#1a2b4a", 7.6, True)
-box(ax, 1, 43, 19, 50, "Tiempo fijo", "#dbeafe", BL, 7, True)
-box(ax, 21, 43, 39, 50, "Actuado por\nvehículo", "#dbeafe", BL, 7, True)
-box(ax, 41, 43, 59, 50, "Adaptativo en\ntiempo real", "#dbeafe", BL, 7, True)
-box(ax, 61, 43, 99, 50, "Inteligencia computacional", "#ffedd5", OR, 7.2, True)
-for xc in (10, 30, 50, 80):
-    link(50, 55, xc, 50)
-box(ax, 1, 20, 19, 40, "Webster (1958)\nMiller (1963)\nAllsop (1971)\nTRANSYT (1969)", "white", BL, 6.3)
-box(ax, 21, 20, 39, 40, "Extensión del verde\ncon detectores\n(línea base de\nPappis y Mamdani)", "white", BL, 6.3)
-box(ax, 41, 20, 59, 40, "SCOOT, SCATS\nRHODES (2001)\nrevisión de\nPapageorgiou (2003)", "white", BL, 6.3)
-for xa in (10, 30, 50):
-    ax.plot([xa, xa], [43, 40], color="#555", lw=0.8)
-box(ax, 61, 33, 79, 40, "Lógica difusa", "#ffedd5", OR, 6.8, True)
-box(ax, 81, 33, 99, 40, "Neurodifuso y RL", "#dcfce7", GR, 6.8, True)
-link(80, 43, 70, 40); link(80, 43, 90, 40)
-box(ax, 61, 12, 79, 30, "Pappis–Mamdani (1977)\nTrabia (1999)\nNiittymäki (2000)\nMurat (2005)", "white", OR, 6.0)
-box(ax, 81, 12, 99, 30, "Bingham (2001)\nAbdulhai (2003)\nGenders (2016)\nIntelliLight (2018)\nChu (2020)", "white", GR, 6.0)
-for xa in (70, 90):
-    ax.plot([xa, xa], [33, 30], color="#555", lw=0.8)
-ax.text(30, 8, "La réplica de este trabajo se ubica en la rama de lógica difusa\n(Pappis y Mamdani, 1977) y se contrasta con el ciclo fijo óptimo.",
-        ha="center", va="center", fontsize=6.3, style="italic", color="#333")
-fig.tight_layout(pad=0.3)
+# ------------------------------------------------------------------ taxonomia (arbol de tres niveles)
+COLS = [("Tiempo fijo", BL, "#dbeafe", ["Webster (1958)", "Miller (1963)", "Allsop (1971)", "TRANSYT (1969)"]),
+        ("Actuado por vehículo", BL, "#dbeafe", ["Extensión del verde con", "detectores; línea base de", "Pappis y Mamdani"]),
+        ("Adaptativo en tiempo real", BL, "#dbeafe", ["SCOOT, SCATS (1982)", "RHODES (2001)", "Papageorgiou (2003)"]),
+        ("Lógica difusa", OR, "#ffedd5", ["Pappis y Mamdani (1977)", "Trabia (1999)", "Niittymäki y Pursula (2000)", "Murat (2005)", "Ali; Jiang (2021)", "Dvorsky (2026)"]),
+        ("Neurodifuso y RL", GR, "#dcfce7", ["Bingham (2001)", "Abdulhai (2003)", "Genders (2016)", "IntelliLight (2018)", "Chu (2020)", "Vuong (2021)", "Vlasceanu (2025)"]),
+        ("Revisiones y bancos", GR, "#dcfce7", ["Noaeen (2022)", "Michailidis (2025)", "Ault, RESCO (2021)", "Mei, LibSignal (2024)"])]
+nL = max(len(c[3]) for c in COLS)
+H = 0.3 + 0.27 + 0.34 + nL * LH + 0.12 + 0.12
+fig, ax = plt.subplots(figsize=(W, H))
+ax.set_xlim(0, W); ax.set_ylim(0, H); ax.axis("off")
+cw, gap, x0 = 1.13, 0.05, 0.05
+xs = [x0 + i * (cw + gap) for i in range(6)]
+yR = H - 0.26
+ax.add_patch(FancyBboxPatch((W / 2 - 1.5, yR), 3.0, 0.22, boxstyle="round,pad=0.01,rounding_size=0.04", fc="#e8edf5", ec="#1a2b4a", lw=1.0))
+ax.text(W / 2, yR + 0.11, "Control de señales de una intersección aislada", ha="center", va="center", fontsize=7, fontweight="bold")
+yG = yR - 0.30
+grupos = [("Ingeniería de tránsito", 0, 2, BL, "#dbeafe"), ("Inteligencia computacional", 3, 5, OR, "#ffedd5")]
+for nombre, i0, i1, col, fc in grupos:
+    xa, xb = xs[i0], xs[i1] + cw
+    ax.add_patch(FancyBboxPatch((xa, yG), xb - xa, 0.2, boxstyle="round,pad=0.01,rounding_size=0.04", fc=fc, ec=col, lw=1.0))
+    ax.text((xa + xb) / 2, yG + 0.1, nombre, ha="center", va="center", fontsize=6.8, fontweight="bold", color=col)
+    xm = (xa + xb) / 2
+    ax.plot([W / 2, W / 2, xm, xm], [yR, yR - 0.04, yR - 0.04, yG + 0.2], color="#555", lw=0.8)
+yC = yG - 0.3
+for (nombre, col, fc, items), x in zip(COLS, xs):
+    ax.add_patch(FancyBboxPatch((x, yC), cw, 0.24, boxstyle="round,pad=0.01,rounding_size=0.04", fc=fc, ec=col, lw=1.4 if nombre == "Lógica difusa" else 0.9))
+    ax.text(x + cw / 2, yC + 0.12, nombre, ha="center", va="center", fontsize=6.3, fontweight="bold", color=col)
+    ax.plot([x + cw / 2] * 2, [yC + 0.24, yG], color="#555", lw=0.6)
+    ax.add_patch(plt.Rectangle((x, yC - 0.06 - nL * LH - 0.04), cw, nL * LH + 0.06 + 0.0, fc="white", ec=col, lw=0.6))
+    for k, t in enumerate(items):
+        ax.text(x + 0.04, yC - 0.07 - k * LH, t, ha="left", va="top", fontsize=6, color="#222")
+fig.subplots_adjust(0, 0, 1, 1)
 fig.savefig(f"{OUT}/fig_taxonomia.png", dpi=300); plt.close(fig)
 
 # ------------------------------------------------------------------ bloques

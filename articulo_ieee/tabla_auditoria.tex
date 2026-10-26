@@ -1,22 +1,22 @@
 \begin{table}[!t]
-\caption{Auditoría de las ocho lecturas de las entradas del controlador (reglas fijas; 10 réplicas de 7200\,s). Error relativo frente a la Tabla VIII del artículo.}
+\caption{Auditoría de las ocho lecturas de las entradas del controlador (25 reglas fijas; 20 réplicas de 7200\,s con números aleatorios comunes). Error relativo frente a la Tabla VIII del original: el de los retardos medios de las réplicas (medio entre los 16 flujos, y máximo) $\pm$ la desviación estándar entre réplicas del error por réplica; entre paréntesis, flujos con mejora significativa sobre el fijo (Wilcoxon pareado, Holm).}
 \label{tab:auditoria}
 \centering
 \scriptsize
-\setlength{\tabcolsep}{2.4pt}
+\setlength{\tabcolsep}{2.2pt}
 \begin{tabular}{@{}lllrrr@{}}
 \toprule
 $A$ & $Q$ evaluada & Cola $Q$ & Medio\,\% & Máx.\,\% & Mejor que fijo \\
 \midrule
-arribos & predicha & total & 631.0 & 2623 & 5/16 (literal) \\
-arribos & predicha & desde el verde & 323.1 & 1869 & 6/16 \\
-arribos & actual & total & 566.6 & 2610 & 5/16 \\
-arribos & actual & desde el verde & 227.6 & 1185 & 6/16 \\
-cruces & predicha & total & 421.0 & 2404 & 11/16 \\
-cruces & predicha & desde el verde & 175.4 & 1162 & 11/16 \\
-cruces & actual & total & 374.1 & 2362 & 12/16 \\
-cruces & actual & desde el verde & 9.3 & 19 & 16/16 (calibrada) \\
+arribos & predicha & total & 641.3\,$\pm$\,54.5 & 2620 & 5/16 (4) (literal) \\
+arribos & predicha & desde el verde & 331.4\,$\pm$\,42.9 & 1897 & 5/16 (5) \\
+arribos & actual & total & 569.1\,$\pm$\,43.9 & 2607 & 5/16 (4) \\
+arribos & actual & desde el verde & 218.9\,$\pm$\,29.0 & 1142 & 5/16 (4) \\
+cruces & predicha & total & 418.1\,$\pm$\,47.2 & 2398 & 11/16 (11) \\
+cruces & predicha & desde el verde & 178.0\,$\pm$\,27.1 & 1141 & 11/16 (11) \\
+cruces & actual & total & 371.1\,$\pm$\,44.0 & 2341 & 12/16 (11) \\
+cruces & actual & desde el verde & 9.2\,$\pm$\,1.5 & 19 & 16/16 (16) (calibrada) \\
 \bottomrule
 \end{tabular}
-\fuente{simulaciones propias (\texttt{fidelity\_audit.py}, \texttt{resultados/fidelity\_audit.json}) comparadas con la Tabla~VIII del artículo original (p.~715).}
+\fuente{simulaciones propias (\texttt{fidelity\_audit.py}) comparadas con la Tabla~VIII del artículo original (p.~715).}
 \end{table}

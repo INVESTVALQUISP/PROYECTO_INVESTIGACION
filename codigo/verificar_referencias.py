@@ -43,6 +43,7 @@ def doi_de(campos):
 
 
 def normalizar(s):
+    s = re.sub(r"<[^>]+>", " ", s)  # etiquetas HTML/JATS que Crossref deja en los títulos
     s = re.sub(r"\\[`'^\"~=.]\{?\\?(\w)\}?", r"\1", s)  # acentos LaTeX
     s = re.sub(r"\\[a-zA-Z]+\s*", " ", s).replace("{", "").replace("}", "")
     s = unicodedata.normalize("NFKD", s)
@@ -50,9 +51,15 @@ def normalizar(s):
     return re.sub(r"[^a-z0-9 ]+", " ", s).split()
 
 
-def similitud(a, b):
-    ta, tb = set(normalizar(a)), set(normalizar(b))
-    return len(ta & tb) / max(1, len(ta | tb))
+def titulos_coinciden(bib, crossref):
+    """Jaccard >= 0,7, o todo el título de Crossref está contenido en el del .bib.
+
+    Lo segundo cubre a los editores (p. ej. ACM) que registran solo la primera parte del título.
+    """
+    ta, tb = set(normalizar(bib)), set(normalizar(crossref))
+    if not tb:
+        return False
+    return len(ta & tb) / len(ta | tb) >= 0.7 or len(ta & tb) / len(tb) >= 0.95
 
 
 def consultar(doi):
@@ -64,13 +71,13 @@ def consultar(doi):
 
 def comparar(campos, msg):
     """Lista de (campo, valor en el .bib, valor en Crossref, coincide)."""
-    titulo = " ".join(msg.get("title", [""]))
+    titulo = " ".join(msg.get("title", []) + msg.get("subtitle", []))
     autores = msg.get("author", [])
     apellido = normalizar(autores[0].get("family", ""))[:1] if autores else []
     primer_autor_bib = normalizar(campos.get("author", "").split(" and ")[0])[-1:]
     fecha = (msg.get("issued") or msg.get("published") or {}).get("date-parts", [[None]])[0][0]
     filas = [
-        ("título", campos.get("title", ""), titulo, similitud(campos.get("title", ""), titulo) >= 0.7),
+        ("título", campos.get("title", ""), titulo, titulos_coinciden(campos.get("title", ""), titulo)),
         ("primer autor", " ".join(primer_autor_bib), " ".join(apellido), primer_autor_bib == apellido),
     ]
     if "year" in campos:

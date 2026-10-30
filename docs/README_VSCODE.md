@@ -41,15 +41,19 @@ hueco entre un auto y el de adelante nunca baja de 0.8 unidades, con separacione
 
 ## 1. Preparar VS Code (una sola vez)
 1. Instala Python 3.10 o superior (https://www.python.org/downloads/) marcando **Add Python to PATH**
-   (en Windows ya incluye Tkinter, que usa el simulador de ventana).
+   (en Windows ya incluye Tkinter, que usa el simulador de ventana). Si después `python` no se reconoce en la terminal,
+   usa `py` en su lugar (el lanzador de Python para Windows), como se indica abajo.
 2. VS Code → **Archivo → Abrir carpeta…** → elige la carpeta `raíz del repositorio/`. Instala la extensión
    **Python** si VS Code lo pide.
 3. Terminal integrada (`Ctrl+Ñ` o *Terminal → Nueva terminal*):
    ```powershell
-   python -m venv .venv
-   .venv\Scripts\activate
-   pip install -r requirements.txt
+   py -m venv .venv
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+   .venv\Scripts\Activate.ps1
+   python -m pip install -r requirements.txt
    ```
+   (`py` solo hace falta para crear el entorno; con el entorno activado, `python` ya funciona. En Linux o macOS:
+   `python3 -m venv .venv && source .venv/bin/activate`.)
 4. `Ctrl+Shift+P` → **Python: Select Interpreter** → elige el de `.venv`.
 
 ## 2. Ejecutar con un clic

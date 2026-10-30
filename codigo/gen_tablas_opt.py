@@ -175,6 +175,50 @@ def main():
              "\\begin{tabular}{@{}llrrr@{}}", "\\toprule", "$G$ & $R$ & $V$ bajo & $V$ medio & $V$ alto \\\\", "\\midrule"] + R + \
             ["\\bottomrule", "\\end{tabular}", f"\\fuente{{modelo entrenado {nom.replace('_', chr(92) + '_')} (resultados/opt/{nom.replace('_', chr(92) + '_')}.json).}}", "\\end{table}"]
         open(f"{OUT}/tabla_reglas_flc.tex", "w").write("\n".join(T) + "\n")
+
+    # ---------------- tablas del suplemento
+    # (a) todos los pares: media, sd, IC95 y p de Holm de FLC-O frente a Pappis y al actuado afinado
+    kp = f"{key['flc']}__vs__{key['pappis']}"
+    ka = f"{key['flc']}__vs__{key['actuado_af']}"
+    R = []
+    for i, (a_, b_) in enumerate(pares):
+        pp, aa, ff = of["por_par"][key["pappis"]][i], of["por_par"][key["actuado_af"]][i], of["por_par"][key["flc"]][i]
+        R.append(f"{int(a_)}/{int(b_)} & {f(pp['media'])} $\\pm$ {f(pp['sd'])} & {f(aa['media'])} $\\pm$ {f(aa['sd'])} & "
+                 f"{f(ff['media'])} $\\pm$ {f(ff['sd'])} & [{f(ff['ic_lo'])}, {f(ff['ic_hi'])}] & "
+                 f"{pct(comp[kp]['mejora_por_par'][i])} & {comp[kp]['p_holm'][i]:.1e} & {pct(comp[ka]['mejora_por_par'][i])} & {comp[ka]['p_holm'][i]:.1e} \\\\")
+    T = ["\\begin{table*}[!t]", "\\centering", "\\caption{Conjunto oficial: media $\\pm$ desviaci\\'on est\\'andar muestral (20 r\\'eplicas, $n-1$) del retardo (s/veh), "
+         "IC de 95\\,\\% de FLC-O y mejora de FLC-O frente a Pappis y Mamdani y frente al actuado afinado con su $p$ de Wilcoxon corregido por Holm.}",
+         "\\label{tab:spares}", "\\scriptsize", "\\begin{tabular}{@{}lrrrrrrrr@{}}", "\\toprule",
+         "N-S/E-W & Pappis y Mamdani & Actuado afinado & FLC-O & IC 95\\,\\% FLC-O & $\\Delta_P$ (\\%) & $p_P$ & $\\Delta_A$ (\\%) & $p_A$ \\\\", "\\midrule"] + R + \
+        ["\\bottomrule", "\\end{tabular}", "\\fuente{simulaci\\'on del autor (resultados/opt/evaluacion\\_final.json); $\\Delta$: reducci\\'on relativa del retardo medio del par.}", "\\end{table*}"]
+    open(f"{OUT}/tabla_s_pares.tex", "w").write("\n".join(T) + "\n")
+
+    # (b) programacion dinamica: analitico frente a simulado
+    if os.path.exists("resultados/opt/mdp_oficial.json"):
+        mdp = json.load(open("resultados/opt/mdp_oficial.json"))
+        R = [f"{x['ns']}/{x['ew']} & {f(x['dp_analitico'])} & {f(x['dp_sim'])} & {pct(100 * (x['dp_sim'] - x['dp_analitico']) / x['dp_analitico'])} \\\\" for x in mdp]
+        T = ["\\begin{table}[t]", "\\centering", "\\caption{Cota \\'optima por programaci\\'on din\\'amica: retardo que predice (ley de Little) y retardo medido "
+             "al simular su pol\\'itica durante 7200\\,s con 20 r\\'eplicas (s/veh).}", "\\label{tab:smdp}", "\\scriptsize",
+             "\\begin{tabular}{@{}lrrr@{}}", "\\toprule", "N-S/E-W & Predicho & Simulado & Dif.\\ (\\%) \\\\", "\\midrule"] + R + \
+            ["\\bottomrule", "\\end{tabular}", "\\fuente{opt\\_mdp.py y simulaci\\'on del autor (resultados/opt/mdp\\_oficial.json).}", "\\end{table}"]
+        open(f"{OUT}/tabla_s_mdp.tex", "w").write("\n".join(T) + "\n")
+
+    # (c) sensibilidad a la semilla de entrenamiento
+    sem = fin.get("semillas", [])
+    R = []
+    for etiqueta, modelo in sem:
+        if modelo in of["delay"]:
+            o = float(np.mean(of["delay"][modelo]))
+            nv = float(np.mean(d["no_vistos"]["delay"][modelo])) if modelo in d["no_vistos"]["delay"] else float("nan")
+            va = float(np.mean(d["variable"]["delay"][modelo])) if modelo in d["variable"]["delay"] else float("nan")
+            sa = float(np.mean(d["saturado"]["delay"][modelo])) if modelo in d["saturado"]["delay"] else float("nan")
+            R.append(f"{etiqueta} & {f(o)} & {f(nv, 1)} & {f(va, 1)} & {f(sa, 1)} \\\\")
+    if R:
+        T = ["\\begin{table}[t]", "\\centering", "\\caption{Sensibilidad de FLC-O a la semilla de entrenamiento de CMA-ES: retardo medio (s/veh) "
+             "en los cuatro conjuntos de prueba.}", "\\label{tab:ssemillas}", "\\scriptsize", "\\begin{tabular}{@{}lrrrr@{}}", "\\toprule",
+             "Entrenamiento & Oficial & No vistos & Variable & Saturado \\\\", "\\midrule"] + R + \
+            ["\\bottomrule", "\\end{tabular}", "\\fuente{simulaci\\'on del autor; cada fila es un entrenamiento independiente con otra semilla de CMA-ES y los mismos escenarios.}", "\\end{table}"]
+        open(f"{OUT}/tabla_s_semillas.tex", "w").write("\n".join(T) + "\n")
     print("escrito en", OUT)
 
 

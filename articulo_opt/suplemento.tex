@@ -1,0 +1,119 @@
+%% =============================================================================
+%%  Material suplementario del articulo de optimizacion (IEEEtran, journal). Compilar con pdfLaTeX.
+%%  Las tablas tabla_s_*.tex las genera codigo/gen_tablas_opt.py desde resultados/opt/*.json.
+%% =============================================================================
+\documentclass[journal]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\addto\captionsspanish{\renewcommand{\figurename}{Fig.}}
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{url}
+\graphicspath{{figures/}}
+\input{numeros}
+\newcommand{\fuente}[1]{\par\vspace{3pt}\noindent{\scriptsize\textit{Fuente:} #1\par}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\newcommand{\qbar}{\bar{q}}
+\newcommand{\FLC}{FLC-O}
+
+\begin{document}
+\title{Material suplementario: optimización de un controlador de semáforos de lógica difusa para una intersección aislada}
+\author{Raul Nolberto Quispe Saya and Kevin Luis Valero Ccacya}
+\markboth{Quispe Saya y Valero Ccacya: Material suplementario}{Quispe Saya y Valero Ccacya: Material suplementario}
+\maketitle
+
+\section{Alcance}
+Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la verificación del simulador vectorizado, la cota por programación dinámica, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
+
+\section{Entrenamiento}
+\label{sec:s-entrena}
+\begin{table}[t]
+\centering
+\caption{Configuración del entrenamiento con CMA-ES}
+\label{tab:hiper}
+\scriptsize
+\begin{tabular}{@{}p{0.42\columnwidth}p{0.5\columnwidth}@{}}
+\toprule
+Elemento & Valor \\
+\midrule
+Algoritmo & $(\mu/\mu_w,\lambda)$-CMA-ES con pesos logarítmicos, CSA, actualización de rango uno y de rango $\mu$ \cite{Hansen2016}; implementación propia (\texttt{opt\_es.py}) \\
+Población $\lambda$ y padres $\mu$ & $\lambda=4+\lfloor 3\ln n\rfloor$ ($n$ = número de parámetros), $\mu=\lfloor\lambda/2\rfloor$ \\
+Paso inicial $\sigma_0$ & 0.3 (0.15 para Pappis y Mamdani afinado) \\
+Generaciones & 120 a 200 según el modelo; punto de control cada 10 \\
+Escenarios de entrenamiento & $N=64$ pares $(\qbar_1,\qbar_2)$ sorteados con $180\le$ cada brazo y suma de 540 a 3300\,veh/h; semillas de llegadas 100000 a 100063; 3600\,s \\
+Escenarios de validación & 64 pares sorteados con otra semilla; llegadas 200000 a 200063; 7200\,s \\
+Normalización del objetivo & retardo del actuado afinado en el mismo escenario (objetivo $J(\theta)$ del artículo, Sec.~VI-D) \\
+Evaluación en paralelo & 4 procesos (\texttt{multiprocessing}, \texttt{fork}) \\
+Verde máximo & 57\,s (Pappis y Mamdani); 90\,s (modelos entrenados con rango ampliado) \\
+\bottomrule
+\end{tabular}
+\fuente{\texttt{codigo/opt\_es.py}, \texttt{codigo/opt\_entrenar\_modelo.py} y \texttt{codigo/opt\_entrenar.py}.}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_opt_aprendizaje.png}
+\caption{Mejor valor del objetivo $J(\theta)$ por generación para los modelos finales (1: igual al actuado de referencia).}
+\label{fig:s-aprendizaje}
+\end{figure}
+
+\section{Verificación del simulador vectorizado}
+\label{sec:s-equiv}
+La prueba \texttt{test\_sim\_batch.py} (parte de las comprobaciones de \texttt{ejecutar\_pruebas.py}) simula 8 escenarios de 2400\,s con el simulador de referencia (\texttt{traffic\_model.py}) y con el vectorizado, y compara el retardo con las dos convenciones: con residuo y solo de los vehículos servidos.
+
+\begin{table}[t]
+\centering
+\caption{Equivalencia entre el simulador vectorizado y el de referencia (8 escenarios)}
+\label{tab:equiv}
+\scriptsize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Controlador & Diferencia máxima (s/veh) \\
+\midrule
+Ciclo fijo de Webster (entero más próximo) & 0 \\
+Ciclo fijo de Webster (reparto exacto) & 0 \\
+Actuado por detector & 0 \\
+Pappis y Mamdani, lectura calibrada & 0 \\
+Pappis y Mamdani, lectura literal & 0 \\
+Pappis y Mamdani afinado con los parámetros del original & 0 \\
+\bottomrule
+\end{tabular}
+\fuente{\texttt{codigo/test\_sim\_batch.py}; también comprueba que $D=\sum_n(Q_{1,n}+Q_{2,n})$, la conservación de vehículos y que los números aleatorios son los de \texttt{traffic\_model.\_make\_arrivals}.}
+\end{table}
+
+\section{Cota óptima por programación dinámica}
+\label{sec:s-pd}
+El proceso de decisión de Markov de la Sección~V-B del artículo tiene estados de verde $(\text{fase},Q_1,Q_2)$ y de tiempo perdido $(\text{fase destino},j,Q_1,Q_2)$, $j=1,\dots,4$, con colas truncadas a 80 ($81\times81\times(2+8)$ estados) y las cuatro combinaciones de llegadas de Bernoulli en cada paso. La iteración de valor relativa resta en cada paso el valor del estado de referencia (fase 0, colas vacías) y converge cuando el cambio máximo es menor que $10^{-6}$. La Tabla~\ref{tab:smdp} compara el retardo que predice con el que se mide al simular la política resultante.
+
+\input{tabla_s_mdp}
+
+\section{Resultados completos del conjunto oficial}
+\label{sec:s-pares}
+\input{tabla_s_pares}
+
+\section{Sensibilidad a la semilla de entrenamiento}
+\label{sec:s-semillas}
+CMA-ES es estocástico. Para medir cuánto depende \FLC{} de la semilla, se entrenó con las mismas condiciones y semillas distintas; la Tabla~\ref{tab:ssemillas} reporta cada entrenamiento.
+
+\input{tabla_s_semillas}
+
+\section{Reproducción}
+\label{sec:s-repro}
+Desde la carpeta del proyecto, con Python 3.13 y NumPy 2.5:
+\begin{itemize}
+\item \texttt{python codigo/ejecutar\_pruebas.py}: todas las comprobaciones, incluida la equivalencia de los simuladores.
+\item \texttt{python codigo/opt\_entrenar\_modelo.py -{}-modelo flcopt -{}-gmin 5 -{}-max-green 90 -{}-suma-max 3300 -{}-ref actuado\_af -{}-gens 150 -{}-out resultados/opt/flcopt\_g5.json}: entrena \FLC{} (unos 15 minutos con 4 núcleos).
+\item \texttt{python codigo/opt\_evaluacion\_final.py}: evalúa todos los controladores en los cuatro conjuntos de prueba y calcula la estadística.
+\item \texttt{python codigo/gen\_tablas\_opt.py} y \texttt{python codigo/gen\_fig\_opt.py}: regeneran las tablas, las cifras del texto y las figuras.
+\end{itemize}
+Los resultados de este documento y del artículo salen de \texttt{resultados/opt/evaluacion\_final.json} y de \texttt{resultados/opt/modelos\_finales.json}.
+
+\bibliographystyle{IEEEtran}
+\bibliography{referencias}
+\end{document}

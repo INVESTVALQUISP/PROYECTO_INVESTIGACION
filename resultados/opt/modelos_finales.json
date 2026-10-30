@@ -1,7 +1,51 @@
-{"flc": "flcs_preview", "flc_causal": "flcs_causal", "mlp": "politica_mlp_preview", "mlp_causal": "mlp_causal", "afinado": "afinado_pappis",
- "ablacion": [["Pappis y Mamdani afinado", "afinado_pappis", 30, "vista adelante"],
-              ["Difuso 27 reglas ($g_{\\min}=7$)", "flcs_preview", 36, "vista adelante"],
-              ["Difuso 81 reglas con hueco", "flcs4_preview", 93, "vista adelante"],
-              ["Difuso 27 reglas, causal", "flcs_causal", 36, "solo pasado"],
-              ["Política neuronal", "politica_mlp_preview", 121, "vista adelante"],
-              ["Política neuronal, causal", "mlp_causal", 121, "solo pasado"]]}
+{
+ "flc": "flcs_preview",
+ "flc_causal": "flcs_causal",
+ "mlp": "politica_mlp_preview",
+ "mlp_causal": "mlp_causal",
+ "afinado": "afinado_pappis",
+ "ablacion": [
+  [
+   "Pappis y Mamdani afinado",
+   "afinado_pappis",
+   30,
+   "vista adelante"
+  ],
+  [
+   "Difuso 27 reglas ($g_{\\min}=7$)",
+   "flcs_preview",
+   36,
+   "vista adelante"
+  ],
+  [
+   "Difuso 81 reglas con hueco",
+   "flcs4_preview",
+   93,
+   "vista adelante"
+  ],
+  [
+   "Difuso 27 reglas, causal",
+   "flcs_causal",
+   36,
+   "solo pasado"
+  ],
+  [
+   "Política neuronal",
+   "politica_mlp_preview",
+   121,
+   "vista adelante"
+  ],
+  [
+   "Política neuronal, causal",
+   "mlp_causal",
+   121,
+   "solo pasado"
+  ]
+ ],
+ "semillas": [
+  [
+   "Semilla 0 (provisional)",
+   "flcs_preview"
+  ]
+ ]
+}

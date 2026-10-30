@@ -1,51 +1,89 @@
 {
- "flc": "flcs_preview",
- "flc_causal": "flcs_causal",
- "mlp": "politica_mlp_preview",
- "mlp_causal": "mlp_causal",
- "afinado": "afinado_pappis",
+ "flc": "flcopt_g3_s2",
+ "flc_causal": "flcs_causal_v3_g3",
+ "mlp": "mlp_v3_g3",
+ "mlp_causal": "mlp_causal_v3_g3",
+ "afinado": "afinado_v3",
  "ablacion": [
   [
-   "Pappis y Mamdani afinado",
-   "afinado_pappis",
+   "Pappis y Mamdani afinado (cada 10 s, $g_{\\min}=7$)",
+   "afinado_v3",
    30,
    "vista adelante"
   ],
   [
-   "Difuso 27 reglas ($g_{\\min}=7$)",
-   "flcs_preview",
+   "Difuso 27 reglas, horizontes fijos ($g_{\\min}=3$)",
+   "flcs_v3_g3",
    36,
    "vista adelante"
   ],
   [
-   "Difuso 81 reglas con hueco",
-   "flcs4_preview",
+   "Difuso 81 reglas con hueco ($g_{\\min}=3$)",
+   "flcs4_v3_g3",
    93,
    "vista adelante"
   ],
   [
-   "Difuso 27 reglas, causal",
-   "flcs_causal",
-   36,
-   "solo pasado"
+   "FLC-O, $g_{\\min}=7$",
+   "flcopt_g7",
+   42,
+   "vista adelante"
   ],
   [
-   "Política neuronal",
-   "politica_mlp_preview",
+   "FLC-O, $g_{\\min}=5$",
+   "flcopt_g5",
+   42,
+   "vista adelante"
+  ],
+  [
+   "FLC-O, $g_{\\min}=4$",
+   "flcopt_g4",
+   42,
+   "vista adelante"
+  ],
+  [
+   "FLC-O, $g_{\\min}=3$ (propuesto)",
+   "flcopt_g3_s2",
+   42,
+   "vista adelante"
+  ],
+  [
+   "Política neuronal ($g_{\\min}=3$)",
+   "mlp_v3_g3",
    121,
    "vista adelante"
   ],
   [
+   "Difuso 27 reglas, causal",
+   "flcs_causal_v3_g3",
+   36,
+   "solo pasado"
+  ],
+  [
+   "Política lineal causal con hueco",
+   "lineal_causal_v3_g3",
+   16,
+   "solo pasado"
+  ],
+  [
    "Política neuronal, causal",
-   "mlp_causal",
+   "mlp_causal_v3_g3",
    121,
    "solo pasado"
   ]
  ],
  "semillas": [
   [
-   "Semilla 0 (provisional)",
-   "flcs_preview"
+   "Semilla 0",
+   "flcopt_g3"
+  ],
+  [
+   "Semilla 1",
+   "flcopt_g3_s1"
+  ],
+  [
+   "Semilla 2 (elegida en validación)",
+   "flcopt_g3_s2"
   ]
  ]
 }

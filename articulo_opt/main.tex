@@ -139,6 +139,7 @@ tomados de Webster \cite{Webster1958} tal como los imprime el original (p.~709),
 \label{sec:pappis}
 
 \subsection{Estructura}
+\label{sec:estructura}
 El controlador interviene a los 7, 17, 27, 37 y 47\,s del verde y decide la extensión $e^*\in\{0,1,\dots,10\}$ s del verde; $e^*=0$ cambia de fase y el verde máximo es de 57\,s. Usa cuatro variables sobre universos discretos: el tiempo $T$ y la extensión $E$ ($1$ a $10$\,s), los arribos $A$ ($1$ a $10$ veh en el brazo con paso) y la cola $Q$ ($4$ a $32$ veh en el brazo en rojo). Las reglas usan versiones monótonas de los conjuntos con dos operadores: si $x_0$ es el punto donde $\mu_A$ es máxima,
 \begin{align}
 \mu_{lt(A)}(x)&=\begin{cases}1-\mu_A(x), & x<x_0\\ 0, & x\ge x_0\end{cases} &
@@ -160,6 +161,7 @@ La ecuación \eqref{eq:decision} reúne tres enunciados del original: se elige l
 \end{figure*}
 
 \subsection{Lectura de las entradas y réplica}
+\label{sec:lecturas}
 El original no dice cómo obtener $a_e$ y $q_e$ en una simulación. La réplica probó ocho lecturas y solo una, la \emph{calibrada}, reproduce sus resultados: $a_e=\min(e,\,Q_G+\sum_{i\le e}x_i)$, con $Q_G$ la cola del brazo con paso y $x_i$ las llegadas previstas en los $e$ segundos siguientes, y $q_e=Q_V$, los vehículos llegados al brazo en rojo desde que empezó el verde. Es una inferencia por falta de datos. Con ella, y con 20 réplicas de 7200\,s y números aleatorios comunes, la réplica reprodujo la tabla de validación del modelo con un error medio de 2.1\,\% y la mejora sobre el ciclo fijo en 16 de 16 combinaciones, con un error medio de 9.2\,\% frente a lo publicado. Todo lo que sigue usa esta lectura como controlador «Pappis y Mamdani».
 
 Una propiedad del modelo importa para lo que sigue: las llegadas de los próximos 10\,s ($x_i$, $x'_i$) se suponen conocidas, como si detectores aguas arriba midieran los vehículos en tránsito. Es la \emph{vista adelante}. El controlador de la Sección~\ref{sec:opt} la conserva, y la Sección~\ref{sec:resultados} mide cuánto de su mejora depende de ella.
@@ -169,6 +171,7 @@ Una propiedad del modelo importa para lo que sigue: las llegadas de los próximo
 \label{sec:simulador}
 
 \subsection{Simulador vectorizado}
+\label{sec:vectorizado}
 Optimizar exige evaluar un controlador en cientos de escenarios miles de veces. Se reescribió el simulador para simular $n_e$ escenarios a la vez con arreglos de NumPy: como \eqref{eq:dm} solo necesita las longitudes de cola, no se mantiene la lista de llegadas de cada vehículo, y las llegadas se generan con el mismo generador y las mismas semillas que el simulador de referencia. La equivalencia es exacta: en 8 escenarios de 2400\,s, con el ciclo fijo (dos redondeos), el actuado y el difuso de Pappis y Mamdani (dos lecturas), el retardo coincide con diferencia nula con las dos convenciones (\texttt{test\_sim\_batch.py}). Para 320 escenarios de 7200\,s el difuso de Pappis y Mamdani tarda unos 3.3\,s frente a unos 74\,s de la referencia (unas veinte veces menos).
 
 \subsection{Cota óptima por programación dinámica}
@@ -180,9 +183,11 @@ Para saber cuánto puede mejorarse sin ver el futuro se calcula la política óp
 \label{sec:opt}
 
 \subsection{Pappis y Mamdani afinado}
+\label{sec:afinado}
 Conserva la estructura de las 25 reglas y afina 30 números: el umbral $\tau$ de \eqref{eq:decision}, una escala y un desplazamiento para $A$ y para $Q$ ($A'=\kappa_AA+o_A$, $Q'=\kappa_QQ+o_Q$; las tablas se interpolan linealmente) y un desplazamiento de $-4$ a $4$\,s del conjunto de tiempo de cada una de las 25 reglas. Con los valores del original reproduce exactamente al controlador replicado. Muestra cuánto se gana solo con ajustar.
 
 \subsection{FLC-O}
+\label{sec:flc}
 \FLC{} es un controlador difuso nuevo que decide cada segundo, una vez transcurrido el verde mínimo $g_{\min}$, si se sigue en verde o se cambia de fase. Tiene tres variables lingüísticas:
 \begin{align}
 G&=Q_g+\textstyle\sum_{k=1}^{3}\omega_k\,W_g(l_k), & l&=(2,5,10)\ \text{s},\nonumber\\
@@ -210,9 +215,11 @@ La salida \eqref{eq:salida} es el centro de gravedad de consecuentes de un solo 
 \input{tabla_reglas_flc}
 
 \subsection{Política neuronal}
+\label{sec:neuronal}
 Para saber qué tanto se pierde por exigir reglas legibles, se entrena también una política opaca: un perceptrón de una capa oculta de 8 neuronas con tangente hiperbólica (121 parámetros) que recibe 12 características (colas, verde transcurrido, llegadas previstas en 3 y 10\,s, tasas de llegada de los últimos 5 y 20\,s, y si la cola del verde está vacía) y decide cada segundo. Es una cota empírica de lo que se logra con esa información, no un controlador propuesto.
 
 \subsection{Entrenamiento}
+\label{sec:entrena}
 Todos los parámetros se optimizan con CMA-ES \cite{Hansen2001,Hansen2016}: una estrategia evolutiva que adapta la covarianza de una distribución normal con la que sortea candidatos y que usa los mejores para actualizarla. El objetivo de un parámetro $\theta$ es
 \begin{equation}
 J(\theta)=\frac{1}{N}\sum_{i=1}^{N}\frac{d_m^{(i)}(\theta)}{d_m^{(i)}(\text{act})},
@@ -264,6 +271,7 @@ Política neuronal & no & 10 s & 121 \\
 \label{sec:resultados}
 
 \subsection{Conjunto oficial: Tabla VIII}
+\label{sec:res-oficial}
 La Tabla~\ref{tab:oficial} y la Fig.~\ref{fig:retardo} muestran el retardo en los 16 pares. El retardo medio es de \DelayOfFijo{}\,s/veh con el ciclo fijo, \DelayOfPap{} con Pappis y Mamdani, \DelayOfActAf{} con el actuado afinado y \DelayOfFlc{} con \FLC{}, es decir, una reducción de \RedFlc\,\% respecto de Pappis y Mamdani. Por par de caudales, la mejora media es de \ParMediaPap\,\% (de \ParMinPap\,\% a \ParMaxPap\,\%) y es significativa en \ParMejorPap{} de 16 pares, sin ningún par significativamente peor (Tabla~\ref{tab:comparaciones}). Frente al actuado afinado, que es un rival más fuerte que el original, la mejora media es de \ParMediaActAf\,\%, significativa en \ParMejorActAf{} pares y en contra en \ParPeorActAf{}. La cota óptima, que conoce los caudales pero no ve el futuro, da \DelayOfMdp{}\,s/veh: \FLC{} la iguala o la supera en promedio porque sí ve las llegadas de los próximos segundos, y no porque la cota sea defectuosa.
 
 \input{tabla_oficial}
@@ -277,11 +285,13 @@ La Tabla~\ref{tab:oficial} y la Fig.~\ref{fig:retardo} muestran el retardo en lo
 \end{figure*}
 
 \subsection{Caudales no vistos, demanda variable y saturación}
+\label{sec:res-otros}
 La Tabla~\ref{tab:conjuntos} resume los otros conjuntos. Con 64 pares de caudales no vistos, \FLC{} reduce el retardo en \RedPapNv\,\% frente a Pappis y Mamdani y en \RedActAfNv\,\% frente al actuado afinado, de modo que la mejora no depende de los 16 pares de la Tabla VIII. Con demanda variable, que es donde un controlador que adapta su decisión a lo que ve debería ganar más, las reducciones son de \RedPapVa\,\% y \RedActAfVa\,\%, y superan a las del caso estacionario. Cerca de la saturación el resultado es distinto: el retardo medio de \FLC{} es de \DelaySaFlc{}\,s/veh, el de Pappis y Mamdani de \DelaySaPap{} y el del actuado afinado de \DelaySaActAf{}. Se discute en la Sección~\ref{sec:discusion}.
 
 \input{tabla_conjuntos}
 
 \subsection{Qué produce la mejora}
+\label{sec:res-abl}
 La Tabla~\ref{tab:ablacion} compara variantes. (i) Solo afinar las 25 reglas de Pappis y Mamdani da un retardo de \DelayOfPapAf{}\,s/veh en el conjunto oficial: parte de la mejora viene del ajuste, pero no toda. (ii) Pasar a decidir cada segundo con 27 reglas y un verde mínimo de 5\,s da la mayor parte del resto; en las pruebas de entrenamiento y validación, reducir el verde mínimo de 7 a 5\,s mejoró \FLC{} de forma clara. (iii) Cuadruplicar las reglas (81, con el tiempo desde la última llegada como cuarta variable) no mejora, por lo que la base de 27 reglas es suficiente. (iv) La política neuronal, de 121 parámetros, da \DelayOfMlp{}\,s/veh, algo mejor que \FLC{}, de modo que exigir reglas legibles cuesta poco. (v) Sin vista adelante, \FLC{} causal da \DelayOfFlcC{} y la política neuronal causal \DelayOfMlpC{}\,s/veh, y ninguno supera al actuado afinado (\DelayOfActAf{}): la mejora depende de la vista adelante.
 
 \input{tabla_ablacion}

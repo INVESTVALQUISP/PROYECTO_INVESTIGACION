@@ -26,3 +26,6 @@ articulo_ieee/*.log
 articulo_ieee/*.out
 articulo_ieee/*.bbl
 articulo_ieee/*.blg
+
+# Puntos de control del entrenamiento (se reemplazan por el resultado final)
+*.parcial

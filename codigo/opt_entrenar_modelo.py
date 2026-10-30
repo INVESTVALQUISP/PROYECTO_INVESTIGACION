@@ -81,6 +81,7 @@ def main():
     ap.add_argument("--sigma", type=float, default=0.3)
     ap.add_argument("--suma-max", type=float, default=3000, help="suma maxima de caudales (veh/h) de los escenarios sorteados")
     ap.add_argument("--ref", choices=["actuado", "actuado_af"], default="actuado", help="controlador que normaliza el objetivo")
+    ap.add_argument("--resume", action="store_true", help="si existe OUT.parcial, arranca desde su mejor theta (reinicio en caliente)")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -98,6 +99,10 @@ def main():
 
     rng = np.random.default_rng(args.seed)
     x0, sigma0, bounds = punto_inicial(args.modelo, args, rng)
+    if args.resume and os.path.exists(args.out + ".parcial"):
+        x0 = np.array(json.load(open(args.out + ".parcial"))["theta"])
+        sigma0 = min(sigma0, 0.15)
+        print("reanudando desde", args.out + ".parcial", flush=True)
     print(f"modelo {args.modelo}: {len(x0)} parametros; objetivo inicial {fitness(x0):.4f} (1.0 = actuado)", flush=True)
     t0 = time.time()
 

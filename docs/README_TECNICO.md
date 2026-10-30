@@ -61,7 +61,7 @@ Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
 * Efecto de borde del horizonte (`efecto_borde.py`), disparos agregados (`informe_agregado.py`), entorno y costo (`entorno.py`).
 * `test_archivos_citados.py`: todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila.
 * `verificar_referencias.py`: comprueba cada DOI de `articulo_replica/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las comprobaciones.
-* `python codigo/ejecutar_pruebas.py` corre 165 comprobaciones (132 de la réplica y 33 de la optimización); con `--rapido` recalcula además una Tabla VIII reducida.
+* `python codigo/ejecutar_pruebas.py` corre 192 comprobaciones (132 de la réplica y 60 de la mejora); con `--rapido` recalcula además una Tabla VIII reducida.
 
 ---
 
@@ -262,7 +262,8 @@ El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo q
 | `opt_evaluacion_final.py`, `opt_evaluar.py` | Evaluación en cuatro conjuntos de prueba con Wilcoxon pareado y Holm → `resultados/opt/evaluacion_final.json`. |
 | `gen_tablas_opt.py`, `gen_fig_opt.py`, `gen_matriz_opt.py` | Tablas, cifras del texto, figuras y matriz de respuesta de esta versión. |
 | `simulador_opt.py` | Compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (figura, GIF o ventana). |
-| `test_sim_batch.py`, `test_opt.py`, `test_archivos_citados_opt.py` | 10 + 11 + 12 comprobaciones (en total, `ejecutar_pruebas.py` corre 165). |
+| `sim_engine.py`, `intersection_view.py`, `simulador_gui.py`, `web_sim.py` | **Simulador interactivo** (calle, autos y semáforos) con los dos controladores: `StepSim` avanza 1 s por tick y con `controller="flco"` ejecuta FLC-O con la misma aritmética que `opt_flc2.FuzzyOpt`; `IntersectionView(flco=...)` dibuja entradas, salida u y fuerza de las 27 reglas; la ventana Tk y la web eligen el controlador y dibujan la curva del otro sobre las mismas llegadas. |
+| `test_sim_batch.py`, `test_opt.py`, `test_sim_flco.py`, `test_archivos_citados_opt.py` | 10 + 11 + 27 + 12 comprobaciones (en total, `ejecutar_pruebas.py` corre 192). `test_sim_flco.py` comprueba que el motor paso a paso y el simulador por lotes dan el mismo retardo y los mismos cambios de fase en 6 escenarios. |
 
 **Resultados** (retardo medio en s/veh, incluye la espera residual al final del horizonte; FLC-O con vista adelante de 10 s, como supone el modelo original):
 
@@ -283,4 +284,4 @@ En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani y 
 4. El mejor resultado usa un verde mínimo de 3 s; con 5 s da 8.21 y con 7 s da 8.60 en el conjunto oficial. Si 3 s no fuera admisible en la práctica, esas son las cifras que corresponden.
 5. El retardo corregido (con espera residual) no es comparable con el de la Tabla VIII del original.
 
-**Reproducir:** `python codigo/ejecutar_pruebas.py` (165 comprobaciones), `python codigo/opt_evaluacion_final.py` (evaluación completa), `python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py` (tablas y figuras), `python codigo/simulador_opt.py` (comparación visual). Los modelos entrenados están en `resultados/opt/` (`modelos_finales.json` indica cuál es cuál). El paso a paso de las configuraciones F5 está en `README_VSCODE.md`.
+**Reproducir:** `python codigo/ejecutar_pruebas.py` (192 comprobaciones), `python codigo/opt_evaluacion_final.py` (evaluación completa), `python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py` (tablas y figuras), `python codigo/simulador_gui.py` (simulador interactivo con calle y autos; `--controlador pappis` para el de 1977), `python codigo/simulador_opt.py` (comparación en figura o GIF). Los modelos entrenados están en `resultados/opt/` (`modelos_finales.json` indica cuál es cuál). El paso a paso de las configuraciones F5 está en `README_VSCODE.md`.

@@ -10,7 +10,7 @@
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "2. Simulador gráfico: calle + reglas + disparos (ventana)",
+      "name": "2. Simulador interactivo (calle y autos): FLC-O frente a Pappis y Mamdani (ventana)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/simulador_gui.py",
@@ -18,7 +18,7 @@
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "3. Simulador web (abrir http://localhost:8000)",
+      "name": "3. Simulador interactivo web: FLC-O frente a 1977 (abrir http://localhost:8000)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/web_sim.py",
@@ -44,7 +44,7 @@
       "cwd": "${workspaceFolder}"
     },
     {
-      "name": "5. Video MP4 de la simulación (salidas/simulacion.mp4)",
+      "name": "5. Video MP4 de la simulación con FLC-O (salidas/simulacion.mp4)",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/simulador_gui.py",
@@ -117,6 +117,15 @@
         "--rapido",
         "--sin-mdp"
       ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "10. Simulador interactivo (calle y autos): solo Pappis y Mamdani (1977)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/simulador_gui.py",
+      "args": ["--controlador", "pappis"],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },

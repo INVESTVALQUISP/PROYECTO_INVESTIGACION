@@ -3,8 +3,10 @@ web_sim.py
 ================================================================================
 Simulador de la interseccion en la WEB (mismo motor y misma vista que la GUI
 Tkinter). Muestra la animacion de la interseccion + la traza de d_m(t) + el
-registro de decisiones, con controles de flujos, semilla, duracion, reglas,
-umbral, modo y velocidad.
+registro de decisiones, con controles de controlador (FLC-O, el mejorado, o
+Pappis y Mamdani 1977), flujos, semilla, duracion, reglas, umbral, modo y
+velocidad. La traza muestra tambien, punteada, la curva del otro controlador
+sobre las mismas llegadas.
 
 Ejecutar (Windows o Linux):
     pip install flask
@@ -37,24 +39,32 @@ from intersection_view import IntersectionView
 
 app = Flask(__name__)
 LOCK = threading.Lock()
-S = {"sim": None, "view": None, "canvas": None, "fig": None, "log": []}
+S = {"sim": None, "ref": None, "view": None, "canvas": None, "fig": None, "log": []}
+NOMBRES = {"flco": "FLC-O (mejorado)", "pappis": "Pappis y Mamdani (1977)"}
 
 
 # ---------------------------------------------------------------------------
-def _build(ns, ew, dur, seed, rules, thr, mode):
+def _build(ns, ew, dur, seed, rules, thr, mode, ctrl="flco", ref=True):
     if S["fig"] is not None:
         plt.close(S["fig"])
-    cfg = se.SimConfig(lam_ns=ns / 3600.0, lam_ew=ew / 3600.0, seed=seed,
-                       duration=dur, ruleset=rules, threshold=thr, mode=mode)
+    kw = dict(lam_ns=ns / 3600.0, lam_ew=ew / 3600.0, seed=seed, duration=dur, ruleset=rules, threshold=thr, mode=mode)
+    cfg = se.SimConfig(controller=ctrl, **kw)
     sim = se.StepSim(cfg)
+    otro = "pappis" if ctrl == "flco" else "flco"
+    rsim = se.StepSim(se.SimConfig(controller=otro, **kw)) if ref else None    # el otro controlador, mismas llegadas
     fig = plt.figure(figsize=(16.0, 9.2), dpi=80)       # 1280x736 px
     canvas = FigureCanvasAgg(fig)
-    view = IntersectionView(fig, rules=cfg.rules)
+    view = IntersectionView(fig, rules=cfg.rules, flco=cfg.flco, max_green=getattr(cfg, "max_green", 57))
     view.reset()
-    view.sub.set_text(
-        f"reglas: {rules} · umbral {thr:.2f} · N-S {ns} veh/h · "
-        f"E-W {ew} veh/h · lectura {'calibrada' if mode == 'capacity' else 'literal'} · semilla {seed}")
-    S.update(sim=sim, view=view, canvas=canvas, fig=fig)
+    if ctrl == "flco":
+        view.sub.set_text(f"controlador: FLC-O ({cfg.flco_model}) · N-S {ns} veh/h · E-W {ew} veh/h · semilla {seed}")
+    else:
+        view.sub.set_text(
+            f"reglas: {rules} · umbral {thr:.2f} · N-S {ns} veh/h · "
+            f"E-W {ew} veh/h · lectura {'calibrada' if mode == 'capacity' else 'literal'} · semilla {seed}")
+    if rsim is not None:
+        view.set_reference(NOMBRES[otro] + ", mismas llegadas")
+    S.update(sim=sim, ref=rsim, view=view, canvas=canvas, fig=fig)
     S["log"] = []
 
 
@@ -69,7 +79,13 @@ def _frame_b64():
 def _payload(st, frames=None):
     line = None
     d = st.decision
-    if d is not None:
+    if d is not None and getattr(d, "kind", "") == "flco":
+        if d.event:
+            arm = "N-S" if st.phase == 0 else "E-W"
+            line = f"t={st.t:4d} {arm} v{d.elapsed:2d}s > CAMBIA u={d.u:+.2f}" + (" [verde máx.]" if d.forced else "")
+            S["log"].append(line)
+            del S["log"][:-200]
+    elif d is not None:
         arm = "N-S" if st.phase == 0 else "E-W"
         if d.cut:
             line = f"t={st.t:4d} {arm} v{d.elapsed:2d}s > CORTE (g={d.grade_max:.2f})"
@@ -90,6 +106,10 @@ def _payload(st, frames=None):
         "in_transition": st.in_transition,
         "decision": line,
         "duration": S["sim"].cfg.duration,
+        "dm_res": round(S["sim"].dm_residual, 3) if st.done else None,
+        "ref_dm": round(S["ref"].dm, 3) if S["ref"] is not None else None,
+        "ref_dm_res": round(S["ref"].dm_residual, 3) if (S["ref"] is not None and st.done) else None,
+        "ctrl": S["sim"].cfg.controller,
     }
 
 
@@ -101,10 +121,13 @@ def index():
 
 def _params():
     a = request.args
+    ctrl = a.get("ctrl", "flco")
+    if ctrl not in NOMBRES:
+        ctrl = "flco"
     return (int(a.get("ns", 720)), int(a.get("ew", 2160)),
             int(a.get("dur", 3600)), int(a.get("seed", 1)),
             a.get("rules", "paper"), float(a.get("thr", 0.5)),
-            a.get("mode", "capacity"))
+            a.get("mode", "capacity"), ctrl, a.get("ref", "1") != "0")
 
 
 SUB = 3          # sub-cuadros por segundo simulado (movimiento suave)
@@ -113,16 +136,19 @@ SUB = 3          # sub-cuadros por segundo simulado (movimiento suave)
 def _step():
     """Avanza 1 s de simulacion y devuelve (estado, lista de cuadros JPEG en base64)."""
     st = S["sim"].step()
+    rd = S["ref"].step().dm if (S["ref"] is not None and not S["ref"].done) else None
     frames = []
-    S["view"].step_render(st, sub=SUB, on_frame=lambda: frames.append(_frame_b64()))
+    S["view"].advance(st, ref_dm=rd)
+    for _ in range(SUB):
+        S["view"].draw_frame(1.0 / SUB)
+        frames.append(_frame_b64())
     return st, frames
 
 
 @app.route("/api/start")
 def api_start():
     with LOCK:
-        ns, ew, dur, seed, rules, thr, mode = _params()
-        _build(ns, ew, dur, seed, rules, thr, mode)
+        _build(*_params())
         st, fr = _step()
         return jsonify(_payload(st, fr))
 
@@ -139,12 +165,12 @@ def api_tick():
 @app.route("/api/reset")
 def api_reset():
     with LOCK:
-        ns, ew, dur, seed, rules, thr, mode = _params()
-        _build(ns, ew, dur, seed, rules, thr, mode)
+        prm = _params()
+        _build(*prm)
         return jsonify({"frame": _frame_b64(), "t": 0, "done": False,
                         "dm": 0.0, "q_ns": 0, "q_ew": 0, "phase": 0,
                         "in_transition": False, "decision": None,
-                        "duration": dur})
+                        "duration": prm[2]})
 
 
 @app.route("/api/state")
@@ -183,7 +209,7 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Simulador · semáforo inteligente difuso (Pappis &amp; Mamdani 1977)</title>
+<title>Simulador · semáforo difuso: FLC-O frente a Pappis y Mamdani (1977)</title>
 <style>
   body { margin:0; font-family:"Segoe UI", Arial, sans-serif; background:#eef0f2; color:#34495e; }
   header { background:#2c3e50; color:#fff; padding:10px 18px; font-size:15px; }
@@ -215,10 +241,16 @@ PAGE = """<!doctype html>
 </style>
 </head>
 <body>
-<header>Simulador · <b>semáforo inteligente difuso</b> (Pappis &amp; Mamdani 1977)
- <small>— réplica paso a paso (1 s por tick) de la simulación validada</small></header>
+<header>Simulador · <b>semáforo difuso</b>: FLC-O (mejorado) frente a Pappis &amp; Mamdani (1977)
+ <small>— paso a paso (1 s por tick) sobre la simulación validada</small></header>
 <div class="wrap">
   <div class="panel">
+    <label style="margin-top:0">Controlador</label>
+    <select id="ctrl">
+      <option value="flco">FLC-O (mejorado)</option>
+      <option value="pappis">Pappis y Mamdani (1977)</option>
+    </select>
+    <label><input type="checkbox" id="ref" checked> Mostrar d_m del otro controlador (mismas llegadas)</label>
     <div class="row">
       <div><label>Flujo N–S (veh/h)</label><input type="number" id="ns" value="720" min="60" max="3600" step="60"></div>
       <div><label>Flujo E–W (veh/h)</label><input type="number" id="ew" value="2160" min="60" max="3600" step="60"></div>
@@ -249,7 +281,7 @@ PAGE = """<!doctype html>
       <button id="b_reset">↺ Reiniciar</button>
     </div>
     <div id="status">Listo. Elija parámetros y pulse Iniciar.</div>
-    <div class="ttl">Decisiones y regla que dispara (★ en el panel)</div>
+    <div class="ttl" id="ttl_log">Decisiones y regla que dispara (★ en el panel)</div>
     <div id="log"></div>
     <div class="note"><a href="/api/disparos.csv">Descargar disparos de reglas (CSV)</a></div>
     <div class="note">Los cambios de parámetros se aplican al pulsar Iniciar o Reiniciar.</div>
@@ -264,14 +296,23 @@ function params() {
   return "ns=" + $("ns").value + "&ew=" + $("ew").value +
          "&dur=" + $("dur").value + "&seed=" + $("seed").value +
          "&rules=" + $("rules").value + "&thr=" + $("thr").value +
-         "&mode=" + $("mode").value;
+         "&mode=" + $("mode").value + "&ctrl=" + $("ctrl").value + "&ref=" + ($("ref").checked ? 1 : 0);
 }
+function syncCtrl() {            // el umbral, las reglas y la lectura de A y Q solo valen para Pappis y Mamdani
+  const f1977 = $("ctrl").value === "pappis";
+  ["rules", "thr", "mode"].forEach(id => $(id).disabled = !f1977);
+  $("ttl_log").textContent = f1977 ? "Decisiones y regla que dispara (★ en el panel)" : "Cambios de fase y salida u de FLC-O";
+}
+$("ctrl").onchange = syncCtrl;
+syncCtrl();
 
 function showStatus(st) {
   const mm = String(Math.floor(st.t / 60)).padStart(2, "0");
   const ss = String(st.t % 60).padStart(2, "0");
   $("status").textContent = st.done
-    ? "Final: d_m = " + st.dm + " s/veh en " + st.t + " s"
+    ? "Final: d_m = " + st.dm + " s/veh" + (st.ref_dm != null ? " (el otro controlador: " + st.ref_dm + ")" : "") +
+      " en " + st.t + " s (solo vehículos servidos, como el original). Con la espera residual del artículo: " +
+      st.dm_res + (st.ref_dm_res != null ? " frente a " + st.ref_dm_res : "") + "."
     : "t = " + mm + ":" + ss + "   ·   d_m = " + st.dm + " s/veh   ·   cola N-S: " +
       st.q_ns + "   ·   cola E-W: " + st.q_ew;
 }

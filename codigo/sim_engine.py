@@ -6,6 +6,12 @@ interactivo. Reproduce EXACTAMENTE la logica de traffic_model.simulate_fuzzy
 (mismas llegadas, mismas colas, mismas decisiones), pero expone el estado de
 cada segundo para animarlo.
 
+Controladores (SimConfig.controller):
+    "pappis"  el controlador de Pappis y Mamdani (1977): 25 reglas, interviene a los 7, 17, 27, 37 y 47 s de verde.
+    "flco"    FLC-O, el controlador difuso optimizado del articulo: 27 reglas, decide CADA segundo si cambia de fase
+              (misma logica que opt_flc2.FuzzyOpt en el simulador por lotes; test_sim_flco.py comprueba que dan
+              exactamente el mismo retardo).
+
 Uso tipico:
     cfg = SimConfig(lam_ns=720/3600, lam_ew=2160/3600, seed=1, duration=3600)
     sim = StepSim(cfg)
@@ -13,13 +19,19 @@ Uso tipico:
         state = sim.step()      # avanza 1 s y devuelve el estado
         ... dibujar(state) ...
 """
+import json
+import os
 from dataclasses import dataclass, field
 from typing import Optional
 
 import numpy as np
 
 import fuzzy_logic as fl
+import opt_flc2
 from traffic_model import Sim, _make_arrivals, LOST, INTERVENTIONS
+
+_RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FLCO_NOM = ("bajo", "medio", "alto")        # terminos linguisticos de G, R y V (como en el articulo)
 
 
 def load_ruleset(name: str) -> dict:
@@ -31,6 +43,19 @@ def load_ruleset(name: str) -> dict:
     if name == "paper":
         return fl.RULES
     raise ValueError(f"ruleset desconocido o archivado: {name}")
+
+
+def cargar_flco(nombre: str = ""):
+    """Carga un controlador FLC-O entrenado de resultados/opt/ (por defecto, el elegido en modelos_finales.json).
+
+    Devuelve (controlador opt_flc2.FuzzyOpt, nombre del modelo, verde maximo en s)."""
+    base = os.path.join(_RAIZ, "resultados", "opt")
+    if not nombre:
+        nombre = json.load(open(os.path.join(base, "modelos_finales.json"), encoding="utf-8"))["flc"]
+    m = json.load(open(os.path.join(base, f"{nombre}.json"), encoding="utf-8"))
+    if m.get("modelo") != "flcopt":
+        raise ValueError(f"el modelo {nombre} no es un FLC-O (modelo = {m.get('modelo')})")
+    return opt_flc2.FuzzyOpt(m["theta"], True, m["gmin"]), nombre, int(m.get("max_green", 57))
 
 
 @dataclass
@@ -48,9 +73,16 @@ class SimConfig:
     q_mode: Optional[str] = None        # "current" | "predicted" (None: segun mode)
     lost: float = LOST                  # s por cambio de fase
     disabled: frozenset = frozenset()   # {(intervencion, indice 0..4)} de reglas apagadas (uso didactico)
+    controller: str = "pappis"          # "pappis" (Pappis y Mamdani, 1977) | "flco" (FLC-O, el controlador mejorado)
+    flco_model: str = ""                # modelo de resultados/opt/ (vacio: el elegido en modelos_finales.json)
 
     def __post_init__(self):
+        if self.controller not in ("pappis", "flco"):
+            raise ValueError(f"controlador desconocido: {self.controller}")
         self.rules = load_ruleset(self.ruleset)
+        self.flco = None
+        if self.controller == "flco":
+            self.flco, self.flco_model, self.max_green = cargar_flco(self.flco_model)
         # Se resuelven y se GUARDAN los parametros de la lectura (ninguno queda implicito ni se ignora):
         # SimConfig() queda explicitamente CALIBRADA (crossing / current / predicted_q=False / green_arrivals).
         self.a_mode, self.q_mode = fl._resolve_modes(self.mode, self.predicted_q, self.a_mode, self.q_mode)
@@ -122,6 +154,69 @@ class Decision:
 
 
 @dataclass
+class DecisionFlco:
+    """Lo que FLC-O calcula en un segundo de verde (decide en CADA segundo, no solo en intervenciones).
+
+    G = cola en verde + llegadas previstas ponderadas; R = cola en rojo + llegadas previstas ponderadas; V = verde
+    transcurrido. weights[i] es la fuerza normalizada de la regla i = 9 g + 3 r + e (g, r, e = 0 bajo, 1 medio, 2 alto);
+    u es la salida (promedio de los consecuentes ponderado por la fuerza): u > 0 cambia de fase."""
+    kind = "flco"
+    t: int
+    elapsed: int                 # s de verde transcurridos (V)
+    u: float
+    switch: bool                 # True: este segundo el brazo pierde el verde
+    locked: bool                 # True: el verde aun no llega al minimo, no puede cambiar
+    forced: bool                 # True: se llego al verde maximo
+    G: float
+    R: float
+    q_green: int
+    q_red: int
+    ahead_g: tuple               # llegadas previstas en el brazo en verde en los proximos 2, 5 y 10 s
+    ahead_r: tuple               # llegadas previstas en el brazo en rojo en los proximos 3, 6 y 10 s
+    weights: Optional[np.ndarray] = None
+
+    @property
+    def event(self) -> bool:     # decision "importante" (para el registro y la pausa): solo los cambios de fase
+        return self.switch
+
+    @property
+    def cut(self) -> bool:       # compatibilidad con el codigo que marca los cortes del verde
+        return self.switch
+
+    @property
+    def winners(self) -> tuple:  # reglas con mas del 20 % de la fuerza total (las que mandan en la decision)
+        return tuple(int(i) for i in np.flatnonzero(self.weights > 0.2)) if self.weights is not None else ()
+
+
+def flco_rule_label(ctrl, i: int) -> str:
+    g, r, e = i // 9, (i // 3) % 3, i % 3
+    return f"G {FLCO_NOM[g]} · R {FLCO_NOM[r]} · V {FLCO_NOM[e]} → {ctrl.c[i]:+.2f}"
+
+
+def explain_flco(d: DecisionFlco, phase: int, ctrl, gmin: int, max_green: int) -> str:
+    """Explicacion en lenguaje claro de lo que FLC-O hace en este segundo."""
+    who = "N-S" if phase == 0 else "E-W"
+    other = "E-W" if phase == 0 else "N-S"
+    L = [f"t = {d.t} s · El brazo {who} lleva {d.elapsed} s en verde. FLC-O revisa la situación cada segundo."]
+    L.append(f"Mira tres datos: G (demanda en verde) = {d.G:.1f} veh (cola {d.q_green} más las llegadas previstas "
+             f"ponderadas); R (presión en rojo) = {d.R:.1f} veh (cola {d.q_red} del brazo {other} más sus llegadas "
+             f"previstas); V = {d.elapsed} s de verde.")
+    if d.weights is not None:
+        top = np.argsort(d.weights)[::-1][:3]
+        txt = "; ".join(f"{flco_rule_label(ctrl, int(i))} ({100 * d.weights[i]:.0f} %)" for i in top if d.weights[i] > 0.01)
+        L.append(f"Reglas que más pesan: {txt}.")
+    if d.forced:
+        L.append(f"Se llegó al verde máximo de {max_green} s: se cambia de fase.")
+    elif d.locked:
+        L.append(f"La salida sería u = {d.u:+.2f}, pero el verde aún no llega al mínimo de {gmin} s: no puede cambiar todavía.")
+    elif d.switch:
+        L.append(f"La salida u = {d.u:+.2f} es positiva: se CAMBIA de fase.")
+    else:
+        L.append(f"La salida u = {d.u:+.2f} no es positiva: el verde SIGUE.")
+    return "\n".join(L)
+
+
+@dataclass
 class StepState:
     t: int
     phase: int                # 0 = N-S en verde, 1 = E-W en verde
@@ -153,7 +248,9 @@ class StepSim:
         self.in_transition = False
         self.trans_remaining = 0
         self.done = False
-        self.decisions = []         # (t, fase, Decision) de toda la corrida
+        self.decisions = []         # (t, fase, Decision) de toda la corrida (con FLC-O, solo los cambios de fase)
+        self.flco = cfg.flco        # opt_flc2.FuzzyOpt o None
+        self.last_decision = None
         self.pending = {0: 0, 1: 0}  # autos agregados a mano (0 = N-S, 1 = E-W) que entraran en los proximos segundos
 
     # ------------------------------------------------------------------
@@ -167,6 +264,33 @@ class StepSim:
             if self.pending[arm] > 0 and not arr[t]:
                 arr[t] = 1
                 self.pending[arm] -= 1
+
+    # ------------------------------------------------------------------
+    def _decide_flco(self, t) -> DecisionFlco:
+        """FLC-O en el segundo t (misma aritmetica que opt_flc2.FuzzyOpt.entradas / score en el simulador por lotes)."""
+        f = self.flco
+        el = t - self.green_start
+        ns = self.phase == 0
+        arr_g, arr_r = (self.arr_ns, self.arr_ew) if ns else (self.arr_ew, self.arr_ns)
+        q_g = len(self.sim.q_ns if ns else self.sim.q_ew)
+        q_r = len(self.sim.q_ew if ns else self.sim.q_ns)
+        ahead_g = tuple(int(arr_g[t:t + k].sum()) for k in opt_flc2.LAGS_G)     # llegadas en [t, t + k)
+        ahead_r = tuple(int(arr_r[t:t + k].sum()) for k in opt_flc2.LAGS_R)
+        G, R = float(q_g), float(q_r)
+        for w, a in zip(f.alfa, ahead_g):
+            G = G + w * a
+        for w, a in zip(f.beta, ahead_r):
+            R = R + w * a
+        E = np.array([el], dtype=float)
+        w = (opt_flc2.ruspini(np.array([G]), f.kG)[:, :, None, None] * opt_flc2.ruspini(np.array([R]), f.kR)[:, None, :, None]
+             * opt_flc2.ruspini(E, f.kE)[:, None, None, :]).reshape(1, 27)
+        u = float(((w @ f.c) / (w.sum(1) + 1e-9))[0])
+        locked = el < f.gmin
+        forced = el >= self.cfg.max_green
+        switch = bool(forced or (not locked and u > 0))
+        return DecisionFlco(t=t, elapsed=int(el), u=u, switch=switch, locked=bool(locked and not forced), forced=bool(forced),
+                            G=float(G), R=float(R), q_green=q_g, q_red=q_r, ahead_g=ahead_g, ahead_r=ahead_r,
+                            weights=(w[0] / (w.sum() + 1e-9)))
 
     # ------------------------------------------------------------------
     @property
@@ -188,8 +312,14 @@ class StepSim:
         green_elapsed = 0
 
         if not self.in_transition:
-            # -- intervencion del controlador difuso --
-            if self.ii < len(INTERVENTIONS) and t == self.green_start + INTERVENTIONS[self.ii]:
+            if self.flco is not None:
+                # -- FLC-O: decide en cada segundo de verde --
+                decision = self._decide_flco(t)
+                if decision.switch:
+                    self.decisions.append((t, self.phase, decision))
+                    self.green_end = t
+            # -- intervencion del controlador difuso de Pappis y Mamdani --
+            elif self.ii < len(INTERVENTIONS) and t == self.green_start + INTERVENTIONS[self.ii]:
                 wg, wc, qc, qg = self.sim.fuzzy_inputs(self.phase, self.green_start, t,
                                                        self.cfg.queue_source)
                 grade = fl.fuzzy_decision(wg, wc, qc, self.cfg.rules[INTERVENTIONS[self.ii]],
@@ -255,6 +385,8 @@ class StepSim:
             green_elapsed = t - self.green_start
         self.t = t + 1
         self.done = self.t >= self.cfg.duration
+        if decision is not None:
+            self.last_decision = decision
 
         return StepState(
             t=t, phase=self.phase, in_transition=self.in_transition,
@@ -265,6 +397,14 @@ class StepSim:
             discharge_ns=d_ns, discharge_ew=d_ew,
             dm=self.dm, decision=decision, done=self.done, trans_index=trans_index,
         )
+
+    @property
+    def dm_residual(self) -> float:
+        """Retardo medio contando tambien la espera residual hasta el final del horizonte (la medida del articulo de mejora);
+        d_m, en cambio, sigue la convencion del original: solo los vehiculos que ya salieron."""
+        if self.sim.total_arrivals == 0:
+            return 0.0
+        return (self.sim.total_delay + self.sim.residual_delay(self.cfg.duration)) / self.sim.total_arrivals
 
     def run_all(self) -> float:
         """Corre hasta el final y devuelve d_m (para validacion)."""
@@ -277,6 +417,14 @@ class StepSim:
         """Una fila por (decision, regla) con activacion y disparo; sirve para CSV y reportes."""
         rows = []
         for t, phase, d in self.decisions:
+            if getattr(d, "kind", "") == "flco":        # FLC-O: una fila por regla en cada cambio de fase
+                for i in range(27):
+                    rows.append(dict(
+                        t=t, brazo_verde="N-S" if phase == 0 else "E-W", verde_s=d.elapsed, regla=f"R{i + 1}",
+                        texto=flco_rule_label(self.flco, i), fuerza=round(float(d.weights[i]), 3),
+                        consecuente=round(float(self.flco.c[i]), 3), u=round(d.u, 3), G=round(d.G, 2), R=round(d.R, 2),
+                        q_verde=d.q_green, q_rojo=d.q_red))
+                continue
             for i, r in enumerate(d.rules):
                 rows.append(dict(
                     t=t, brazo_verde="N-S" if phase == 0 else "E-W", intervencion=d.intervention,

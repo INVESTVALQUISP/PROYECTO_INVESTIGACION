@@ -1,8 +1,13 @@
-# Avance de la simulación — cómo correrlo y presentarlo en Visual Studio Code
+# La simulación — cómo correrla y presentarla en Visual Studio Code
 
-Muestra que el sistema funciona: **las 25 reglas usadas, cuáles se activan y cuáles DISPARAN
-en cada decisión**, todo sobre una simulación gráfica de la calle con el modelo de
-Pappis y Mamdani (1977).
+La simulación gráfica muestra la calle con autos y semáforos y permite elegir el controlador:
+
+* **FLC-O (el controlador mejorado):** cada segundo se ven sus tres entradas sobre sus conjuntos difusos, su salida **u**
+  (si u > 0 cambia de fase) y la **fuerza de cada una de sus 27 reglas**.
+* **Pappis y Mamdani (1977):** **las 25 reglas usadas, cuáles se activan y cuáles DISPARAN** en cada decisión.
+
+En los dos casos la traza de retardo d<sub>m</sub>(t) dibuja, punteada, la curva del *otro* controlador sobre **las mismas llegadas de
+autos**: es la comparación en vivo.
 
 ## Estructura de carpetas
 
@@ -31,9 +36,9 @@ La parte superior de la ventana tiene tres pestañas y la columna derecha tiene 
 | Dónde | Qué permite |
 |---|---|
 | **1 · Escenario** | Escenarios predefinidos (poco tráfico, medio, cargado, asimétrico…) o flujos propios, duración, semilla y velocidad (desde 1 s simulado por segundo). |
-| **2 · Controlador** | Umbral de decisión (en vivo), lectura de A y Q y **Encender / apagar reglas**: quita cualquiera de las 25 reglas y se ve al instante cuánto aporta (apagar R5 sube el retardo de ~17 a ~68 s/veh en una corrida de prueba). |
-| **3 · Vista didáctica** | Ocultar/mostrar reglas, grados, disparos y traza de d_m; **pausar en cada decisión**; explicación en palabras simples de cada decisión; mostrar los detectores; separación entre autos y tipos de auto. Botón **? Ayuda** con la explicación de cada control. |
-| Columna derecha | **Agregar autos a mano** (N-S/E-W, +1 o +5) para ver cómo reacciona el controlador; cuadro «¿Qué decidió el controlador y por qué?»; registro de decisiones. |
+| **2 · Controlador** | **Controlador** (FLC-O o Pappis y Mamdani 1977; al cambiarlo se reinicia con los mismos flujos y semilla) y **Mostrar d_m del otro controlador**. Solo con Pappis y Mamdani: umbral de decisión (en vivo), lectura de A y Q y **Encender / apagar reglas**: quita cualquiera de las 25 reglas y se ve al instante cuánto aporta (apagar R5 sube el retardo de ~17 a ~68 s/veh en una corrida de prueba). |
+| **3 · Vista didáctica** | Ocultar/mostrar los apartados de la derecha (con FLC-O: entradas, salida u y fuerza de reglas) y la traza de d_m; **pausar en cada decisión**; explicación en palabras simples de cada decisión; mostrar los detectores; separación entre autos y tipos de auto. Botón **? Ayuda** con la explicación de cada control. |
+| Columna derecha | **Agregar autos a mano** (N-S/E-W, +1 o +5: los reciben los dos controladores) para ver cómo reaccionan; cuadro «¿Qué decidió el controlador y por qué?»; registro de decisiones. |
 
 Los autos ahora son vehículos con carrocería, vidrios, ruedas, faros y luces de freno (que se encienden al frenar), de cuatro tipos
 (sedán, SUV, compacto, camioneta). Frenan de forma suave y **nunca se tocan**: `test_autos.py` comprueba en miles de cuadros que el
@@ -63,16 +68,37 @@ Abre **Ejecutar y depurar** (`Ctrl+Shift+D`), elige una configuración en la lis
 | Configuración | Qué hace |
 |---|---|
 | **1. Pruebas de validación (resumen)** | Corre las 3 baterías de pruebas (Tablas II–VI, 25 reglas, ejemplo de la pág. 7, motor del simulador, panel de disparos) y muestra las Tablas I y VIII. Guarda `salidas/pruebas.txt`. |
-| **2. Simulador gráfico: calle + reglas + disparos** | Ventana con la intersección animada y el panel de reglas. |
-| **3. Simulador web** | Lo mismo en el navegador: abre http://localhost:8000 (en VS Code: *Simple Browser*). |
+| **2. Simulador interactivo (calle y autos): FLC-O frente a Pappis y Mamdani** | Ventana con la intersección animada. Abre con FLC-O y se puede cambiar de controlador en la pestaña *2 · Controlador*. |
+| **3. Simulador interactivo web** | Lo mismo en el navegador: abre http://localhost:8000 (en VS Code: *Simple Browser*). |
 | **4. Informe de reglas y disparos** | Sin ventana: deja `salidas/disparos_reglas.csv`, `resumen_disparos.csv` e `informe_disparos.png`. |
-| **5. Video MP4 de la simulación** | `salidas/simulacion.mp4` (+ CSV de disparos), 30 cuadros/s con movimiento suave. |
-| **6. Tablas I y VIII oficiales** | Recalcula los resultados completos (~2 min). |
+| **5. Video MP4 de la simulación con FLC-O** | `salidas/simulacion.mp4` (+ CSV), 30 cuadros/s con movimiento suave. Para el de 1977: `--controlador pappis`. |
+| **6. Tablas I y VIII oficiales** | Recalcula los resultados de la réplica (~2 min). |
+| **10. Simulador interactivo: solo Pappis y Mamdani (1977)** | La misma ventana, abierta con el controlador de 1977 (25 reglas y sus disparos). |
 
-También por terminal: `python codigo/ejecutar_pruebas.py`, `python codigo/simulador_gui.py`, `python codigo/web_sim.py`,
+También por terminal: `python codigo/ejecutar_pruebas.py`, `python codigo/simulador_gui.py` (FLC-O) o
+`python codigo/simulador_gui.py --controlador pappis`, `python codigo/web_sim.py`,
 `python codigo/informe_disparos.py --ns 1080 --ew 1800 --seconds 3600 --seed 4`.
 
 ## 3. Qué se ve en el simulador (ventana o web)
+
+### 3.1 Con FLC-O (el controlador mejorado)
+La ventana se ve así (captura de una corrida de 114 s, 720 / 2160 veh/h):
+
+![Simulador con FLC-O](../muestras/captura_simulador_flco.png)
+
+**Derecha, de arriba abajo, actualizada en cada segundo** (FLC-O decide cada segundo, no solo cada 10 s):
+1. **Entradas y conjuntos difusos:** G = cola en verde + llegadas previstas, R = cola en rojo + llegadas previstas y V = segundos de verde.
+   Cada una se dibuja sobre sus tres conjuntos aprendidos (bajo, medio, alto); la línea roja es el valor actual y los puntos, su pertenencia.
+2. **Salida u:** promedio de los consecuentes de las reglas ponderado por su fuerza. Si u > 0 el brazo pierde el verde (siempre que
+   lleve el verde mínimo de 3 s; con 90 s se cambia sí o sí).
+3. **Fuerza de las 27 reglas** (rojo: la regla empuja a cambiar; azul: a seguir).
+
+**Abajo a la izquierda,** la traza de d<sub>m</sub>(t) con un cuadrado rojo en cada cambio de fase y, punteada, la curva del controlador
+de 1977 sobre las mismas llegadas. **En la columna derecha de controles** se explica en palabras qué mira FLC-O y qué decide en cada segundo.
+Al terminar se muestran d<sub>m</sub> con la convención del original (solo vehículos que ya salieron) y con la espera residual del artículo.
+*Pausar en cada decisión* detiene la corrida en cada cambio de fase.
+
+### 3.2 Con Pappis y Mamdani (1977)
 **Izquierda:** la calle (N–S en azul, E–W en naranja) con vehículos que **entran por el borde, avanzan en la cola
 cuando sale el de adelante, aceleran al cruzar y salen de la pantalla**; semáforos de tres luces
 (verde → **ámbar 3 s** → rojo) y la traza del retardo medio d<sub>m</sub>(t).
@@ -101,8 +127,9 @@ animación va lenta en tu equipo, baja la «Velocidad (fps)» de la ventana.
 ## 4. Guion sugerido para la presentación (≈ 6 min)
 1. **Pruebas (configuración 1):** «todo lo impreso en el paper coincide con el código»: 42 comprobaciones,
    ejemplo de las págs. 7–8 y Tablas I y VIII.
-2. **Simulador (configuración 2):** arrancar con 720/2160 veh/h; pausar en una decisión y mostrar el panel:
-   entradas, reglas activadas, regla que dispara, e\*.
+2. **Simulador (configuración 2):** arrancar con 720/2160 veh/h con FLC-O y mostrar la curva punteada del controlador de 1977
+   sobre las mismas llegadas; pausar en un cambio de fase y mostrar entradas, salida u y reglas más fuertes. Luego cambiar a
+   *Pappis y Mamdani (1977)* (pestaña 2) y pausar en una decisión: reglas activadas, regla que dispara, e\*.
 3. **Paso a paso:** con *Paso* mostrar un CORTE (todo < 0.5) y una extensión de 10 s.
 4. **Disparos acumulados:** casi siempre dispara la regla de extensión larga (*verylong*); las intermedias
    casi no deciden (coincide con el experimento de reducción de reglas).

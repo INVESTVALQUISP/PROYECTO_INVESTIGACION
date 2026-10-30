@@ -24,7 +24,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Simulador gráfico",
+      "label": "Simulador interactivo (calle y autos)",
       "type": "shell",
       "command": "python codigo/simulador_gui.py",
       "problemMatcher": []

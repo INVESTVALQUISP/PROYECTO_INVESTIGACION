@@ -1,20 +1,23 @@
 """
 simulador_gui.py
 ================================================================================
-Simulador INTERACTIVO de la interseccion controlada por la logica difusa de
-Pappis & Mamdani (1977). Reproduce paso a paso (1 s por tick) el mismo
-modelo ya validado (traffic_model.simulate_fuzzy), pero con interfaz grafica:
-se eligen los flujos, la semilla, la duracion, el conjunto de reglas
-(paper), el umbral de accion, el modo y la velocidad, y se
-observa la animacion de la interseccion + la traza de d_m(t) + el registro
-de decisiones del controlador.
+Simulador INTERACTIVO de la interseccion (calle, autos y semaforos) con dos controladores:
+
+  * FLC-O: el controlador difuso optimizado del articulo de mejora (27 reglas, decide cada segundo);
+  * Pappis & Mamdani (1977): el controlador original (25 reglas, interviene a los 7, 17, 27, 37 y 47 s de verde).
+
+Reproduce paso a paso (1 s por tick) el mismo modelo ya validado (traffic_model.simulate_fuzzy y sim_batch), pero con
+interfaz grafica: se eligen el controlador, los flujos, la semilla, la duracion y la velocidad, y se observa la
+animacion de la interseccion + la traza de d_m(t) (con la curva del OTRO controlador sobre las mismas llegadas) + el
+registro de decisiones + el panel del controlador (entradas, salida y fuerza de cada regla).
 
 Uso interactivo (necesita un entorno grafico, p.ej. Windows):
-    python simulador_gui.py
+    python simulador_gui.py                          # FLC-O (el controlador mejorado)
+    python simulador_gui.py --controlador pappis     # el controlador de 1977
 
 Uso en video (sin interfaz; exporta MP4 o GIF para las diapositivas):
-    python simulador_gui.py --video animacion.mp4 --ns 720 --ew 2160 \
-        --rules paper --seed 1 --seconds 90 --fps 10
+    python simulador_gui.py --video animacion.mp4 --ns 720 --ew 2160 --seed 1 --seconds 90 --fps 10
+    python simulador_gui.py --video animacion.mp4 --controlador pappis
 
 Dependencias: numpy, matplotlib, imageio (+ imageio-ffmpeg para MP4).
 """
@@ -33,6 +36,8 @@ def decision_line(st):
     """Linea corta de registro: tiempo, brazo, segundo de verde, e* y regla(s) que disparan."""
     d = st.decision
     arm = "N-S" if st.phase == 0 else "E-W"
+    if getattr(d, "kind", "") == "flco":
+        return f"t={st.t:4d} {arm} v{d.elapsed:2d}s > CAMBIA u={d.u:+.2f}" + (" [verde máx.]" if d.forced else "")
     if d.cut:
         return f"t={st.t:4d} {arm} v{d.elapsed:2d}s > CORTE (g={d.grade_max:.2f})"
     ids = ",".join(f"R{i + 1}" for i in d.winners)
@@ -55,7 +60,8 @@ def write_firings_csv(sim, path):
 # ===========================================================================
 # Modo video (headless)
 # ===========================================================================
-def render_video(path, ns, ew, rules, seed, seconds, fps, threshold, mode, csv_path=None, sub=3):
+def render_video(path, ns, ew, rules, seed, seconds, fps, threshold, mode, csv_path=None, sub=3,
+                 controller="flco", reference=True):
     import matplotlib
     matplotlib.use("Agg", force=True)
     import matplotlib.pyplot as plt
@@ -64,16 +70,26 @@ def render_video(path, ns, ew, rules, seed, seconds, fps, threshold, mode, csv_p
 
     cfg = se.SimConfig(lam_ns=ns / 3600.0, lam_ew=ew / 3600.0, seed=seed,
                        duration=seconds, ruleset=rules, threshold=threshold,
-                       mode=mode)
+                       mode=mode, controller=controller)
     sim = se.StepSim(cfg)
+    ref = None
+    if reference:                                  # el otro controlador, sobre las mismas llegadas
+        ref = se.StepSim(se.SimConfig(lam_ns=ns / 3600.0, lam_ew=ew / 3600.0, seed=seed, duration=seconds,
+                                      ruleset=rules, threshold=threshold, mode=mode,
+                                      controller="pappis" if controller == "flco" else "flco"))
 
     fig = plt.figure(figsize=(16.0, 9.2), dpi=100)    # 1600x920 px
     canvas = FigureCanvasAgg(fig)
-    view = IntersectionView(fig, rules=cfg.rules)
-    view.sub.set_text(
-        f"reglas: {rules} · umbral {threshold:.2f} · N-S {ns} veh/h · "
-        f"E-W {ew} veh/h · lectura {'calibrada' if mode == 'capacity' else 'literal'} · semilla {seed}")
+    view = IntersectionView(fig, rules=cfg.rules, flco=cfg.flco, max_green=getattr(cfg, "max_green", 57))
+    if controller == "flco":
+        view.sub.set_text(f"controlador: FLC-O ({cfg.flco_model}) · N-S {ns} veh/h · E-W {ew} veh/h · semilla {seed}")
+    else:
+        view.sub.set_text(
+            f"reglas: {rules} · umbral {threshold:.2f} · N-S {ns} veh/h · "
+            f"E-W {ew} veh/h · lectura {'calibrada' if mode == 'capacity' else 'literal'} · semilla {seed}")
     view.reset()
+    if ref is not None:
+        view.set_reference(NOMBRES[ref.cfg.controller] + ", mismas llegadas")
 
     # -- escritor de video (MP4 con imageio-ffmpeg; si no, GIF con PIL) --
     writer = None
@@ -107,7 +123,10 @@ def render_video(path, ns, ew, rules, seed, seconds, fps, threshold, mode, csv_p
 
     for n in range(total):
         st = sim.step()
-        view.step_render(st, sub=frames_per_s, on_frame=grab)   # 'sub' cuadros por segundo simulado
+        view.advance(st, ref_dm=None if ref is None else ref.step().dm)
+        for _ in range(frames_per_s):                           # 'sub' cuadros por segundo simulado
+            view.draw_frame(1.0 / frames_per_s)
+            grab()
         if (n + 1) % max(1, total // 10) == 0:
             print(f"  ... {100 * (n + 1) // total}%")
 
@@ -128,6 +147,9 @@ def render_video(path, ns, ew, rules, seed, seconds, fps, threshold, mode, csv_p
 # ===========================================================================
 # Modo interactivo (Tkinter)
 # ===========================================================================
+NOMBRES = {"flco": "FLC-O (mejorado)", "pappis": "Pappis y Mamdani (1977)"}
+CLAVES = {v: k for k, v in NOMBRES.items()}
+
 PRESETS = {
     "Del artículo: 720 / 2160": (720, 2160),
     "Poco tráfico: 360 / 360": (360, 360),
@@ -153,9 +175,15 @@ BOTONES (columna derecha)
   Velocidad: segundos simulados por segundo real. Se puede bajar a 1 para ir muy lento.
 
 2 · CONTROLADOR
-  Umbral de decisión: grado mínimo (0.5 en el paper) para aceptar una extensión del verde.
-  Lectura de A y Q: «calibrada» reproduce la Tabla VIII del paper; «literal» sigue el ejemplo tal cual.
-  Encender / apagar reglas: quita reglas de las 25 para ver cuánto aporta cada una (se aplica en vivo).
+  Controlador: FLC-O (el controlador difuso mejorado del artículo) o Pappis y Mamdani (1977). Al cambiarlo, la simulación se
+  reinicia con los mismos flujos y la misma semilla, así que las llegadas de autos son idénticas y la comparación es justa.
+  Mostrar d_m del otro controlador: dibuja en la traza, punteada, la curva del controlador que NO se está viendo, sobre las
+  mismas llegadas. Es la comparación en vivo: la curva continua es el controlador elegido.
+  Solo con Pappis y Mamdani (1977):
+    Umbral de decisión: grado mínimo (0.5 en el paper) para aceptar una extensión del verde.
+    Lectura de A y Q: «calibrada» reproduce la Tabla VIII del paper; «literal» sigue el ejemplo tal cual.
+    Encender / apagar reglas: quita reglas de las 25 para ver cuánto aporta cada una (se aplica en vivo).
+  FLC-O no tiene umbral: cada segundo calcula una salida u y cambia de fase si u > 0 (después del verde mínimo de 3 s).
 
 3 · VISTA DIDÁCTICA
   Apartados visibles: oculta reglas, grados, disparos o la traza de d_m para explicar de a poco.
@@ -166,14 +194,24 @@ BOTONES (columna derecha)
 
 LA PANTALLA
   Calle: autos azules = N-S, naranjas = E-W. Luces rojas de freno cuando el auto frena.
-  Reglas de la intervención: las 5 reglas vigentes con su activación; ★ = la que decide.
-  Decisión: grado de cada extensión posible (1 a 10 s) y el umbral. Disparos: cuántas veces actuó cada regla.
-  Traza: retardo medio d_m en el tiempo (triángulo verde = extensión, cuadrado rojo = corte).
+  Con Pappis y Mamdani (1977):
+    Reglas de la intervención: las 5 reglas vigentes con su activación; ★ = la que decide.
+    Decisión: grado de cada extensión posible (1 a 10 s) y el umbral. Disparos: cuántas veces actuó cada regla.
+    Traza: retardo medio d_m en el tiempo (triángulo verde = extensión, cuadrado rojo = corte).
+  Con FLC-O (cada segundo):
+    Entradas (casilla «Reglas»): G = cola en verde + llegadas previstas, R = cola en rojo + llegadas previstas, V = segundos de
+    verde, cada una sobre sus conjuntos difusos aprendidos (bajo, medio, alto); la línea roja es el valor actual.
+    Salida (casilla «Grados»): u; si u > 0 se cambia de fase. Fuerza de las 27 reglas (casilla «Disparos»): rojo = la regla
+    empuja a cambiar, azul = a seguir.
+    Traza: d_m en el tiempo; cada cuadrado rojo es un cambio de fase.
+  d_m cuenta solo los vehículos que ya salieron (convención del original). El artículo usa además la espera residual al final;
+  al terminar, la ventana muestra las dos cifras.
 """
 
 
-def run_gui(test_hook=None):
-    """Abre la ventana. 'test_hook(app, root)' (solo para pruebas automaticas) reemplaza al mainloop."""
+def run_gui(test_hook=None, controlador="flco"):
+    """Abre la ventana. 'test_hook(app, root)' (solo para pruebas automaticas) reemplaza al mainloop.
+    controlador: "flco" (FLC-O, el mejorado) o "pappis" (Pappis y Mamdani, 1977) al abrir."""
     import matplotlib
     try:
         matplotlib.use("TkAgg")
@@ -188,8 +226,7 @@ def run_gui(test_hook=None):
     class App:
         def __init__(self, root):
             self.root = root
-            root.title("Simulador · semáforo inteligente difuso "
-                       "(Pappis & Mamdani, 1977)")
+            root.title("Simulador · semáforo difuso: FLC-O frente a Pappis y Mamdani (1977)")
             root.configure(bg="#f4f5f7")
             # ventana adaptada a la pantalla (en pantallas chicas los botones quedaban fuera)
             w = min(1620, root.winfo_screenwidth() - 40)
@@ -207,6 +244,8 @@ def run_gui(test_hook=None):
             self.v_fps = tk.IntVar(value=10)
             self.v_rules = tk.StringVar(value="paper")
             self.v_mode = tk.StringVar(value="capacity")
+            self.v_ctrl = tk.StringVar(value=NOMBRES[controlador])
+            self.v_ref = tk.BooleanVar(value=True)
             self.v_preset = tk.StringVar(value="Del artículo: 720 / 2160")
             self.v_pause_dec = tk.BooleanVar(value=False)
             self.v_explain = tk.BooleanVar(value=True)
@@ -253,33 +292,47 @@ def run_gui(test_hook=None):
             # --- pestaña 2: controlador ---
             t2 = ttk.Frame(nb, padding=6)
             nb.add(t2, text=" 2 · Controlador ")
-            lab(t2, "Umbral de decisión:", 0, 0)
-            ttk.Spinbox(t2, from_=0.30, to=0.90, increment=0.05, width=6, textvariable=self.v_thr,
-                        command=self._apply_threshold).grid(row=0, column=1, sticky="w")
+            lab(t2, "Controlador:", 0, 0)
+            cbc = ttk.Combobox(t2, textvariable=self.v_ctrl, values=list(NOMBRES.values()), width=26, state="readonly")
+            cbc.grid(row=0, column=1, columnspan=2, sticky="w")
+            cbc.bind("<<ComboboxSelected>>", lambda e: self._on_ctrl())
+            ttk.Checkbutton(t2, text="Mostrar d_m del otro controlador (mismas llegadas)", variable=self.v_ref,
+                            command=self._apply_ref).grid(row=0, column=3, columnspan=4, sticky="w", padx=10)
+            self.w_1977 = []                                  # controles que solo valen para Pappis y Mamdani
+            lab(t2, "Umbral de decisión:", 1, 0)
+            sp = ttk.Spinbox(t2, from_=0.30, to=0.90, increment=0.05, width=6, textvariable=self.v_thr,
+                             command=self._apply_threshold)
+            sp.grid(row=1, column=1, sticky="w")
             fm = ttk.LabelFrame(t2, text="Lectura de A y Q", padding=4)
-            fm.grid(row=0, column=2, columnspan=2, sticky="w", padx=10)
-            ttk.Radiobutton(fm, text="calibrada", value="capacity", variable=self.v_mode).pack(side=tk.LEFT, padx=4)
-            ttk.Radiobutton(fm, text="literal", value="literal", variable=self.v_mode).pack(side=tk.LEFT, padx=4)
+            fm.grid(row=1, column=2, columnspan=2, sticky="w", padx=10)
+            r1 = ttk.Radiobutton(fm, text="calibrada", value="capacity", variable=self.v_mode)
+            r1.pack(side=tk.LEFT, padx=4)
+            r2 = ttk.Radiobutton(fm, text="literal", value="literal", variable=self.v_mode)
+            r2.pack(side=tk.LEFT, padx=4)
             fr = ttk.LabelFrame(t2, text="Reglas del controlador", padding=4)
-            fr.grid(row=0, column=4, columnspan=3, sticky="w", padx=10)
-            ttk.Radiobutton(fr, text="originales (paper)", value="paper", variable=self.v_rules,
-                            command=self._on_rules).pack(side=tk.LEFT, padx=4)
+            fr.grid(row=1, column=4, columnspan=3, sticky="w", padx=10)
+            r3 = ttk.Radiobutton(fr, text="originales (paper)", value="paper", variable=self.v_rules,
+                                 command=self._on_rules)
+            r3.pack(side=tk.LEFT, padx=4)
             self.lab_rules = ttk.Label(fr, text="25 de 25 activas")
             self.lab_rules.pack(side=tk.LEFT, padx=6)
-            ttk.Button(fr, text="Encender / apagar reglas…", command=self.open_rules_editor).pack(side=tk.LEFT, padx=4)
-            ttk.Label(t2, text="El umbral y las reglas se cambian en vivo; la lectura de A y Q, al pulsar Reiniciar. "
-                               "Apagar reglas muestra cuánto aporta cada una.",
-                      foreground="#7f8c8d").grid(row=1, column=0, columnspan=8, sticky="w", padx=10, pady=(4, 0))
+            b_rules = ttk.Button(fr, text="Encender / apagar reglas…", command=self.open_rules_editor)
+            b_rules.pack(side=tk.LEFT, padx=4)
+            self.w_1977 = [sp, r1, r2, r3, b_rules]
+            self.lab_ctrl = ttk.Label(t2, text="", foreground="#7f8c8d", wraplength=1100, justify="left")
+            self.lab_ctrl.grid(row=2, column=0, columnspan=8, sticky="w", padx=10, pady=(4, 0))
 
             # --- pestaña 3: vista didáctica ---
             t3 = ttk.Frame(nb, padding=6)
             nb.add(t3, text=" 3 · Vista didáctica ")
             f_pan = ttk.LabelFrame(t3, text="Apartados visibles", padding=4)
             f_pan.grid(row=0, column=0, rowspan=2, sticky="nw", padx=6)
+            self.cb_panels = []
             for k, (txt, var) in enumerate((("Reglas", self.v_p_rules), ("Grados", self.v_p_grade),
                                             ("Disparos", self.v_p_fire), ("Traza d_m", self.v_p_trace))):
-                ttk.Checkbutton(f_pan, text=txt, variable=var, command=self._apply_panels).grid(
-                    row=k // 2, column=k % 2, sticky="w", padx=4)
+                cbp = ttk.Checkbutton(f_pan, text=txt, variable=var, command=self._apply_panels)
+                cbp.grid(row=k // 2, column=k % 2, sticky="w", padx=4)
+                self.cb_panels.append(cbp)
             f_cls = ttk.LabelFrame(t3, text="Para explicar", padding=4)
             f_cls.grid(row=0, column=1, rowspan=2, sticky="nw", padx=6)
             ttk.Checkbutton(f_cls, text="Pausar en cada decisión", variable=self.v_pause_dec).grid(
@@ -365,24 +418,58 @@ def run_gui(test_hook=None):
             sb.pack(side=tk.RIGHT, fill=tk.Y)
 
             self.sim = None
+            self.ref = None                   # el otro controlador sobre las mismas llegadas (curva punteada)
             self.view = None
             self.after_id = None
             self.running = False
+            self._set_ctrl_ui()
 
         # -------------------------------------------------------------
         def _on_rules(self):
             # umbral por defecto de cada conjunto (el usuario puede editarlo)
             self.v_thr.set(0.50)
 
-        def _cfg(self):
+        def _ref_label(self):
+            otro = "pappis" if self._ctrl() == "flco" else "flco"
+            return NOMBRES[otro] + ", mismas llegadas"
+
+        def _ctrl(self):
+            return CLAVES[self.v_ctrl.get()]
+
+        def _cfg(self, controller=None):
             return se.SimConfig(
                 lam_ns=self.v_ns.get() / 3600.0, lam_ew=self.v_ew.get() / 3600.0,
                 seed=self.v_seed.get(), duration=self.v_dur.get(),
                 ruleset=self.v_rules.get(), threshold=self.v_thr.get(),
                 mode=self.v_mode.get(), disabled=frozenset(self.disabled),
+                controller=controller or self._ctrl(),
                 # lectura explicita de A y Q (ver traffic_model.CALIBRADA / LITERAL)
                 **(dict(a_mode="crossing", q_mode="current", predicted_q=False) if self.v_mode.get() == "capacity"
                    else dict(a_mode="arrivals", q_mode="predicted", predicted_q=True)))
+
+        def _set_ctrl_ui(self):
+            """Activa o desactiva los controles segun el controlador y renombra los apartados de la columna derecha."""
+            flco = self._ctrl() == "flco"
+            for w in self.w_1977:
+                w.config(state="disabled" if flco else "normal")
+            names = (("Entradas", "Salida u", "Fuerza de reglas", "Traza d_m") if flco
+                     else ("Reglas", "Grados", "Disparos", "Traza d_m"))
+            for w, txt in zip(self.cb_panels, names):
+                w.config(text=txt)
+            self.lab_ctrl.config(text=(
+                "FLC-O: 27 reglas con 3 entradas (G, R, V) aprendidas con CMA-ES; decide cada segundo y cambia de fase si u > 0 "
+                "(verde mínimo 3 s, máximo 90 s). No tiene umbral ni las 25 reglas de 1977, por eso esos controles están apagados."
+                if flco else
+                "Pappis y Mamdani (1977): 25 reglas; interviene a los 7, 17, 27, 37 y 47 s de verde. El umbral y las reglas "
+                "se cambian en vivo; la lectura de A y Q, al pulsar Reiniciar. Apagar reglas muestra cuánto aporta cada una."))
+
+        def _on_ctrl(self):
+            self._set_ctrl_ui()
+            self.reset()
+
+        def _apply_ref(self):
+            if self.view is not None:
+                self.view.set_reference(self._ref_label() if self.v_ref.get() else "")
 
         # ---------- personalizacion didactica ----------
         def _on_preset(self):
@@ -425,9 +512,14 @@ def run_gui(test_hook=None):
         def _apply_explain(self):
             if not self.v_explain.get():
                 self._set_explain("(Explicación desactivada. Marque «Explicar cada decisión» para verla.)")
+            elif self.sim is not None and self.sim.flco is not None and self.sim.last_decision is not None:
+                self._set_explain(self._explain_flco(self.sim.last_decision, self.sim.phase))
             elif self.sim is not None and self.sim.decisions:
                 t, ph, d = self.sim.decisions[-1]
                 self._set_explain(se.explain_decision(d, ph, t, self.sim.cfg.threshold))
+
+        def _explain_flco(self, d, phase):
+            return se.explain_flco(d, phase, self.sim.flco, self.sim.flco.gmin, self.sim.cfg.max_green)
 
         def _update_rules_label(self):
             n = 25 - len(self.disabled)
@@ -495,28 +587,46 @@ def run_gui(test_hook=None):
             if self.sim is None or self.sim.done:
                 self._build()
             self.sim.inject(arm, n)
+            if self.ref is not None:
+                self.ref.inject(arm, n)            # el otro controlador recibe los mismos autos
             self.status.config(text=f"Se agregan {n} auto(s) al brazo {'N-S' if arm == 0 else 'E-W'} "
                                     f"(entran de a uno por segundo).")
 
         def _build(self):
-            self.sim = se.StepSim(self._cfg())
+            cfg = self._cfg()
+            self.sim = se.StepSim(cfg)
+            otro = "pappis" if cfg.controller == "flco" else "flco"
+            self.ref = se.StepSim(self._cfg(otro))              # el otro controlador, mismas llegadas
+            if self.view is not None and (self.view.flco is None) != (cfg.flco is None):
+                # cambia el tipo de panel de la derecha: se rehace la figura
+                self.fig.canvas.mpl_disconnect(self.view._draw_cid)
+                self.fig.clf()
+                self.view = None
             if self.view is None:
-                self.view = IntersectionView(self.fig, rules=self.sim.cfg.rules)
+                self.view = IntersectionView(self.fig, rules=cfg.rules, flco=cfg.flco, max_green=getattr(cfg, "max_green", 57))
             else:
-                self.view.set_rules(self.sim.cfg.rules)
-                self.view.reset()
+                self.view.set_rules(cfg.rules)
+            self.view.reset()
             self.view.set_threshold(self.v_thr.get())
             self.view.set_disabled(self.disabled)
-            self.view.sub.set_text(
-                f"reglas: {self.v_rules.get()} · umbral {self.v_thr.get():.2f}"
-                f" · N-S {self.v_ns.get()} veh/h · E-W {self.v_ew.get()} veh/h"
-                f" · lectura {'calibrada' if self.v_mode.get() == 'capacity' else 'literal'} · semilla {self.v_seed.get()}")
+            if cfg.controller == "flco":
+                self.view.sub.set_text(
+                    f"controlador: FLC-O ({cfg.flco_model}) · N-S {self.v_ns.get()} veh/h · "
+                    f"E-W {self.v_ew.get()} veh/h · semilla {self.v_seed.get()}")
+            else:
+                self.view.sub.set_text(
+                    f"reglas: {self.v_rules.get()} · umbral {self.v_thr.get():.2f}"
+                    f" · N-S {self.v_ns.get()} veh/h · E-W {self.v_ew.get()} veh/h"
+                    f" · lectura {'calibrada' if self.v_mode.get() == 'capacity' else 'literal'} · semilla {self.v_seed.get()}")
+            self.view.set_reference(self._ref_label() if self.v_ref.get() else "")
             self.log.delete(0, tk.END)
             self.prog["value"] = 0
             self._apply_view_opts()
             self._apply_panels()
-            self._set_explain("Aquí aparecerá, en palabras simples, la explicación de cada decisión del "
-                              "controlador (cada 10 s de verde)." if self.v_explain.get() else
+            self._set_explain(("Aquí aparecerá, en palabras simples, qué mira FLC-O y qué decide en cada segundo de verde."
+                               if cfg.controller == "flco" else
+                               "Aquí aparecerá, en palabras simples, la explicación de cada decisión del "
+                               "controlador (cada 10 s de verde).") if self.v_explain.get() else
                               "(Explicación desactivada. Marque «Explicar cada decisión» para verla.)")
             self.status.config(text=f"Simulación lista: {self.v_dur.get()} s. "
                                     "Pulse Iniciar o Paso.")
@@ -526,8 +636,33 @@ def run_gui(test_hook=None):
             """Sub-cuadros por segundo simulado (movimiento suave): ~24 cuadros/s en pantalla."""
             return max(1, min(6, round(24 / max(1, self.v_fps.get()))))
 
+        def _advance(self, st):
+            """Pasa el segundo st a la vista y avanza tambien al otro controlador (curva punteada de la traza)."""
+            rd = None
+            if self.ref is not None and not self.ref.done:
+                rd = self.ref.step().dm
+            self.view.advance(st, ref_dm=rd)
+
+        def _final_text(self, st):
+            if self.sim.flco is not None:
+                otro = f" · de 1977: {self.ref.dm:.3f}" if self.ref is not None else ""
+            else:
+                otro = f" · FLC-O: {self.ref.dm:.3f}" if self.ref is not None else ""
+            res = f"{self.sim.dm_residual:.3f}" + (f" frente a {self.ref.dm_residual:.3f}" if self.ref is not None else "")
+            return (f"Final: d_m = {st.dm:.3f} s/veh{otro} (convención del original, solo vehículos servidos). "
+                    f"Con la espera residual del artículo: {res}.")
+
         def _after_state(self, st):
-            if st.decision is not None:
+            d = st.decision
+            if d is not None and getattr(d, "kind", "") == "flco":
+                if d.event:
+                    self.log.insert(tk.END, decision_line(st))
+                    self.log.see(tk.END)
+                    if self.v_pause_dec.get() and self.running:
+                        self._pause_req = True
+                if self.v_explain.get():
+                    self._set_explain(self._explain_flco(d, st.phase))
+            elif d is not None:
                 self.log.insert(tk.END, decision_line(st))
                 self.log.see(tk.END)
                 if self.v_explain.get():
@@ -542,7 +677,7 @@ def run_gui(test_hook=None):
             if not self.running:
                 return
             st = self.sim.step()
-            self.view.advance(st)
+            self._advance(st)
             self._after_state(st)
             self._sub(0, self._nsub(), st)
 
@@ -563,8 +698,7 @@ def run_gui(test_hook=None):
                 self.running = False
                 self.b_pause.config(state=tk.DISABLED, text="⏸ Pausa")
                 self.b_start.config(state=tk.NORMAL)
-                self.status.config(text=f"Final: d_m = {st.dm:.3f} s/veh en "
-                                        f"{self.sim.cfg.duration} s.")
+                self.status.config(text=self._final_text(st))
                 self.log.insert(tk.END, f"--- final: d_m = {st.dm:.3f} s/veh ---")
                 self.log.see(tk.END)
                 return
@@ -611,13 +745,13 @@ def run_gui(test_hook=None):
             if self.sim is None or self.sim.done:
                 self._build()
             st = self.sim.step()
-            self.view.advance(st)
+            self._advance(st)
             self._after_state(st)
             for _ in range(3):
                 self.view.draw_frame(1.0 / 3)
                 self.root.update_idletasks()
             if st.done:
-                self.status.config(text=f"t = {st.t // 60:02d}:{st.t % 60:02d}  ·  d_m = {st.dm:.2f} s/veh  ·  FINAL")
+                self.status.config(text=self._final_text(st))
                 self.log.insert(tk.END, f"--- final: d_m = {st.dm:.3f} s/veh ---")
                 self.log.see(tk.END)
 
@@ -659,10 +793,14 @@ def run_gui(test_hook=None):
 
 # ===========================================================================
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser(description="Simulador interactivo del "
-                                 "semáforo difuso de Pappis & Mamdani (1977)")
+    ap = argparse.ArgumentParser(description="Simulador interactivo del semáforo difuso: FLC-O (mejorado) "
+                                 "y Pappis & Mamdani (1977)")
     ap.add_argument("--video", metavar="SALIDA.mp4",
                     help="modo sin interfaz: exporta el video a SALIDA")
+    ap.add_argument("--controlador", choices=["flco", "pappis"], default="flco",
+                    help="flco = FLC-O (el controlador mejorado, por defecto); pappis = Pappis y Mamdani (1977)")
+    ap.add_argument("--sin-referencia", action="store_true",
+                    help="con --video: no dibuja la curva d_m del otro controlador")
     ap.add_argument("--ns", type=int, default=720, help="flujo N-S (veh/h)")
     ap.add_argument("--ew", type=int, default=2160, help="flujo E-W (veh/h)")
     ap.add_argument("--rules", choices=["paper"], default="paper",
@@ -686,6 +824,7 @@ if __name__ == "__main__":
         if thr is None:
             thr = 0.50
         render_video(args.video, args.ns, args.ew, args.rules, args.seed,
-                     args.seconds, args.fps, thr, args.mode, args.csv, args.sub)
+                     args.seconds, args.fps, thr, args.mode, args.csv, args.sub,
+                     controller=args.controlador, reference=not args.sin_referencia)
     else:
-        run_gui()
+        run_gui(controlador=args.controlador)

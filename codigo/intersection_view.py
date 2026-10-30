@@ -20,6 +20,10 @@ interseccion vista desde arriba, estilo Fig. 1/2 del paper:
   * PANEL DE REGLAS (columna derecha): las 5 reglas de la intervencion en curso con
     su activacion y la regla que DISPARA (decide la extension), el vector de grados
     grade(e) con el umbral 0.5 y los disparos acumulados de las 25 reglas.
+  * Con flco = FLC-O (el controlador difuso optimizado) la columna derecha muestra, en cada segundo, sus tres
+    entradas G, R y V sobre sus conjuntos difusos aprendidos, la salida u (u > 0: cambiar de fase) y la fuerza
+    de cada una de sus 27 reglas.
+  * Opcionalmente, la curva d_m(t) de OTRO controlador sobre las mismas llegadas (referencia).
 
 La vista es agnostica del backend: recibe un Figure y se dibuja sobre el
 canvas que el llamador elija (TkAgg en la GUI, Agg para exportar video).
@@ -30,9 +34,11 @@ Convenciones geometricas (plano 0..100 x 0..100):
 """
 import numpy as np
 import matplotlib
+import matplotlib.axes
 from matplotlib.patches import Rectangle, Circle
 
 import fuzzy_logic as fl
+import opt_flc2
 
 # --- paleta y constantes visuales ------------------------------------------
 ROAD = "#4d4d52"
@@ -71,6 +77,8 @@ AMBER_L = "#f5b82e"
 AMBER_S = 3           # segundos de ambar (paper: ambar de 3 s) dentro de los 5 s de tiempo perdido
 
 
+FLCO_NOM = ("bajo", "medio", "alto")
+FLCO_COL = ("#3b82c4", "#2f855a", "#e8833a")        # colores de los conjuntos bajo / medio / alto
 _INT_COLORS = {7: "#2b6cb0", 17: "#2f855a", 27: "#c05621", 37: "#6b46c1", 47: "#b83280"}
 
 
@@ -88,8 +96,12 @@ class IntersectionView:
             fig.canvas.draw()
     """
 
-    def __init__(self, fig, rules=None, panels=True):
+    def __init__(self, fig, rules=None, panels=True, flco=None, max_green=90):
+        """flco: controlador opt_flc2.FuzzyOpt (si se da, la columna derecha muestra FLC-O en vez de las 25 reglas)."""
         self.fig = fig
+        self.flco = flco
+        self.max_green = max_green
+        self._ref_label = ""
         self.panels = panels
         self.rules = rules if rules is not None else fl.RULES
         self.threshold = 0.5                  # umbral que se dibuja (lo fija la ventana)
@@ -104,6 +116,9 @@ class IntersectionView:
         self.axq = fig.add_subplot(gs[1])
         self._build_scene()
         self._build_trace()
+        if flco is not None:
+            self.sc_ext.set_visible(False)
+            self.sc_cut.set_label("cambio de fase (decide FLC-O)")
         if panels:
             gr = fig.add_gridspec(3, 1, height_ratios=[0.37, 0.24, 0.39], hspace=0.42,
                                   left=0.665, right=0.985, top=0.945, bottom=0.065)
@@ -114,8 +129,9 @@ class IntersectionView:
         self._bg = None
         self._need_full = True
         self._build_pool()
-        fig.canvas.mpl_connect("draw_event", self._on_draw)
+        self._draw_cid = fig.canvas.mpl_connect("draw_event", self._on_draw)
         self._animated_extra()
+        self._make_legend()
 
     # ------------------------------------------------------------------
     # personalizacion (se aplica en vivo)
@@ -128,6 +144,8 @@ class IntersectionView:
 
     def set_threshold(self, thr):
         self.threshold = float(thr)
+        if self.flco is not None:
+            return                                 # FLC-O no tiene umbral: cambia cuando u > 0
         if self.panels and getattr(self, "_last", None) is not None:
             d = self._last
             self._draw_rules(d, self.rules[d.intervention], d.intervention)
@@ -137,6 +155,8 @@ class IntersectionView:
     def set_disabled(self, disabled):
         """Reglas apagadas (se muestran en gris y no aportan a la decision)."""
         self.disabled = frozenset(disabled)
+        if self.flco is not None:
+            return
         if self.panels:
             d = getattr(self, "_last", None)
             if d is not None:
@@ -161,8 +181,13 @@ class IntersectionView:
             return
         for ax, flag in ((self.ax_rules, rules), (self.ax_grade, grade), (self.ax_fire, fire), (self.axq, trace)):
             ax.set_visible(bool(flag))
-        for a in (self.ln_dm, self.sc_ext, self.sc_cut, self.dec_txt):
-            a.set_visible(bool(trace))
+        if self.flco is not None:                  # los artistas animados no siguen la visibilidad de su eje
+            for key, flag in (("rules", rules), ("grade", grade), ("fire", fire)):
+                for a in self._fl_grp[key]:
+                    a.set_visible(bool(flag))
+        for a in (self.ln_dm, self.sc_ext, self.sc_cut, self.dec_txt, self.ln_ref):
+            a.set_visible(bool(trace) and (a is not self.sc_ext or self.flco is None)
+                          and (a is not self.ln_ref or bool(self._ref_label)))
         right = rules or grade or fire
         if not hasattr(self, "_pos0"):
             self._pos0 = (self.ax.get_position().frozen(), self.axq.get_position().frozen())
@@ -178,8 +203,16 @@ class IntersectionView:
     def set_rules(self, rules):
         """Cambia el conjunto de reglas mostrado (p. ej. al reiniciar con otra config)."""
         self.rules = rules
-        if self.panels:
+        if self.panels and self.flco is None:
             self._build_rule_panels()
+
+    def set_reference(self, label):
+        """Muestra en la traza la curva d_m(t) de otro controlador sobre las mismas llegadas (label vacio: la oculta)."""
+        self._ref_label = label or ""
+        self.ln_ref.set_visible(bool(self._ref_label))
+        self.ln_ref.set_label(self._ref_label)
+        self._make_legend()
+        self.refresh()
 
     # ------------------------------------------------------------------
     # escena
@@ -309,6 +342,7 @@ class IntersectionView:
         ax.set_xlabel("tiempo (s)", fontsize=10)
         ax.set_ylabel("$d_m$ (s/veh)", fontsize=10)
         (self.ln_dm,) = ax.plot([], [], color="#2c3e50", lw=1.5)
+        (self.ln_ref,) = ax.plot([], [], color="#95a5a6", lw=1.3, ls="--", visible=False)
         self.sc_ext = ax.scatter([], [], marker="^", s=22, color=GREEN_L,
                                  edgecolor="none", zorder=5,
                                  label="extensión e*")
@@ -317,17 +351,24 @@ class IntersectionView:
                                  label="corte del verde")
         self.dec_txt = ax.text(0.012, 0.90, "", transform=ax.transAxes,
                                fontsize=9.5, color=TXT, va="top")
-        ax.legend(loc="upper right", fontsize=8.5, framealpha=0.9)
         self._tt = []
         self._dd = []
         self._xt = []
         self._xd = []
         self._ct = []
         self._cd = []
+        self._rt = []
+        self._rd = []
         self._xmax = 60.0                  # los limites cambian a saltos (evita redibujar todo)
         self._ymax = 6.0
         ax.set_xlim(0, self._xmax)
         ax.set_ylim(0, self._ymax)
+
+    def _make_legend(self):
+        hs = [self.sc_cut] if self.flco is not None else [self.sc_ext, self.sc_cut]
+        if self._ref_label:
+            hs.append(self.ln_ref)
+        self.axq.legend(handles=hs, loc="upper right", fontsize=8.5, framealpha=0.9)
 
     # ------------------------------------------------------------------
     # panel de reglas / disparos
@@ -340,8 +381,115 @@ class IntersectionView:
         T, A, Q, E = r
         return f"T={T} · A=mt({A}) · Q={'any' if Q == 'any' else 'lt(' + Q + ')'} → E={E}"
 
+    def _build_flco_panels(self):
+        """Columna derecha de FLC-O: entradas con sus conjuntos difusos (arriba), salida u (centro) y fuerza de las
+        27 reglas (abajo). Todo lo que cambia cada segundo son artistas animados (blitting): no se redibuja el fondo."""
+        f = self.flco
+        for ia in getattr(self, "_fl_insets", []):
+            ia.remove()
+        self._fl_insets, self._fl_in = [], []
+        grp = {"rules": [], "grade": [], "fire": []}
+        # ---- arriba: G, R, V sobre sus conjuntos difusos
+        ax = self.ax_rules
+        ax.clear()
+        ax.axis("off")
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.text(0.0, 1.13, "Entradas de FLC-O y sus conjuntos difusos", fontsize=10, fontweight="bold", color=TXT, va="center")
+        specs = (("G", "demanda en verde", f.kG, 6.0), ("R", "presión en rojo", f.kR, 28.0), ("V", "verde (s)", f.kE, float(self.max_green)))
+        for j, (nom, desc, k, xmax) in enumerate(specs):
+            ia = ax.inset_axes([0.035 + 0.335 * j, 0.15, 0.27, 0.66])
+            self._fl_insets.append(ia)
+            xs = np.linspace(0, xmax, 200)
+            mem = opt_flc2.ruspini(xs, k)
+            for m in range(3):
+                ia.plot(xs, mem[:, m], color=FLCO_COL[m], lw=1.4, label=FLCO_NOM[m])
+                ia.fill_between(xs, 0, mem[:, m], color=FLCO_COL[m], alpha=0.10, lw=0)
+            ia.set_xlim(0, xmax)
+            ia.set_ylim(0, 1.12)
+            ia.tick_params(labelsize=6.2, length=2, pad=1)
+            ia.set_yticks([0, 1])
+            ia.grid(True, lw=0.3, color="#d5dbe0")
+            ia.set_xlabel(desc, fontsize=6.6, labelpad=1)
+            if j == 0:
+                ia.legend(fontsize=5.8, loc="upper right", frameon=False, handlelength=1.2, borderpad=0.1, labelspacing=0.2)
+            ln, = ia.plot([0, 0], [0, 1.12], color=RED_L, lw=1.6, zorder=6)
+            dots = ia.scatter([0, 0, 0], [0, 0, 0], s=16, c=FLCO_COL, zorder=7, edgecolor="white", linewidths=0.5)
+            txt = ia.text(0.0, 1.07, f"{nom} = –", transform=ia.transAxes, fontsize=8.5, fontweight="bold", color=TXT, va="bottom")
+            self._fl_in.append((ln, dots, txt, k, xmax, nom))
+            grp["rules"] += [ia, ln, dots, txt]
+        # ---- centro: salida u
+        ax = self.ax_grade
+        ax.clear()
+        um = max(1.0, float(np.ceil(10 * np.abs(f.c).max()) / 10))
+        ax.set_xlim(-um, um)
+        ax.set_ylim(0, 1)
+        ax.axvspan(-um, 0, color="#dbe9f6", alpha=0.7, lw=0)
+        ax.axvspan(0, um, color="#fbe0dc", alpha=0.7, lw=0)
+        ax.axvline(0, color="#5d6d7e", lw=1.0)
+        ax.text(-um * 0.97, 0.93, "u ≤ 0: el verde sigue", fontsize=7.5, color="#2b6cb0", va="top")
+        ax.text(um * 0.97, 0.93, "u > 0: cambia de fase", fontsize=7.5, color=RED_L, va="top", ha="right")
+        ax.set_yticks([])
+        ax.tick_params(labelsize=7.5)
+        ax.set_xlabel("salida u = Σ fuerza · consecuente / Σ fuerza", fontsize=7.5)
+        ax.set_title("Salida de FLC-O en este segundo", fontsize=9.5, fontweight="bold", color=TXT, loc="left")
+        self._fl_ubar = Rectangle((0, 0.14), 0.0, 0.36, fc=GREEN_L, ec="#34495e", lw=0.6, zorder=4)
+        ax.add_patch(self._fl_ubar)
+        self._fl_utxt = ax.text(0.5, 0.62, "aún sin decisión", transform=ax.transAxes, ha="center", va="center",
+                                fontsize=9, fontweight="bold", color=TXT, zorder=5)
+        grp["grade"] += [self._fl_ubar, self._fl_utxt]
+        # ---- abajo: fuerza de las 27 reglas
+        ax = self.ax_fire
+        ax.clear()
+        ys = np.arange(27)[::-1]
+        cols = [RED_L if c > 0 else "#3b82c4" for c in f.c]
+        self._fl_bars = list(ax.barh(ys, np.zeros(27), color=cols, height=0.72, edgecolor="none", zorder=3))
+        ax.set_yticks(ys)
+        ax.set_yticklabels([f"{FLCO_NOM[i // 9]}·{FLCO_NOM[(i // 3) % 3]}·{FLCO_NOM[i % 3]} → {f.c[i]:+.2f}"
+                            for i in range(27)], fontsize=5.6)
+        ax.tick_params(axis="x", labelsize=7, pad=1)
+        ax.set_ylim(-0.7, 26.7)
+        ax.set_xlim(0, 1.0)
+        ax.grid(True, axis="x", lw=0.4, color="#d5dbe0")
+        for i in range(27):
+            if i % 9 == 0 and i > 0:
+                ax.axhline(ys[i] + 0.5, color="#95a5a6", lw=0.5)
+        ax.set_title("Fuerza de cada regla G·R·V → c (rojo: cambia, azul: sigue)", fontsize=8.6, fontweight="bold", color=TXT, loc="left")
+        self._fl_btxt = [ax.text(0, ys[i], "", fontsize=5.4, va="center", color=TXT, visible=False) for i in range(27)]
+        grp["fire"] += self._fl_bars + self._fl_btxt
+        self._fl_grp = grp
+        self._fl_art = [a for g in grp.values() for a in g if not isinstance(a, matplotlib.axes.Axes)]
+        self._last = None
+
+    def _update_flco(self, d):
+        """Pone al dia los artistas animados con la decision de este segundo (no redibuja el fondo)."""
+        for (ln, dots, txt, k, xmax, nom), v in zip(self._fl_in, (d.G, d.R, float(d.elapsed))):
+            x = min(v, xmax)
+            ln.set_data([x, x], [0, 1.12])
+            dots.set_offsets(np.c_[[x] * 3, opt_flc2.ruspini(np.array([v]), k)[0]])
+            txt.set_text(f"{nom} = {v:.1f}" + (" s" if nom == "V" else ""))
+        self._fl_ubar.set_width(d.u)
+        self._fl_ubar.set_facecolor(RED_L if d.u > 0 else GREEN_L)
+        if d.forced:
+            msg = f"u = {d.u:+.2f} · verde máximo: CAMBIA"
+        elif d.locked:
+            msg = f"u = {d.u:+.2f} · verde mínimo ({self.flco.gmin} s): aún no puede cambiar"
+        else:
+            msg = f"u = {d.u:+.2f} → " + ("CAMBIA de fase" if d.switch else "el verde SIGUE")
+        self._fl_utxt.set_text(msg)
+        for j, (b, t) in enumerate(zip(self._fl_bars, self._fl_btxt)):
+            w = float(d.weights[j])
+            b.set_width(w)
+            t.set_position((w + 0.012, t.get_position()[1]))
+            t.set_text(f"{100 * w:.0f} %")
+            t.set_visible(w >= 0.02 and self._fl_grp["fire"][0].get_visible())
+        self._last = d
+
     def _build_rule_panels(self):
         """Dibuja los tres paneles de la columna derecha en su estado inicial."""
+        if self.flco is not None:
+            self._build_flco_panels()
+            return
         keys = self._rule_keys()
         self._fire = {k: 0 for k in keys}      # disparos decisivos
         self._act = {k: 0 for k in keys}       # decisiones en que la regla tuvo grado > 0
@@ -626,6 +774,9 @@ class IntersectionView:
                              self.hdr, self.lab_ns, self.lab_ew]
         for arm in ("ns", "ew"):
             self._anim_static += self._lamps[arm]
+        self._anim_static.append(self.ln_ref)
+        if self.flco is not None and self.panels:
+            self._anim_static += self._fl_art
         for a in self._anim_static:
             a.set_animated(True)
 
@@ -657,14 +808,20 @@ class IntersectionView:
                 a.axes.draw_artist(a)
         canvas.blit(self.fig.bbox)
 
-    def _update_trace(self, st):
+    def _update_trace(self, st, ref_dm=None):
         self._tt.append(st.t)
         self._dd.append(st.dm)
+        if ref_dm is not None:
+            self._rt.append(st.t)
+            self._rd.append(ref_dm)
         if len(self._tt) > 6000:                     # decimar si crece
             self._tt = self._tt[::2] + [self._tt[-1]]
             self._dd = self._dd[::2] + [self._dd[-1]]
+            self._rt = self._rt[::2] + self._rt[-1:]
+            self._rd = self._rd[::2] + self._rd[-1:]
         d = st.decision
-        if d is not None:
+        flco = d is not None and getattr(d, "kind", "") == "flco"
+        if d is not None and (not flco or d.switch):
             if d.cut:
                 self._ct.append(st.t)
                 self._cd.append(st.dm)
@@ -672,13 +829,14 @@ class IntersectionView:
                 self._xt.append(st.t)
                 self._xd.append(st.dm)
         self.ln_dm.set_data(self._tt, self._dd)
+        self.ln_ref.set_data(self._rt, self._rd)
         self.sc_ext.set_offsets(np.c_[self._xt, self._xd])
         self.sc_cut.set_offsets(np.c_[self._ct, self._cd])
         changed = False
         while st.t > self._xmax:
             self._xmax *= 2
             changed = True
-        hi = max(max(self._dd) if self._dd else 5.0, 5.0) * 1.15
+        hi = max(max(self._dd) if self._dd else 5.0, max(self._rd) if self._rd else 0.0, 5.0) * 1.15
         while hi > self._ymax:
             self._ymax *= 1.6
             changed = True
@@ -686,7 +844,12 @@ class IntersectionView:
             self.axq.set_xlim(0, self._xmax)
             self.axq.set_ylim(0, self._ymax)
             self._need_full = True
-        if d is not None:
+        if flco:
+            if d.switch:
+                who = "N-S" if st.phase == 0 else "E-W"
+                self.dec_txt.set_text(f"último cambio: t={st.t} s · verde {who} {d.elapsed} s → u={d.u:+.2f}"
+                                      + (" (verde máximo)" if d.forced else ""))
+        elif d is not None:
             who = "N-S" if st.phase == 0 else "E-W"
             if d.cut:
                 self.dec_txt.set_text(
@@ -707,10 +870,11 @@ class IntersectionView:
         return f"verde {arm} (segundo {st.green_elapsed})"
 
     # ------------------------------------------------------------------
-    def advance(self, st):
+    def advance(self, st, ref_dm=None):
         """Aplica el estado de un segundo simulado (sin dibujar los autos).
         Actualiza semaforos, textos, traza y paneles; redibuja el fondo solo si
-        hace falta (decision del controlador, cambio de ejes o primer cuadro)."""
+        hace falta (decision del controlador, cambio de ejes o primer cuadro).
+        ref_dm: d_m del controlador de referencia en este segundo (curva punteada de la traza)."""
         self._need_full = self._bg is None
         self._advance_cars(st)
         ns, ew = self._light_state(st)
@@ -728,9 +892,15 @@ class IntersectionView:
         self.lab_ew.set_text(f"E-W: {st.q_ew} veh" + (f" (+{hid_ew})" if hid_ew > 0 else ""))
         self.bar_ns.set_height(ext_ns)
         self.bar_ew.set_width(ext_ew)
-        self._update_trace(st)
-        if st.decision is not None:
-            self._update_rules(st.decision, st)
+        self._update_trace(st, ref_dm)
+        d = st.decision
+        if d is not None and getattr(d, "kind", "") == "flco":
+            if self.panels:
+                self._update_flco(d)                 # artistas animados: el fondo no cambia
+            if d.switch:
+                self._need_full = True               # cambia dec_txt, que es parte del fondo
+        elif d is not None:
+            self._update_rules(d, st)
             self._need_full = True
         if self._need_full:
             self._full_draw()          # los autos son artistas animados: no se dibujan aqui
@@ -758,6 +928,8 @@ class IntersectionView:
         self._tt.clear(); self._dd.clear()
         self._xt.clear(); self._xd.clear()
         self._ct.clear(); self._cd.clear()
+        self._rt.clear(); self._rd.clear()
+        self.ln_ref.set_data([], [])
         self.bar_ns.set_height(0)
         self.bar_ew.set_width(0)
         self.ln_dm.set_data([], [])
@@ -774,4 +946,5 @@ class IntersectionView:
         self.axq.set_ylim(0, self._ymax)
         if self.panels:
             self._build_rule_panels()
+            self._animated_extra()
         self._full_draw()

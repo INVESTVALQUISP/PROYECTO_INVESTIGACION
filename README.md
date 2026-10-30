@@ -41,7 +41,7 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 | Carpeta | Contenido |
 |---|---|
 | `articulo/` | **Artículo** de la mejora (`main.tex`, 9 páginas) y su suplemento (`suplemento.tex`, 3 páginas), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
-| `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo y simulador de la réplica. |
+| `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor (DOCX y PDF). |
 | `articulo_replica/` | Artículo y suplemento de la réplica del controlador de 1977 (15 y 9 páginas), antecedente de este trabajo. |
@@ -77,13 +77,26 @@ python -m pip install -r requirements.txt
 ## Cómo usarlo
 
 ```bash
-python codigo/ejecutar_pruebas.py       # todas las comprobaciones (unos 25 s)
-python codigo/simulador_opt.py          # compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (ventana)
+python codigo/ejecutar_pruebas.py       # todas las comprobaciones (unos 30 s)
+python codigo/simulador_gui.py          # SIMULADOR INTERACTIVO: calle, autos y semáforos con FLC-O (ventana)
+python codigo/simulador_gui.py --controlador pappis   # el mismo, con el controlador de 1977 y sus 25 reglas
+python codigo/web_sim.py                # el mismo en el navegador: http://localhost:8000
+python codigo/simulador_opt.py          # compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (figura o GIF)
 python codigo/simulador_opt.py --gif salidas/comparacion.gif --guardar salidas/comparacion.png --sin-ventana
 python codigo/opt_evaluacion_final.py   # evaluación completa en los cuatro conjuntos de prueba (varios minutos)
 python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py   # regenera tablas, cifras del texto y figuras del artículo
 python codigo/opt_entrenar_modelo.py --modelo flcopt --gmin 3 --max-green 90 --suma-max 3300 --ref actuado_af --out resultados/opt/mi_modelo.json
 ```
+
+### El simulador interactivo
+
+La ventana (Tkinter) y la versión web dibujan la intersección con autos que avanzan, frenan y respetan la distancia entre sí, y semáforos de
+tres luces. Se elige el controlador (FLC-O o Pappis y Mamdani), los flujos, la semilla y la velocidad; se pueden agregar autos a mano y se
+ve en vivo, en la traza de retardo, la curva punteada **del otro controlador sobre las mismas llegadas**. Con FLC-O se muestran, en cada
+segundo, sus entradas G, R y V sobre sus conjuntos difusos, la salida u y la fuerza de cada una de sus 27 reglas, y una explicación en palabras
+de lo que decide; con el controlador de 1977, las 5 reglas de cada intervención y su regla que dispara.
+
+![Simulador interactivo con FLC-O](muestras/captura_simulador_flco.png)
 
 Entrenar FLC-O tarda unos 15 minutos con 4 núcleos. Los scripts se pueden ejecutar desde cualquier carpeta. En Visual Studio Code, abra la
 carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el paso a paso, incluidas las configuraciones 7 a 9 de la mejora.
@@ -99,12 +112,13 @@ después de compilar el artículo.
 
 ## Pruebas
 
-`python codigo/ejecutar_pruebas.py` corre 165 comprobaciones automáticas (33 de la mejora y 132 de la réplica):
+`python codigo/ejecutar_pruebas.py` corre 192 comprobaciones automáticas (60 de la mejora y 132 de la réplica):
 
 | Prueba | Qué verifica |
 |---|---|
 | `test_sim_batch.py` (10) | El simulador vectorizado reproduce exactamente al de referencia (6 controladores, 2 convenciones de retardo). |
 | `test_opt.py` (11) | CMA-ES, partición de Ruspini, programación dinámica, FLC-O y Pappis y Mamdani afinado. |
+| `test_sim_flco.py` (27) | El simulador interactivo con FLC-O (motor paso a paso, vista, CSV y web) reproduce exactamente al simulador por lotes; respeta el verde mínimo y máximo; la vista dibuja las 27 reglas, la salida u y la curva de referencia. Con `--gui` prueba además la ventana Tk. |
 | `test_archivos_citados_opt.py` (12) | Todo archivo citado por el artículo y el suplemento de la mejora existe. |
 | `test_paper_tables.py` (42) | Réplica: conjuntos, operadores, las 25 reglas, ejemplo de la Tabla VII y estructura temporal frente a lo impreso. |
 | `test_sim_engine.py` (10) | Réplica: el simulador paso a paso da el mismo resultado que la simulación por lotes. |
@@ -162,5 +176,5 @@ las 180 reglas y los apartados del simulador por separado), `referencias.bib`, l
 ## Más documentación
 
 - `docs/README_TECNICO.md`: detalle técnico, decisiones y correcciones de la transcripción de la réplica; la sección 9 describe la mejora.
-- `docs/README_VSCODE.md`: uso desde Visual Studio Code y personalización del simulador.
+- `docs/README_VSCODE.md`: uso desde Visual Studio Code (paso a paso, configuraciones de F5) y personalización del simulador interactivo.
 - `docs/avance5_validacion_replica.pdf`: informe de validación de la réplica con las curvas de fuzzificación.

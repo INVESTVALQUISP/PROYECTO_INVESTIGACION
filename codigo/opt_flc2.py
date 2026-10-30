@@ -137,3 +137,46 @@ class FuzzyGap(FuzzySegundo):
         w = (ruspini(G, self.kG)[:, :, None, None, None] * ruspini(H, self.kH)[:, None, :, None, None]
              * ruspini(R, self.kR)[:, None, None, :, None] * ruspini(E, self.kE)[:, None, None, None, :]).reshape(len(G), 81)
         return cand & (((w @ self.c) / (w.sum(1) + 1e-9)) > 0)
+
+
+# ---------------------------------------------------------------------------
+# Controlador difuso optimizado final: horizontes de vista adelante APRENDIDOS
+# ---------------------------------------------------------------------------
+N_PARAM_OPT = 42           # 9 nudos + 27 consecuentes + 3 pesos (verde) + 3 pesos (rojo)
+LAGS_G = (2, 5, 10)        # horizontes (s) de las llegadas previstas en el brazo con verde
+LAGS_R = (3, 6, 10)        # idem en el brazo en rojo
+
+
+def _theta0_opt():
+    th = THETA0.copy()
+    return np.concatenate([th, [0.5, 0.5, 0.0], [0.5, 0.5, 0.0]])
+
+
+THETA0_OPT = _theta0_opt()
+
+
+class FuzzyOpt(FuzzySegundo):
+    """Igual que FuzzySegundo (3 variables, 27 reglas) pero las llegadas esperadas son una combinacion lineal, con pesos
+    no negativos aprendidos, de las llegadas de los proximos 2, 5 y 10 s (verde) y 3, 6 y 10 s (rojo):
+        G = cola_verde + a1 W_g(2) + a2 W_g(5) + a3 W_g(10)        R = cola_rojo + b1 W_r(3) + b2 W_r(6) + b3 W_r(10)
+    de modo que el entrenamiento elige tambien cuanto mirar hacia adelante."""
+
+    def __init__(self, theta, preview=True, gmin=5):
+        super().__init__(theta, preview, gmin)
+        th = np.asarray(theta, dtype=float)
+        self.alfa = np.abs(th[36:39])
+        self.beta = np.abs(th[39:42])
+
+    def entradas(self, sim, t):
+        a = sim.arr
+        ns = sim.phase == 0
+        q_g = np.where(ns, sim.q_ns, sim.q_ew)
+        q_r = np.where(ns, sim.q_ew, sim.q_ns)
+        c0_ns, c0_ew = a.C_ns[:, t], a.C_ew[:, t]
+        G = q_g.astype(float)
+        R = q_r.astype(float)
+        for w, k in zip(self.alfa, LAGS_G):
+            G = G + w * np.where(ns, a.C_ns[:, t + k] - c0_ns, a.C_ew[:, t + k] - c0_ew)
+        for w, k in zip(self.beta, LAGS_R):
+            R = R + w * np.where(ns, a.C_ew[:, t + k] - c0_ew, a.C_ns[:, t + k] - c0_ns)
+        return G, R, (t - sim.tstart)

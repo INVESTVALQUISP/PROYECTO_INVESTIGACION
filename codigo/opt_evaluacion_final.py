@@ -55,6 +55,8 @@ def construir_modelo(d):
         return (lambda arr: BatchSim(arr, max_green=mg)), opt_politicas.PoliticaStop(th, d["hidden"], d["preview"], d["gmin"], d.get("gaps", False))
     if modelo == "flcs4":
         return (lambda arr: BatchSim(arr, max_green=mg)), opt_flc2.FuzzyGap(th, d["preview"], d["gmin"])
+    if modelo == "flcopt":
+        return (lambda arr: BatchSim(arr, max_green=mg)), opt_flc2.FuzzyOpt(th, True, d["gmin"])
     if modelo == "flcs":
         return (lambda arr: BatchSim(arr, max_green=mg)), opt_flc2.FuzzySegundo(th, d["preview"], d["gmin"])
     if modelo == "afinado":

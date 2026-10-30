@@ -6,6 +6,7 @@ caudales sorteados al azar (no son los de la Tabla VIII). Modelos:
 
   mlp      politica neuronal de verde/cambio cada segundo (cota de lo posible)           opt_politicas.PoliticaStop
   flcs     difuso nuevo de 27 reglas, decide cada segundo (interpretable)               opt_flc2.FuzzySegundo
+  flcopt   difuso de 27 reglas con horizontes de vista adelante aprendidos (42 parametros)  opt_flc2.FuzzyOpt
   flcs4    difuso de 81 reglas con el hueco desde la ultima llegada como 4a variable     opt_flc2.FuzzyGap
   afinado  las 25 reglas de Pappis y Mamdani con 30 parametros afinados (cada 10 s)     opt_flc.PappisAfinado
 
@@ -35,6 +36,8 @@ def construir(modelo, theta, args):
         return (lambda arr: BatchSim(arr, max_green=args.max_green)), opt_politicas.PoliticaStop(theta, args.hidden, not args.causal, args.gmin, args.gaps)
     if modelo == "flcs4":
         return (lambda arr: BatchSim(arr, max_green=args.max_green)), opt_flc2.FuzzyGap(theta, not args.causal, args.gmin)
+    if modelo == "flcopt":
+        return (lambda arr: BatchSim(arr, max_green=args.max_green)), opt_flc2.FuzzyOpt(theta, True, args.gmin)
     if modelo == "flcs":
         return (lambda arr: BatchSim(arr, max_green=args.max_green)), opt_flc2.FuzzySegundo(theta, not args.causal, args.gmin)
     if modelo == "afinado":
@@ -45,6 +48,8 @@ def construir(modelo, theta, args):
 def punto_inicial(modelo, args, rng):
     if modelo == "flcs4":
         return opt_flc2.THETA0_GAP.copy(), args.sigma, None
+    if modelo == "flcopt":
+        return opt_flc2.THETA0_OPT.copy(), args.sigma, None
     if modelo == "mlp" and args.hidden == 0 and args.warm:
         # lineal que imita al actuado: corta si la cola del verde esta vacia y hay cola en el rojo
         f = opt_politicas.n_car(args.gaps)
@@ -63,7 +68,7 @@ def punto_inicial(modelo, args, rng):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--modelo", choices=["mlp", "flcs", "flcs4", "afinado"], required=True)
+    ap.add_argument("--modelo", choices=["mlp", "flcs", "flcs4", "flcopt", "afinado"], required=True)
     ap.add_argument("--hidden", type=int, default=8)
     ap.add_argument("--causal", action="store_true", help="sin vista adelante de llegadas")
     ap.add_argument("--warm", action="store_true", help="(mlp lineal) arranca desde una regla que imita al actuado")

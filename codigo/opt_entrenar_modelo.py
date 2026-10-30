@@ -45,6 +45,12 @@ def construir(modelo, theta, args):
 def punto_inicial(modelo, args, rng):
     if modelo == "flcs4":
         return opt_flc2.THETA0_GAP.copy(), args.sigma, None
+    if modelo == "mlp" and args.hidden == 0 and args.warm:
+        # lineal que imita al actuado: corta si la cola del verde esta vacia y hay cola en el rojo
+        f = opt_politicas.n_car(args.gaps)
+        x0 = np.zeros(f + 1)
+        x0[1], x0[2], x0[12], x0[f] = -100.0, 30.0, 6.0, -6.5      # q_g, q_r, cola_vacia, sesgo
+        return x0, args.sigma, None
     if modelo == "mlp":
         n = opt_politicas.n_parametros(args.hidden, args.gaps)
         x0 = rng.normal(0, 0.1, n)
@@ -60,6 +66,7 @@ def main():
     ap.add_argument("--modelo", choices=["mlp", "flcs", "flcs4", "afinado"], required=True)
     ap.add_argument("--hidden", type=int, default=8)
     ap.add_argument("--causal", action="store_true", help="sin vista adelante de llegadas")
+    ap.add_argument("--warm", action="store_true", help="(mlp lineal) arranca desde una regla que imita al actuado")
     ap.add_argument("--gaps", action="store_true", help="(mlp) agrega el hueco desde la ultima llegada como caracteristica")
     ap.add_argument("--gens", type=int, default=150)
     ap.add_argument("--n", type=int, default=64, help="escenarios de entrenamiento")

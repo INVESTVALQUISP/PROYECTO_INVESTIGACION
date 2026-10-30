@@ -81,16 +81,20 @@ def main():
         if g % 10 == 0 or g == args.gens - 1:
             print(f"gen {g:4d}  mejor gen {gb:.4f}  mejor {best:.4f}  media {mean:.3f}  sigma {sigma:.3f}  ({time.time()-t0:.0f} s)", flush=True)
 
-    best_x, best_f, hist = opt_es.minimize(fitness, x0, sigma0, args.gens, seed=args.seed, log=log, bounds=bounds)
+    def guardar(bx, bf, h, parcial=True):
+        os.makedirs(os.path.dirname(args.out), exist_ok=True)
+        with open(args.out + (".parcial" if parcial else ""), "w") as f:
+            json.dump(dict(modelo=args.modelo, theta=bx.tolist(), hidden=args.hidden, preview=not args.causal, gmin=args.gmin,
+                           max_green=args.max_green, fitness_train=bf, historial=h, parcial=parcial), f)
+
+    best_x, best_f, hist = opt_es.minimize(fitness, x0, sigma0, args.gens, seed=args.seed, log=log, bounds=bounds,
+                                           ckpt=lambda bx, bf, h: guardar(bx, bf, h, True))
     fl_v, arr_v = escenarios_validacion(64)
     refs_v = correr_referencias(arr_v, fl_v, args.max_green)
     mk, ctrl = construir(args.modelo, best_x, args)
     rv = mk(arr_v).run(ctrl)
     print(f"entrenamiento: {best_f:.4f} (1.0 = actuado)  validacion: {np.mean(rv['delay'] / refs_v['actuado']['delay']):.4f}")
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
-    with open(args.out, "w") as f:
-        json.dump(dict(modelo=args.modelo, theta=best_x.tolist(), hidden=args.hidden, preview=not args.causal, gmin=args.gmin,
-                       max_green=args.max_green, fitness_train=best_f, historial=hist), f)
+    guardar(best_x, best_f, hist, parcial=False)
 
 
 if __name__ == "__main__":

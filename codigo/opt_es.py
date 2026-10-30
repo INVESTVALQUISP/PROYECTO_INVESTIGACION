@@ -82,8 +82,9 @@ class CMAES:
 
 
 def minimize(f, x0, sigma0=0.3, generations=100, popsize=None, seed=0, workers=None, log=None, bounds=None,
-             f_polish=None):
-    """Devuelve (mejor theta, mejor f, historial). f debe ser una funcion de nivel de modulo/closure (fork)."""
+             ckpt=None, ckpt_cada=10):
+    """Devuelve (mejor theta, mejor f, historial). f debe ser una funcion de nivel de modulo/closure (fork).
+    ckpt(best_x, best_f, hist) se llama cada ckpt_cada generaciones (para no perder el avance si el proceso se interrumpe)."""
     global _F
     _F = f
     es = CMAES(x0, sigma0, popsize, seed, bounds)
@@ -103,6 +104,8 @@ def minimize(f, x0, sigma0=0.3, generations=100, popsize=None, seed=0, workers=N
             hist.append((g, gb, float(np.mean(fx)), es.sigma))
             if log:
                 log(g, gb, best_f, float(np.mean(fx)), es.sigma)
+            if ckpt and (g + 1) % ckpt_cada == 0:
+                ckpt(best_x, best_f, hist)
     finally:
         if pool:
             pool.close()

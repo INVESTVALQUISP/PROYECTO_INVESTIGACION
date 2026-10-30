@@ -6,7 +6,7 @@ Figuras del articulo de optimizacion (se dibujan al ancho final: 7.16 in a dos c
   fig_opt_difuso.png      funciones de pertenencia aprendidas de G, R y E y superficie de decision de FLC-O
   fig_opt_aprendizaje.png curvas de aprendizaje de CMA-ES de los modelos finales
   fig_opt_traza.png       colas y fases durante 400 s: Pappis y Mamdani frente a FLC-O (mismas llegadas)
-Salida: articulo_opt/figures/
+Salida: articulo/figures/
 Uso:  python gen_fig_opt.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -24,7 +24,7 @@ from opt_entrenar import construir
 from opt_nombres import ETIQUETA, clave, finales
 from sim_batch import BatchSim
 
-OUT = "articulo_opt/figures"
+OUT = "articulo/figures"
 plt.rcParams.update({"font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.2, "xtick.labelsize": 6.5,
                      "ytick.labelsize": 6.5, "axes.spines.top": False, "axes.spines.right": False, "font.family": "DejaVu Sans"})
 COL = {"fijo": "#8c8c8c", "actuado_af": "#2b6cb0", "pappis": "#d9822b", "flc": "#1f9d55", "mdp": "#222222", "mlp": "#8e44ad"}

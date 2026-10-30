@@ -1,7 +1,7 @@
 """
 gen_tablas_latex.py
 ================================================================================
-Genera articulo_ieee/tabla_*.tex (un archivo por tabla) con las tablas del articulo a partir de los JSON del proyecto
+Genera articulo_replica/tabla_*.tex (un archivo por tabla) con las tablas del articulo a partir de los JSON del proyecto
 (resultados_oficiales, analisis_estadistico, comparadores, fidelity_audit, llegadas_fijas_vs_aleatorias, ablacion_reglas,
 efecto_borde, disparos_agregados, verificacion_formulas) y de fuzzy_logic.py (reglas), para que los numeros del texto y de
 las tablas no se desincronicen.
@@ -329,7 +329,7 @@ Conteos & $5\cdot6\cdot6$; $5\cdot5$; $7+5\cdot10$ & """ + f"{v['conteos']['prod
 """)
 
 for n, t in out.items():
-    open(f"articulo_ieee/{n}.tex", "w", encoding="utf-8").write(t)
+    open(f"articulo_replica/{n}.tex", "w", encoding="utf-8").write(t)
 print("tablas:", ", ".join(out))
 print(f"Tabla I: error {E_I_SIM:.2f} / {E_I_FORM:.2f} | Tabla VIII: error medio {np.mean(errs):.2f}, max {np.max(errs):.2f} | difuso vs accionado: mejor {n_better_act}, peor {n_worse_act}, n.s. {n_ns_act}")
 print(f"redondeo: {n_ceff} flujos con Ceff != C0; {n_sig} con diferencia significativa")

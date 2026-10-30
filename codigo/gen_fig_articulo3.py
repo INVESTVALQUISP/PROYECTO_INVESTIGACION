@@ -4,7 +4,7 @@ gen_fig_articulo3.py
 Figura de incertidumbre estadistica del articulo: error relativo (replica - paper) en
 cada caudal con su IC 95 %, para el ciclo fijo y el controlador difuso.
 Requiere resultados/analisis_estadistico.json (python codigo/analisis_estadistico.py).
-Salida: articulo_ieee/figures/fig_incertidumbre.png
+Salida: articulo_replica/figures/fig_incertidumbre.png
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
 import json
@@ -33,5 +33,5 @@ ax.legend(fontsize=6.5, loc="lower left", frameon=False)
 ax.set_title("Error relativo con IC 95 % (líneas punteadas: sesgo medio)", fontsize=6.5)
 ax.grid(alpha=0.25)
 fig.tight_layout(pad=0.3)
-fig.savefig("articulo_ieee/figures/fig_incertidumbre.png", dpi=300)
-print("guardado articulo_ieee/figures/fig_incertidumbre.png")
+fig.savefig("articulo_replica/figures/fig_incertidumbre.png", dpi=300)
+print("guardado articulo_replica/figures/fig_incertidumbre.png")

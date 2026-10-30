@@ -1,7 +1,7 @@
 """Chequeo estatico del proyecto LaTeX (no hay compilador en el sandbox):
 llaves balanceadas, \\cite vs .bib, \\ref vs \\label, figuras existentes, entornos begin/end."""
 import re, sys, os
-d = sys.argv[1] if len(sys.argv) > 1 else "articulo_ieee"
+d = sys.argv[1] if len(sys.argv) > 1 else "articulo_replica"
 import glob
 tex = open(f"{d}/main.tex", encoding="utf-8").read()
 for extra in sorted(glob.glob(f"{d}/tabla_*.tex")):

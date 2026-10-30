@@ -1,11 +1,11 @@
 """
 gen_matriz_opt.py
 ================================================================================
-Genera la Matriz de Respuesta del Autor de la VERSION DE OPTIMIZACION (articulo_opt/main.tex):
+Genera la Matriz de Respuesta del Autor de la VERSION DE OPTIMIZACION (articulo/main.tex):
   entregas/Matriz_Respuesta_Optimizacion.docx
-Las ubicaciones (seccion, ecuacion, tabla, figura y pagina) se leen de articulo_opt/main.aux y las cifras de
-articulo_opt/numeros.tex, de modo que la matriz siempre coincide con el manuscrito compilado.
-Requiere python-docx (pip install python-docx) y haber compilado articulo_opt/main.tex.
+Las ubicaciones (seccion, ecuacion, tabla, figura y pagina) se leen de articulo/main.aux y las cifras de
+articulo/numeros.tex, de modo que la matriz siempre coincide con el manuscrito compilado.
+Requiere python-docx (pip install python-docx) y haber compilado articulo/main.tex.
 Uso:  python gen_matriz_opt.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -20,26 +20,26 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 OUT = "entregas/Matriz_Respuesta_Optimizacion.docx"
-TITULO = "Matriz de Respuesta del Autor — versión de optimización"
-SUBTITULO = ("Optimización de un controlador de semáforos de lógica difusa para una intersección aislada: más allá de la réplica "
-             "del controlador de Pappis y Mamdani (1977)")
+TITULO = "Matriz de Respuesta del Autor — mejora del controlador difuso"
+SUBTITULO = ("Mejora de un controlador de semáforos de lógica difusa para una intersección aislada: optimización del controlador de "
+             "Pappis y Mamdani (1977)")
 AUTORES = "Raul Nolberto Quispe Saya y Kevin Luis Valero Ccacya — Escuela Profesional de Ingeniería Electrónica, UNSA"
 
 
 # ---------------------------------------------------------------- lectura de etiquetas y cifras
-def leer_etiquetas(ruta="articulo_opt/main.aux"):
+def leer_etiquetas(ruta="articulo/main.aux"):
     L = {}
     for m in re.finditer(r"\\newlabel\{([^}]+)\}\{\{(?:\\mbox\s*\{)?([^}]+?)\}?\}\{(\d+)\}", open(ruta, encoding="utf-8").read()):
         L[m.group(1)] = (m.group(2), int(m.group(3)))
     return L
 
 
-def leer_numeros(ruta="articulo_opt/numeros.tex"):
+def leer_numeros(ruta="articulo/numeros.tex"):
     return {m.group(1): m.group(2).replace("$-$", "−") for m in re.finditer(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", open(ruta, encoding="utf-8").read())}
 
 
 L = leer_etiquetas()
-LS = leer_etiquetas("articulo_opt/suplemento.aux")
+LS = leer_etiquetas("articulo/suplemento.aux")
 N = leer_numeros()
 
 
@@ -64,18 +64,18 @@ def ref(clave, pagina=True):
 
 def paginas_main():
     import subprocess
-    out = subprocess.run(["pdfinfo", "articulo_opt/main.pdf"], capture_output=True, text=True).stdout
+    out = subprocess.run(["pdfinfo", "articulo/main.pdf"], capture_output=True, text=True).stdout
     return re.search(r"Pages:\s+(\d+)", out).group(1)
 
 
 NP = paginas_main()
 
 INTRO = [
-    "Esta matriz acompaña a la versión de optimización del manuscrito (articulo_opt/main.pdf, "
-    f"{NP} páginas con referencias, IEEEtran, y su suplemento suplemento.pdf). El alcance cambió: el manuscrito ya no es solo una réplica del controlador de "
-    "Pappis y Mamdani (1977) sino un estudio que parte de esa réplica y optimiza el controlador difuso con un protocolo reproducible. La versión de réplica "
-    "(articulo_ieee/), su suplemento y su matriz de respuesta a las 17 observaciones siguen en el repositorio y no se modifican.",
-    "La Parte A indica qué ocurre con cada una de las 17 observaciones de la revisión anterior en la nueva versión. La Parte B responde a los puntos que la réplica no "
+    "Esta matriz acompaña al manuscrito (articulo/main.pdf, "
+    f"{NP} páginas con referencias, IEEEtran, y su suplemento articulo/suplemento.pdf). El manuscrito mejora el controlador de semáforos con lógica difusa de "
+    "Pappis y Mamdani (1977) mediante optimización con un protocolo reproducible. Parte de la réplica de ese controlador hecha antes por los autores "
+    "(articulo_replica/ y rama replica del repositorio), que sirve de línea base y de validación del simulador.",
+    "La Parte A indica qué ocurre con cada una de las 17 observaciones de la revisión anterior, hechas sobre la réplica, en este manuscrito. La Parte B responde a los puntos que la réplica no "
     "podía atender por su propio alcance (novedad, comparadores, información usada, generalización). Las ubicaciones se leen del manuscrito compilado; las cifras salen "
     "de resultados/opt/evaluacion_final.json mediante codigo/gen_tablas_opt.py. Todo se reproduce con python codigo/ejecutar_pruebas.py.",
 ]
@@ -152,7 +152,7 @@ PARTE_B = [
 ]
 
 NOTAS = [
-    "La rama optimizacion del repositorio público https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION/tree/optimizacion contiene el código, las pruebas, los resultados (resultados/opt/) y los manuscritos de ambas versiones; la rama main conserva la versión de réplica.",
+    "El repositorio público https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION (rama main) contiene el código, las pruebas, los resultados (resultados/opt/) y los manuscritos (articulo/ para la mejora y articulo_replica/ para la réplica de partida); la rama replica conserva el estado anterior del repositorio, centrado solo en la réplica.",
     "Puntos abiertos que dependen de los autores: validar con datos de campo, y entrenar con un rango de caudales que cubra la saturación (trabajo futuro del manuscrito).",
 ]
 
@@ -232,12 +232,12 @@ def main():
         for r in p.runs:
             r.font.size = Pt(9)
 
-    titulo(doc, "Parte A. Las 17 observaciones de la revisión anterior en la versión de optimización")
+    titulo(doc, "Parte A. Las 17 observaciones de la revisión anterior en este manuscrito")
     anchos = [Cm(1.8), Cm(5.2), Cm(3.0), Cm(17.3)]
     tb = doc.add_table(rows=1, cols=4)
     tb.style = "Table Grid"
     tb.autofit = False
-    for i, tx in enumerate(["Obs.", "Observación", "Estado", "Respuesta, ubicación y evidencia en la versión de optimización"]):
+    for i, tx in enumerate(["Obs.", "Observación", "Estado", "Respuesta, ubicación y evidencia en este manuscrito"]):
         escribir(tb.rows[0].cells[i], tx, True, 8, "FFFFFF")
         sombrear(tb.rows[0].cells[i], "1F3864")
     repetir_encabezado(tb.rows[0])

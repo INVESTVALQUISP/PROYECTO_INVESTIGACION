@@ -2,7 +2,7 @@
 gen_fig_articulo2.py
 ================================================================================
 Figuras de resultados del articulo IEEE (segundo avance), al ancho final de pagina
-(7.16 in a dos columnas, 3.45 in una columna). Salida: articulo_ieee/figures/
+(7.16 in a dos columnas, 3.45 in una columna). Salida: articulo_replica/figures/
 
   fig_validacion_curvas.png  curvas del codigo vs valores impresos (Tablas II, IV, V, VI)
   fig_tabla7.png             ejemplo de las pags. 7-8: aporte de cada regla y agregado
@@ -28,7 +28,7 @@ import sim_engine as se
 import traffic_model as tm
 from intersection_view import IntersectionView
 
-OUT = "articulo_ieee/figures"
+OUT = "articulo_replica/figures"
 W, C = 7.16, 3.45
 plt.rcParams.update({"font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "xtick.labelsize": 6.5,
                      "ytick.labelsize": 6.5, "legend.fontsize": 6.3, "axes.linewidth": 0.6})

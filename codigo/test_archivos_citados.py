@@ -3,7 +3,7 @@ test_archivos_citados.py
 ================================================================================
 Reproducibilidad del paquete: todo script, archivo de resultados (JSON/CSV) y fuente LaTeX que el articulo
 (main.tex), el material suplementario (suplemento.tex) y los README citan debe EXISTIR en el proyecto.
-  1. cada \\texttt{archivo.py|json|csv|tex|md} citado se encuentra en codigo/, resultados/, articulo_ieee/ o la raiz;
+  1. cada \\texttt{archivo.py|json|csv|tex|md} citado se encuentra en codigo/, resultados/, articulo_replica/ o la raiz;
   2. cada \\input{...} y \\includegraphics{...} apunta a un archivo existente;
   3. cada tabla_*.tex del articulo se usa (no hay fuentes LaTeX obsoletas);
   4. cada script de codigo/ citado por el articulo se puede importar o compilar (py_compile).
@@ -25,7 +25,7 @@ def check(name, ok, detail=""):
     fails += 0 if ok else 1
 
 
-ART = "articulo_ieee"
+ART = "articulo_replica"
 docs = {n: open(os.path.join(ART, n), encoding="utf-8").read() for n in ("main.tex", "suplemento.tex")}
 BUSCAR = ["codigo", "resultados", ART, "docs", "."]
 

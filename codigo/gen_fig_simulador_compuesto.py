@@ -5,7 +5,7 @@ Figura unica del simulador para el articulo: la captura de la ventana completa
 (muestras/captura_simulador_gui.png) con los seis apartados rotulados (a) a (f).
 Reemplaza a las Figs. 7 a 13 de la version anterior (la captura y sus seis recortes);
 los seis apartados por separado quedan en el material suplementario.
-Salida: articulo_ieee/figures/fig_simulador.png
+Salida: articulo_replica/figures/fig_simulador.png
 Uso:  python codigo/gen_fig_simulador_compuesto.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -16,7 +16,7 @@ from matplotlib.patches import Rectangle
 import matplotlib.image as mpimg
 
 IMG = "muestras/captura_simulador_gui.png"
-OUT = "articulo_ieee/figures/fig_simulador.png"
+OUT = "articulo_replica/figures/fig_simulador.png"
 img = mpimg.imread(IMG)
 h, w = img.shape[:2]
 fig = plt.figure(figsize=(7.16, 7.16 * h / w))

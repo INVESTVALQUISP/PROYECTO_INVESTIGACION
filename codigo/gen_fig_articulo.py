@@ -4,7 +4,7 @@ gen_fig_articulo.py
 Figuras del articulo IEEE, dibujadas al ANCHO FINAL (7.16 in = ancho de pagina a dos
 columnas) para que el texto quede legible (>= 6 pt) sin escalar:
   fig_timeline.png, fig_taxonomia.png, fig_bloques.png, fig_fuzzificacion_ieee.png
-Salida: articulo_ieee/figures/
+Salida: articulo_replica/figures/
 Uso:  python gen_fig_articulo.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -16,7 +16,7 @@ from matplotlib.patches import FancyBboxPatch
 
 import fuzzy_logic as fl
 
-OUT = "articulo_ieee/figures"
+OUT = "articulo_replica/figures"
 W = 7.16
 plt.rcParams.update({"font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "xtick.labelsize": 6.5,
                      "ytick.labelsize": 6.5, "legend.fontsize": 6.3})

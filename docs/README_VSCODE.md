@@ -12,7 +12,7 @@ raíz del repositorio/
 ├── resultados/      JSON de resultados (Tablas I y VIII, auditoría, llegadas, reducción de reglas)
 ├── figures/         figuras generadas por plots.py y gen_fig_*.py
 ├── muestras/        ejemplos listos para mostrar (video, CSV de disparos, captura del simulador)
-├── articulo_ieee/   artículo IEEE para Overleaf (main.tex, tablas, figuras, PDF)
+├── articulo_replica/   artículo IEEE para Overleaf (main.tex, tablas, figuras, PDF)
 ├── referencia/      cita del paper original en inglés (el PDF no se incluye: es de IEEE)
 ├── notebooks/       cuaderno Jupyter
 ├── docs/            guías y PDF del avance 5

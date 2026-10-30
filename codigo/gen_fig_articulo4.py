@@ -3,7 +3,7 @@ gen_fig_articulo4.py
 ================================================================================
 Figuras del simulador para el articulo, cada apartado en una figura aparte, todas del
 MISMO instante de la simulacion (720/2160 veh/h, semilla 1, t = 118 s), mas el cuadro
-completo. Salida: articulo_ieee/figures/
+completo. Salida: articulo_replica/figures/
 
   fig_sim_calle.png      la calle: cruce, vehiculos, semaforos de tres luces y colas
   fig_sim_reglas.png     panel de reglas de la intervencion con su activacion y la regla que dispara
@@ -27,7 +27,7 @@ import sim_engine as se
 from intersection_view import IntersectionView
 from simulador_gui import decision_line
 
-OUT = "articulo_ieee/figures"
+OUT = "articulo_replica/figures"
 T_STOP = 119          # pasos simulados (t = 118 s: la ultima decision es e* = 4 s por la regla R2 de 47 s)
 
 cfg = se.SimConfig(lam_ns=720 / 3600, lam_ew=2160 / 3600, seed=1, duration=3600)   # misma duracion que la ventana (la duracion cambia las llegadas)

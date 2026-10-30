@@ -10,8 +10,8 @@ la usa el autor. La regla R1 del autor usa Q = "any" (sin condicion sobre la col
 eso cubre las seis reglas (Q = very small ... very long) de su fila en cada intervencion.
 
 Salida:  resultados/reglas_180.csv        (una fila por regla)
-         articulo_ieee/tabla_180.tex      (tabla larga con las 180 reglas; va en suplemento.tex)
-         articulo_ieee/tabla_matriz180.tex (matriz compacta 5 x (6 x 6) para el articulo)
+         articulo_replica/tabla_180.tex      (tabla larga con las 180 reglas; va en suplemento.tex)
+         articulo_replica/tabla_matriz180.tex (matriz compacta 5 x (6 x 6) para el articulo)
 Uso:  python codigo/gen_tabla_180.py
 """
 import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
@@ -111,8 +111,8 @@ tex = (r"""{\scriptsize
 \end{longtable}
 }
 """)
-open("articulo_ieee/tabla_180.tex", "w", encoding="utf-8").write(tex)
-print("guardado articulo_ieee/tabla_180.tex y resultados/reglas_180.csv")
+open("articulo_replica/tabla_180.tex", "w", encoding="utf-8").write(tex)
+print("guardado articulo_replica/tabla_180.tex y resultados/reglas_180.csv")
 
 
 # ------------------------------------------------------------ matriz compacta 5 x (6 x 6)
@@ -160,6 +160,6 @@ for A in A_LAB:
 filas += [r"\bottomrule", r"\end{tabular}"]
 assert n_celdas == 19, n_celdas
 mat = "{\\fontsize{6}{7}\\selectfont\n\\setlength{\\tabcolsep}{1.2pt}\n\\renewcommand{\\arraystretch}{1.12}\n" + "\n".join(filas) + "\n}\n"
-open("articulo_ieee/tabla_matriz180.tex", "w", encoding="utf-8").write(mat)
-print("guardado articulo_ieee/tabla_matriz180.tex:", n_celdas, "celdas usadas de 180")
+open("articulo_replica/tabla_matriz180.tex", "w", encoding="utf-8").write(mat)
+print("guardado articulo_replica/tabla_matriz180.tex:", n_celdas, "celdas usadas de 180")
 

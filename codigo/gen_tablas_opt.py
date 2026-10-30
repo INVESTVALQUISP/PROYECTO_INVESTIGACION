@@ -1,7 +1,7 @@
 """
 gen_tablas_opt.py
 ================================================================================
-Lee resultados/opt/evaluacion_final.json y resultados/opt/modelos_finales.json y escribe en articulo_opt/:
+Lee resultados/opt/evaluacion_final.json y resultados/opt/modelos_finales.json y escribe en articulo/:
   numeros.tex          macros con las cifras del texto (\\DelayOfFlc = retardo medio oficial de FLC-O, etc.)
   tabla_oficial.tex    retardo por par de caudales de la Tabla VIII (referencias, FLC-O y optimo)
   tabla_conjuntos.tex  retardo medio en los cuatro conjuntos de prueba
@@ -20,7 +20,7 @@ import numpy as np
 import opt_flc2
 from opt_nombres import ETIQUETA, clave, finales
 
-OUT = "articulo_opt"
+OUT = "articulo"
 SETS = {"oficial": "Of", "no_vistos": "Nv", "variable": "Va", "saturado": "Sa"}
 CTRL = {"fijo": "Fijo", "actuado": "Act", "actuado_af": "ActAf", "maxpressure": "Max", "pappis": "Pap",
         "afinado_pappis": "PapAf", "mdp": "Mdp", "flc": "Flc", "flc_causal": "FlcC", "mlp": "Mlp", "mlp_causal": "MlpC"}

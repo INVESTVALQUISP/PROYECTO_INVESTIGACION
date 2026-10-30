@@ -4,7 +4,7 @@
 > IEEE Trans. Syst., Man, Cybern., vol. SMC-7, no. 10, pp. 707–716, 1977.
 
 **Alcance de la réplica (secciones 1 a 8):** replicar el paper original lo más fielmente posible, para poder
-entenderlo y reproducirlo. La rama `optimizacion` amplía el alcance con un controlador mejorado (sección 9). En la réplica no se propone ningún cambio al método (reglas, conjuntos,
+entenderlo y reproducirlo. El trabajo del repositorio es ahora la mejora de ese controlador (sección 9); la réplica es su punto de partida. En la réplica no se propone ningún cambio al método (reglas, conjuntos,
 operadores, regla de decisión): los controladores alternativos y el re-afinado de reglas
 hechos antes no forman parte de este repositorio (se calcularon con reglas mal transcritas y quedaron descartados).
 
@@ -21,8 +21,8 @@ raíz del repositorio/
 ├── resultados/      JSON de resultados (Tablas I y VIII, auditoría, llegadas, reducción de reglas); opt/: modelos entrenados y evaluación final
 ├── figures/         figuras generadas por plots.py y gen_fig_*.py
 ├── muestras/        ejemplos listos para mostrar (video, CSV de disparos, captura del simulador)
-├── articulo_ieee/   artículo IEEE para Overleaf (main.tex, tablas, figuras, PDF)
-├── articulo_opt/    artículo y suplemento de la versión de optimización (main.tex, suplemento.tex, PDF)
+├── articulo_replica/   artículo IEEE para Overleaf (main.tex, tablas, figuras, PDF)
+├── articulo/    artículo y suplemento de la versión de optimización (main.tex, suplemento.tex, PDF)
 ├── referencia/      cita del paper original en inglés (el PDF no se incluye: es de IEEE)
 ├── notebooks/       cuaderno Jupyter
 ├── docs/            este documento, la guía de VS Code y el PDF del avance 5
@@ -60,7 +60,7 @@ Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
 * Comparadores que no son del paper: actuado por detector, difuso con centroide, ciclo fijo sin redondeo (`comparadores.py`).
 * Efecto de borde del horizonte (`efecto_borde.py`), disparos agregados (`informe_agregado.py`), entorno y costo (`entorno.py`).
 * `test_archivos_citados.py`: todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila.
-* `verificar_referencias.py`: comprueba cada DOI de `articulo_ieee/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las comprobaciones.
+* `verificar_referencias.py`: comprueba cada DOI de `articulo_replica/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las comprobaciones.
 * `python codigo/ejecutar_pruebas.py` corre 165 comprobaciones (132 de la réplica y 33 de la optimización); con `--rapido` recalcula además una Tabla VIII reducida.
 
 ---
@@ -81,7 +81,7 @@ Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
 | `intersection_view.py`, `simulador_gui.py`, `web_sim.py` | Simulador animado (Tkinter / navegador). |
 | `plots.py`, `gen_fig_fuzzificacion.py`, `gen_fig_lt_explicacion.py`, `gen_fig_validacion.py`, `gen_fig_correcciones.py`, `diagrama_bloques.py` | Figuras (curvas de fuzzificación, validación contra lo impreso, Tablas I y VIII). |
 | `build_avance5.py` → `avance5_validacion_replica.pdf` | **Avance 5**: validación de la réplica frente al paper original (14 págs., curvas de fuzzificación en la Sección 2). Reemplaza a los avances 1–4. |
-| `articulo_ieee/` (+ `articulo_ieee_overleaf_v11.zip`) | Artículo IEEE (IEEEtran), segundo avance, 15 págs., para Overleaf (`articulo_replica_para_docente.pdf` = vista previa). Figuras: `gen_fig_articulo.py`, `gen_fig_articulo2.py`, `gen_fig_articulo3.py`, `gen_fig_articulo4.py` (figuras del simulador, una por apartado); estadística (IC 95 %): `analisis_estadistico.py` → `resultados/analisis_estadistico.json`; tablas: `gen_tablas_latex.py`, `verificar_formulas.py` (comprobación numérica de las deducciones), `gen_tabla_intervenciones.py` (decisiones por intervención), `gen_tabla_180.py` (las 180 reglas escritas una por una, con las 25 del autor en verde → `resultados/reglas_180.csv`); reducción de reglas: `ablacion_reglas.py` → `resultados/ablacion_reglas.json`; chequeo: `check_latex.py`. |
+| `articulo_replica/` (+ `articulo_ieee_overleaf_v11.zip`) | Artículo IEEE (IEEEtran), segundo avance, 15 págs., para Overleaf (`articulo_replica_para_docente.pdf` = vista previa). Figuras: `gen_fig_articulo.py`, `gen_fig_articulo2.py`, `gen_fig_articulo3.py`, `gen_fig_articulo4.py` (figuras del simulador, una por apartado); estadística (IC 95 %): `analisis_estadistico.py` → `resultados/analisis_estadistico.json`; tablas: `gen_tablas_latex.py`, `verificar_formulas.py` (comprobación numérica de las deducciones), `gen_tabla_intervenciones.py` (decisiones por intervención), `gen_tabla_180.py` (las 180 reglas escritas una por una, con las 25 del autor en verde → `resultados/reglas_180.csv`); reducción de reglas: `ablacion_reglas.py` → `resultados/ablacion_reglas.json`; chequeo: `check_latex.py`. |
 | `referencia/LEEME.md` | Cita del paper original en inglés (única fuente de verdad); el PDF debe obtenerse de IEEE. |
 | `notebooks/pappis_replica.ipynb` | Notebook para experimentar. |
 | `archivo/` | Material histórico: el primer controlador del proyecto (16 reglas) y `old_fl.py`, el módulo anterior a las correcciones, que solo usa `gen_fig_correcciones.py` para mostrar qué se corrigió. |
@@ -246,9 +246,9 @@ Pappis, C. P., & Mamdani, E. H. (1977). A Fuzzy Logic Controller for a Traffic J
 
 ---
 
-## 9. Versión de optimización (rama `optimizacion`)
+## 9. Mejora del controlador: optimización (FLC-O)
 
-El alcance se amplió: además de replicar el controlador de 1977, se busca un sistema difuso mejor con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica y no cambian. El manuscrito de esta parte es `articulo_opt/main.tex` (9 páginas) con su suplemento `articulo_opt/suplemento.tex` (3 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
+El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (9 páginas) con su suplemento `articulo/suplemento.tex` (3 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
 
 **Archivos (todos en `codigo/`):**
 

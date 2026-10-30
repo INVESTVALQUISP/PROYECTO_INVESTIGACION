@@ -1,4 +1,4 @@
-"""Comprueba cada DOI de articulo_ieee/referencias.bib contra la API pública de Crossref.
+"""Comprueba cada DOI de articulo_replica/referencias.bib contra la API pública de Crossref.
 
 Para cada entrada con DOI compara título, apellidos de los autores (en orden), año, volumen y páginas con lo que
 registra el editor. Requiere conexión a internet; usa solo la biblioteca estándar.
@@ -18,7 +18,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-BIB = Path(__file__).resolve().parent.parent / "articulo_ieee" / "referencias.bib"
+BIB = Path(__file__).resolve().parent.parent / "articulo_replica" / "referencias.bib"
 DOI_RE = re.compile(r"(10\.\d{4,9}/[^\s{}]+)")
 
 

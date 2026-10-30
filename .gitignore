@@ -21,11 +21,11 @@ __pycache__/
 salidas/
 
 # Archivos auxiliares de LaTeX
-articulo_ieee/*.aux
-articulo_ieee/*.log
-articulo_ieee/*.out
-articulo_ieee/*.bbl
-articulo_ieee/*.blg
+articulo_replica/*.aux
+articulo_replica/*.log
+articulo_replica/*.out
+articulo_replica/*.bbl
+articulo_replica/*.blg
 
 # Puntos de control del entrenamiento (se reemplazan por el resultado final)
 *.parcial

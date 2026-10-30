@@ -76,7 +76,7 @@ def main():
     ok &= run_test("test_estadistica.py", r"TODO OK", "Wilcoxon, Friedman, Holm, t y chi2 (valores conocidos)")
     ok &= run_test("verificar_formulas.py", r"TODO OK", "Deducciones matematicas del articulo = calculos independientes")
     ok &= run_test("test_archivos_citados.py", r"TODO OK", "Todo script, JSON, CSV y fuente LaTeX citado existe y compila")
-    ok &= run_test("test_archivos_citados_opt.py", r"TODO OK", "Idem para el articulo de optimizacion (articulo_opt/)")
+    ok &= run_test("test_archivos_citados_opt.py", r"TODO OK", "Idem para el articulo de optimizacion (articulo/)")
 
     say("\n2) Resultados oficiales (20 replicas x 7200 s, ver resultados/resultados_oficiales.json)")
     path = "resultados/resultados_oficiales.json"

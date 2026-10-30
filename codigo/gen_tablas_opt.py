@@ -30,6 +30,15 @@ def f(x, n=2):
     return f"{x:.{n}f}"
 
 
+def neg(txt):
+    return txt.replace("-", "$-$")
+
+
+def red(a, b):
+    """Reduccion relativa de b respecto de a, en %, con signo tipografico."""
+    return neg(f"{100 * (a - b) / a:.1f}")
+
+
 def pct(x, n=1):
     return f"{x:+.{n}f}".replace("-", "$-$")
 
@@ -53,12 +62,12 @@ def main():
     base = med["oficial"]
     for r, rn in CTRL.items():
         if r in base and r != "pappis":
-            L.append(f"\\newcommand{{\\Red{rn}}}{{{100 * (base['pappis'] - base[r]) / base['pappis']:.1f}}}")
+            L.append("\\newcommand{\\Red" + rn + "}{" + red(base["pappis"], base[r]) + "}")
     for s, sn in SETS.items():
         if "flc" in med[s] and "pappis" in med[s]:
-            L.append(f"\\newcommand{{\\RedPap{sn}}}{{{100 * (med[s]['pappis'] - med[s]['flc']) / med[s]['pappis']:.1f}}}")
+            L.append("\\newcommand{\\RedPap" + sn + "}{" + red(med[s]["pappis"], med[s]["flc"]) + "}")
         if "flc" in med[s] and "actuado_af" in med[s]:
-            L.append(f"\\newcommand{{\\RedActAf{sn}}}{{{100 * (med[s]['actuado_af'] - med[s]['flc']) / med[s]['actuado_af']:.1f}}}")
+            L.append("\\newcommand{\\RedActAf" + sn + "}{" + red(med[s]["actuado_af"], med[s]["flc"]) + "}")
     comp = of["comparaciones"]
     for r, rn in (("pappis", "Pap"), ("actuado_af", "ActAf"), ("actuado", "Act"), ("fijo", "Fijo"), ("mdp", "Mdp"), ("afinado_pappis", "PapAf")):
         k = f"{key['flc']}__vs__{key[r]}"
@@ -80,11 +89,11 @@ def main():
                 L.append(f"\\newcommand{{\\Delay{nom_}{id_}}}{{{v_:.2f}}}")
         if modelo_ in d["oficial"]["delay"]:
             v_ = float(np.mean(d["oficial"]["delay"][modelo_]))
-            L.append(f"\\newcommand{{\\RedAct{id_}}}{{{100 * (base['actuado_af'] - v_) / base['actuado_af']:.1f}}}")
-            L.append(f"\\newcommand{{\\RedPap{id_}}}{{{100 * (base['pappis'] - v_) / base['pappis']:.1f}}}")
+            L.append("\\newcommand{\\RedAct" + id_ + "}{" + red(base["actuado_af"], v_) + "}")
+            L.append("\\newcommand{\\RedPap" + id_ + "}{" + red(base["pappis"], v_) + "}")
     for r, rn in CTRL.items():       # reduccion frente al actuado afinado en el conjunto oficial
         if r in base and r != "actuado_af":
-            L.append(f"\\newcommand{{\\RedAct{rn}}}{{{100 * (base['actuado_af'] - base[r]) / base['actuado_af']:.1f}}}")
+            L.append("\\newcommand{\\RedAct" + rn + "}{" + red(base["actuado_af"], base[r]) + "}")
     for sn_, nom_ in (("oficial", "Of"), ("saturado", "Sa")):
         x_ = np.array(d[sn_]["delay"][key["pappis"]]); y_ = np.array(d[sn_]["delay_servidos"][key["pappis"]])
         rel_ = (x_ - y_) / x_ * 100

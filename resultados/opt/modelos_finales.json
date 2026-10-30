@@ -42,8 +42,8 @@
    "vista adelante"
   ],
   [
-   "FLC-O, $g_{\\min}=3$ (propuesto)",
-   "flcopt_g3_s2",
+   "FLC-O, $g_{\\min}=3$",
+   "flcopt_g3",
    42,
    "vista adelante"
   ],
@@ -70,6 +70,12 @@
    "mlp_causal_v3_g3",
    121,
    "solo pasado"
+  ],
+  [
+   "\\textbf{FLC-O propuesto} (mejor de 3 semillas)",
+   "flcopt_g3_s2",
+   42,
+   "vista adelante"
   ]
  ],
  "semillas": [

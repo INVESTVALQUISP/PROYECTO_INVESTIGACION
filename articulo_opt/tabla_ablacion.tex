@@ -8,12 +8,18 @@
 \toprule
 Variante & Par. & Informaci\'on & Oficial & No vistos & Variable \\
 \midrule
-Pappis y Mamdani afinado & 30 & vista adelante & 9.69 & 9.1 & 8.0 \\
-Difuso 27 reglas ($g_{\min}=7$) & 36 & vista adelante & 9.14 & 8.3 & 7.3 \\
-Difuso 81 reglas con hueco & 93 & vista adelante & 9.16 & 8.5 & 7.3 \\
-Difuso 27 reglas, causal & 36 & solo pasado & 10.53 & 9.8 & 9.0 \\
-Política neuronal & 121 & vista adelante & 8.68 & 7.9 & 6.9 \\
-Política neuronal, causal & 121 & solo pasado & 10.17 & 9.6 & 8.8 \\
+Pappis y Mamdani afinado (cada 10 s, $g_{\min}=7$) & 30 & vista adelante & 9.67 & 9.3 & 8.1 \\
+Difuso 27 reglas, horizontes fijos ($g_{\min}=3$) & 36 & vista adelante & 8.44 & 7.9 & 6.6 \\
+Difuso 81 reglas con hueco ($g_{\min}=3$) & 93 & vista adelante & 8.47 & 7.9 & 6.5 \\
+FLC-O, $g_{\min}=7$ & 42 & vista adelante & 8.60 & 8.1 & 6.9 \\
+FLC-O, $g_{\min}=5$ & 42 & vista adelante & 8.21 & 7.7 & 6.4 \\
+FLC-O, $g_{\min}=4$ & 42 & vista adelante & 8.04 & 7.6 & 6.2 \\
+FLC-O, $g_{\min}=3$ & 42 & vista adelante & 8.00 & 7.5 & 6.2 \\
+Política neuronal ($g_{\min}=3$) & 121 & vista adelante & 8.09 & 7.5 & 6.2 \\
+Difuso 27 reglas, causal & 36 & solo pasado & 9.97 & 9.4 & 8.4 \\
+Política lineal causal con hueco & 16 & solo pasado & 9.53 & 9.0 & 8.1 \\
+Política neuronal, causal & 121 & solo pasado & 9.46 & 9.0 & 8.1 \\
+\textbf{FLC-O propuesto} (mejor de 3 semillas) & 42 & vista adelante & 7.91 & 7.4 & 6.1 \\
 \bottomrule
 \end{tabular}
 \fuente{simulaci\'on del autor; par.: n\'umero de par\'ametros entrenados.}

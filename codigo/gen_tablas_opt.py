@@ -69,6 +69,11 @@ def main():
             L.append(f"\\newcommand{{\\ParPeor{rn}}}{{{c['peor_signif']}}}")
             L.append(f"\\newcommand{{\\ParMin{rn}}}{{{min(c['mejora_por_par']):.1f}}}")
             L.append(f"\\newcommand{{\\ParMax{rn}}}{{{max(c['mejora_por_par']):.1f}}}")
+    for sn_, nom_ in (("oficial", "Of"), ("saturado", "Sa")):
+        x_ = np.array(d[sn_]["delay"][key["pappis"]]); y_ = np.array(d[sn_]["delay_servidos"][key["pappis"]])
+        rel_ = (x_ - y_) / x_ * 100
+        L.append(f"\\newcommand{{\\ResDif{nom_}}}{{{rel_.mean():.1f}}}")
+        L.append(f"\\newcommand{{\\ResDif{nom_}Max}}{{{rel_.max():.1f}}}")
     if os.path.exists("resultados/opt/mdp_oficial.json"):
         mdp = json.load(open("resultados/opt/mdp_oficial.json"))
         dif = max(abs(x["dp_sim"] - x["dp_analitico"]) / x["dp_analitico"] * 100 for x in mdp)

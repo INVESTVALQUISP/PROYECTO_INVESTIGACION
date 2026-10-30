@@ -103,8 +103,8 @@ PARTE_A = [
     ("9", "Duplicación estructural", "Importante", "Atendida",
      f"El manuscrito tiene {NP} páginas (el Avance 8, 24); cada ecuación se define una sola vez ({ref('sec:modelo', False)} y {ref('sec:pappis', False)}) y los detalles de la réplica se remiten al artículo de réplica, no se repiten."),
     ("10", "Entorno de software y hardware y complejidad", "Menor", "Atendida",
-     "Disponibilidad del código y Sección S7 del suplemento: Python 3.13, NumPy 2.5, generador PCG64 con semillas fijas, 4 procesos. Costo: 320 escenarios de 7200 s tardan unos 3.3 s con el simulador vectorizado "
-     "(unos 74 s con el de referencia). Cada decisión de FLC-O es O(27) por segundo."),
+     "Disponibilidad del código y Sección S7 del suplemento: Python 3.13, NumPy 2.5, generador PCG64 con semillas fijas, 4 procesos. Costo: con un núcleo, unos 10 ms por escenario de 7200 s con el simulador vectorizado "
+     "frente a unos 230 ms con el de referencia. Cada decisión de FLC-O es O(27) por segundo."),
     ("11", "Desviación estándar de población y de muestra", "Menor", "Atendida",
      "Toda desviación estándar es la muestral (n−1): estadistica.ic95 y las tablas del manuscrito y del suplemento (test_estadistica.py)."),
     ("12", "2.0 % frente a 2.1 % en la Tabla I", "Menor", "Conservada",

@@ -25,7 +25,7 @@ import opt_es
 import opt_flc
 import opt_flc2
 import opt_politicas
-from opt_entrenar import (escenarios_entrenamiento, escenarios_validacion, correr_referencias, H_ENTRENA)
+from opt_entrenar import (escenarios_entrenamiento, escenarios_validacion, correr_referencias, actuado_afinado, H_ENTRENA)
 from sim_batch import BatchSim
 
 
@@ -74,11 +74,17 @@ def main():
     ap.add_argument("--gmin", type=int, default=7)
     ap.add_argument("--max-green", type=int, default=57)
     ap.add_argument("--sigma", type=float, default=0.3)
+    ap.add_argument("--suma-max", type=float, default=3000, help="suma maxima de caudales (veh/h) de los escenarios sorteados")
+    ap.add_argument("--ref", choices=["actuado", "actuado_af"], default="actuado", help="controlador que normaliza el objetivo")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    fl, arr = escenarios_entrenamiento(args.n, H_ENTRENA, seed=1)
-    ref = correr_referencias(arr, fl, args.max_green)["actuado"]["delay"]
+    fl, arr = escenarios_entrenamiento(args.n, H_ENTRENA, seed=1, suma_max=args.suma_max)
+
+    def referencia(a, f):
+        return (actuado_afinado(a) if args.ref == "actuado_af" else correr_referencias(a, f, 57)["actuado"])["delay"]
+
+    ref = referencia(arr, fl)
 
     def fitness(theta):
         mk, ctrl = construir(args.modelo, theta, args)
@@ -98,15 +104,14 @@ def main():
         os.makedirs(os.path.dirname(args.out), exist_ok=True)
         with open(args.out + (".parcial" if parcial else ""), "w") as f:
             json.dump(dict(modelo=args.modelo, theta=bx.tolist(), hidden=args.hidden, preview=not args.causal, gmin=args.gmin, gaps=args.gaps,
-                           max_green=args.max_green, fitness_train=bf, historial=h, parcial=parcial), f)
+                           max_green=args.max_green, fitness_train=bf, historial=h, parcial=parcial, suma_max=args.suma_max, ref=args.ref), f)
 
     best_x, best_f, hist = opt_es.minimize(fitness, x0, sigma0, args.gens, seed=args.seed, log=log, bounds=bounds,
                                            ckpt=lambda bx, bf, h: guardar(bx, bf, h, True))
-    fl_v, arr_v = escenarios_validacion(64)
-    refs_v = correr_referencias(arr_v, fl_v, args.max_green)
+    fl_v, arr_v = escenarios_validacion(64, suma_max=args.suma_max)
     mk, ctrl = construir(args.modelo, best_x, args)
     rv = mk(arr_v).run(ctrl)
-    print(f"entrenamiento: {best_f:.4f} (1.0 = actuado)  validacion: {np.mean(rv['delay'] / refs_v['actuado']['delay']):.4f}")
+    print(f"entrenamiento: {best_f:.4f} (1.0 = {args.ref})  validacion: {np.mean(rv['delay'] / referencia(arr_v, fl_v)):.4f}")
     guardar(best_x, best_f, hist, parcial=False)
 
 

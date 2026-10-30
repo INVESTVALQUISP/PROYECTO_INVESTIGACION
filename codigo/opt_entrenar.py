@@ -39,15 +39,15 @@ def construir(flujos_vh, semillas, H, perfil=None):
     return make_arrivals(flujos_vh[:, 0] / 3600.0, flujos_vh[:, 1] / 3600.0, semillas, H, profile=perfil)
 
 
-def escenarios_entrenamiento(n=64, H=H_ENTRENA, seed=1, semilla0=SEMILLA_ENTRENA):
+def escenarios_entrenamiento(n=64, H=H_ENTRENA, seed=1, semilla0=SEMILLA_ENTRENA, suma_max=3000):
     rng = np.random.default_rng(seed)
-    fl = caudales_aleatorios(n, rng)
+    fl = caudales_aleatorios(n, rng, suma_max=suma_max)
     return fl, construir(fl, semilla0 + np.arange(n), H)
 
 
-def escenarios_validacion(n=64, H=H_PRUEBA, seed=2, semilla0=SEMILLA_VALIDA):
+def escenarios_validacion(n=64, H=H_PRUEBA, seed=2, semilla0=SEMILLA_VALIDA, suma_max=3000):
     rng = np.random.default_rng(seed)
-    fl = caudales_aleatorios(n, rng)
+    fl = caudales_aleatorios(n, rng, suma_max=suma_max)
     return fl, construir(fl, semilla0 + np.arange(n), H)
 
 
@@ -66,3 +66,10 @@ def correr_referencias(arr, flujos_vh, max_verde=57):
         "actuado": BatchSim(arr, max_green=max_verde).run(Actuated(7, 3)),
         "Pappis": BatchSim(arr).run(PappisFuzzy()),
     }
+
+
+def actuado_afinado(arr):
+    """Actuado con los parametros afinados en entrenamiento (resultados/opt/actuado_afinado.json)."""
+    import json
+    af = json.load(open("resultados/opt/actuado_afinado.json"))["mejor"]
+    return BatchSim(arr, max_green=af["max_green"]).run(Actuated(af["min_green"], af["gap"]))

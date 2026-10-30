@@ -35,11 +35,18 @@ def leer_etiquetas(ruta="articulo_opt/main.aux"):
 
 
 def leer_numeros(ruta="articulo_opt/numeros.tex"):
-    return {m.group(1): m.group(2) for m in re.finditer(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", open(ruta, encoding="utf-8").read())}
+    return {m.group(1): m.group(2).replace("$-$", "−") for m in re.finditer(r"\\newcommand\{\\(\w+)\}\{([^}]*)\}", open(ruta, encoding="utf-8").read())}
 
 
 L = leer_etiquetas()
+LS = leer_etiquetas("articulo_opt/suplemento.aux")
 N = leer_numeros()
+
+
+def refs(clave):
+    """Ubicacion en el suplemento (suplemento.pdf), leida de suplemento.aux."""
+    num, pag = LS[clave]
+    return f"Tabla {num} del suplemento (p. {pag})" if clave.startswith("tab:") else f"Sec. {num} del suplemento (p. {pag})"
 
 
 def ref(clave, pagina=True):
@@ -93,7 +100,7 @@ PARTE_A = [
      f"FLC-O lo mejora en {N['ParMediaActAf']} % por par, con {N['ParMejorActAf']} pares significativamente mejores y {N['ParPeorActAf']} peores ({ref('tab:comparaciones')})."),
     ("6", "Números aleatorios comunes, dispersión y pruebas no paramétricas", "Importante", "Atendida",
      f"Conjunto oficial con 20 réplicas y números aleatorios comunes; media, desviación estándar muestral (n−1) e IC 95 % por par; Wilcoxon pareado con Holm "
-     f"({ref('tab:oficial')}, {ref('tab:comparaciones')}; todos los pares en la Tabla S4 del suplemento). Los conjuntos adicionales usan 64 escenarios."),
+     f"({ref('tab:oficial')}, {ref('tab:comparaciones')}; todos los pares en la {refs('tab:spares')}). Los conjuntos adicionales usan 64 escenarios."),
     ("7", "Activación de reglas con una semilla y 1800 s", "Importante", "Superada por el cambio de alcance",
      f"El manuscrito ya no reporta activación de reglas del controlador de 1977 con una semilla. La interpretación de FLC-O se da con su base de reglas aprendida ({ref('tab:reglasflc')}, {ref('fig:difuso')}) "
      "y todos los resultados usan 20 réplicas de 7200 s o 64 escenarios de 7200 s. El análisis agregado de disparos de la réplica sigue en el artículo de réplica."),
@@ -101,9 +108,9 @@ PARTE_A = [
      f"{ref('sec:sota')} cubre hasta 2026 e incorpora las referencias de optimización (CMA-ES, presión máxima, programación dinámica, ley de Little, Takagi–Sugeno). "
      "Los DOI se comprueban contra Crossref con codigo/verificar_referencias.py; la celda incompleta de la tabla de antecedentes ya no existe (la tabla de 180 combinaciones queda en el artículo de réplica)."),
     ("9", "Duplicación estructural", "Importante", "Atendida",
-     f"El manuscrito tiene {NP} páginas (el Avance 8, 24); cada ecuación se define una sola vez ({ref('sec:modelo', False)} y {ref('sec:pappis', False)}) y los detalles de la réplica se remiten al artículo de réplica, no se repiten."),
+     f"El manuscrito tiene {NP} páginas (la versión de réplica, 15); cada ecuación se define una sola vez ({ref('sec:modelo', False)} y {ref('sec:pappis', False)}) y los detalles de la réplica se remiten al artículo de réplica, no se repiten."),
     ("10", "Entorno de software y hardware y complejidad", "Menor", "Atendida",
-     "Disponibilidad del código y Sección S7 del suplemento: Python 3.13, NumPy 2.5, generador PCG64 con semillas fijas, 4 procesos. Costo: con un núcleo, unos 10 ms por escenario de 7200 s con el simulador vectorizado "
+     f"Sección «Disponibilidad del código» (p. {L['sec:disp'][1]}) y {refs('sec:s-repro')}: Python 3.13, NumPy 2.5, generador PCG64 con semillas fijas, 4 procesos. Costo: con un núcleo, unos 10 ms por escenario de 7200 s con el simulador vectorizado "
      "frente a unos 230 ms con el de referencia. Cada decisión de FLC-O es O(27) por segundo."),
     ("11", "Desviación estándar de población y de muestra", "Menor", "Atendida",
      "Toda desviación estándar es la muestral (n−1): estadistica.ic95 y las tablas del manuscrito y del suplemento (test_estadistica.py)."),
@@ -131,14 +138,14 @@ PARTE_B = [
      f"FLC-O es un sistema de Mamdani con consecuentes de un solo punto, equivalente a uno de Takagi y Sugeno de orden cero ({ref('eq:salida')}, {ref('sec:flc')}); es la variante que se entrena y se evalúa.",
      f"{ref('tab:reglasflc')} y {ref('fig:difuso')} muestran sus 27 reglas y sus funciones de pertenencia aprendidas."),
     ("B4", "Información que usa el controlador (vista adelante de 10 s)",
-     f"Se declara que la vista adelante es un supuesto del original y se mide cuánto de la mejora depende de ella ({ref('sec:res-abl')}). Sin ella ningún controlador aprendido supera al actuado afinado.",
-     f"Sin vista adelante: FLC-O causal {N['DelayOfFlcC']} y política neuronal causal {N['DelayOfMlpC']} s/veh, frente a {N['DelayOfActAf']} del actuado afinado."),
+     f"Se declara que la vista adelante es un supuesto del original y se mide cuánto de la mejora depende de ella ({ref('sec:res-abl')}). Sin ella la mejora casi desaparece: el difuso causal no supera al actuado afinado y la mejor variante causal lo supera solo en {N['RedActMlpC']} %.",
+     f"Sin vista adelante: FLC-O causal {N['DelayOfFlcC']} ({N['RedActFlcC']} % frente al actuado afinado) y política neuronal causal {N['DelayOfMlpC']} s/veh ({N['RedActMlpC']} %), frente a {N['DelayOfActAf']} del actuado afinado; con vista adelante, FLC-O da {N['DelayOfFlc']} ({N['RedActAfOf']} %)."),
     ("B5", "Generalización más allá de la Tabla VIII",
      f"Cuatro conjuntos de prueba que no se usaron para entrenar: oficial, 64 caudales no vistos, demanda variable y cerca de la saturación ({ref('tab:conjuntos')}).",
      f"Reducción frente a Pappis y Mamdani: oficial {N['RedPapOf']} %, no vistos {N['RedPapNv']} %, variable {N['RedPapVa']} %, saturado {N['RedPapSa']} %."),
     ("B6", "Sobreajuste y fuga de información",
-     f"Entrenamiento con caudales sorteados (semillas 100000+), validación con otros (200000+) y prueba en la Tabla VIII; el verde mínimo se eligió con validación, no con la prueba. La sensibilidad a la semilla de entrenamiento (tres semillas) está en la Tabla S5 del suplemento.",
-     "Ver el suplemento, Sec. S2 y S6."),
+     f"Entrenamiento con caudales sorteados (semillas 100000+), validación con otros (200000+) y prueba en la Tabla VIII; el verde mínimo se eligió con validación, no con la prueba. La sensibilidad a la semilla de entrenamiento (tres semillas) está en la {refs('tab:ssemillas')}.",
+     f"Hiperparámetros: {refs('sec:s-entrena')}; semillas: {refs('sec:s-semillas')}."),
     ("B7", "Limitaciones declaradas",
      f"{ref('sec:discusion')}: la mejora depende de la vista adelante; cerca de la saturación el resultado no es el mejor; todo es simulación con un cruce y llegadas de Bernoulli; el retardo corregido no es comparable con la Tabla VIII del original.",
      f"Saturado: FLC-O {N['DelaySaFlc']}, Pappis y Mamdani {N['DelaySaPap']}, actuado afinado {N['DelaySaActAf']} s/veh."),

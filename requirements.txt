@@ -8,4 +8,6 @@ imageio>=2.31
 imageio-ffmpeg>=0.4
 # PDF del avance (build_avance5.py)
 reportlab>=4.0
+# matriz de respuesta (gen_matriz_opt.py)
+python-docx>=1.1
 # El simulador de ventana usa Tkinter, incluido en la instalacion estandar de Python para Windows.

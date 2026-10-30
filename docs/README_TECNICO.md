@@ -3,8 +3,8 @@
 > C. P. Pappis y E. H. Mamdani, *A Fuzzy Logic Controller for a Traffic Junction*,
 > IEEE Trans. Syst., Man, Cybern., vol. SMC-7, no. 10, pp. 707–716, 1977.
 
-**Alcance actual:** replicar el paper original lo más fielmente posible, para poder
-entenderlo y reproducirlo. No se propone ningún cambio al método (reglas, conjuntos,
+**Alcance de la réplica (secciones 1 a 8):** replicar el paper original lo más fielmente posible, para poder
+entenderlo y reproducirlo. La rama `optimizacion` amplía el alcance con un controlador mejorado (sección 9). En la réplica no se propone ningún cambio al método (reglas, conjuntos,
 operadores, regla de decisión): los controladores alternativos y el re-afinado de reglas
 hechos antes no forman parte de este repositorio (se calcularon con reglas mal transcritas y quedaron descartados).
 
@@ -18,10 +18,11 @@ leído sobre la **imagen** de cada página. Todos los valores de `paper_data.py`
 ```
 raíz del repositorio/
 ├── codigo/          todo el código Python (modelo, controlador, simulador, pruebas, generadores)
-├── resultados/      JSON de resultados (Tablas I y VIII, auditoría, llegadas, reducción de reglas)
+├── resultados/      JSON de resultados (Tablas I y VIII, auditoría, llegadas, reducción de reglas); opt/: modelos entrenados y evaluación final
 ├── figures/         figuras generadas por plots.py y gen_fig_*.py
 ├── muestras/        ejemplos listos para mostrar (video, CSV de disparos, captura del simulador)
 ├── articulo_ieee/   artículo IEEE para Overleaf (main.tex, tablas, figuras, PDF)
+├── articulo_opt/    artículo y suplemento de la versión de optimización (main.tex, suplemento.tex, PDF)
 ├── referencia/      cita del paper original en inglés (el PDF no se incluye: es de IEEE)
 ├── notebooks/       cuaderno Jupyter
 ├── docs/            este documento, la guía de VS Code y el PDF del avance 5
@@ -59,8 +60,8 @@ Tabla VIII (§5). Es la principal limitación de la réplica (§5 y §7).
 * Comparadores que no son del paper: actuado por detector, difuso con centroide, ciclo fijo sin redondeo (`comparadores.py`).
 * Efecto de borde del horizonte (`efecto_borde.py`), disparos agregados (`informe_agregado.py`), entorno y costo (`entorno.py`).
 * `test_archivos_citados.py`: todo script, JSON, CSV y fuente LaTeX citado por el artículo existe y compila.
-* `verificar_referencias.py`: comprueba cada DOI de `articulo_ieee/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las 132 comprobaciones.
-* `python codigo/ejecutar_pruebas.py` corre 132 comprobaciones; con `--rapido` recalcula además una Tabla VIII reducida.
+* `verificar_referencias.py`: comprueba cada DOI de `articulo_ieee/referencias.bib` contra Crossref (título, primer autor, año, volumen, páginas); requiere internet y no forma parte de las comprobaciones.
+* `python codigo/ejecutar_pruebas.py` corre 165 comprobaciones (132 de la réplica y 33 de la optimización); con `--rapido` recalcula además una Tabla VIII reducida.
 
 ---
 
@@ -242,3 +243,44 @@ Figuras: `figures/fig4_delay_comparison.png` (calibrada) y `fig4b_delay_comparis
 
 Pappis, C. P., & Mamdani, E. H. (1977). A Fuzzy Logic Controller for a Traffic Junction.
 *IEEE Trans. Syst., Man, Cybern.*, 7(10), 707–716.
+
+---
+
+## 9. Versión de optimización (rama `optimizacion`)
+
+El alcance se amplió: además de replicar el controlador de 1977, se busca un sistema difuso mejor con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica y no cambian. El manuscrito de esta parte es `articulo_opt/main.tex` (9 páginas) con su suplemento `articulo_opt/suplemento.tex` (3 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
+
+**Archivos (todos en `codigo/`):**
+
+| Archivo | Qué hace |
+|---|---|
+| `sim_batch.py` | Simulador vectorizado: simula cientos de escenarios a la vez y da, escenario por escenario, exactamente el mismo retardo que `traffic_model.py` (`test_sim_batch.py`, diferencia 0 con 6 controladores y las dos convenciones de retardo). Unas 20 veces más rápido. |
+| `opt_controladores.py`, `opt_flc.py`, `opt_flc2.py`, `opt_politicas.py` | Controladores: ciclo fijo de Webster, actuado por detector, presión máxima, Pappis y Mamdani (y su versión afinada), **FLC-O** (27 reglas, 42 parámetros) y la política neuronal de referencia. |
+| `opt_es.py` | CMA-ES propio, con evaluación en paralelo y puntos de control. |
+| `opt_mdp.py` | Política óptima por programación dinámica para caudales conocidos (sin ver las llegadas futuras), validada contra la simulación. |
+| `opt_entrenar.py`, `opt_entrenar_modelo.py`, `opt_validar.py` | Escenarios de entrenamiento y validación, entrenamiento y selección con validación. |
+| `opt_evaluacion_final.py`, `opt_evaluar.py` | Evaluación en cuatro conjuntos de prueba con Wilcoxon pareado y Holm → `resultados/opt/evaluacion_final.json`. |
+| `gen_tablas_opt.py`, `gen_fig_opt.py`, `gen_matriz_opt.py` | Tablas, cifras del texto, figuras y matriz de respuesta de esta versión. |
+| `simulador_opt.py` | Compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (figura, GIF o ventana). |
+| `test_sim_batch.py`, `test_opt.py`, `test_archivos_citados_opt.py` | 10 + 11 + 12 comprobaciones (en total, `ejecutar_pruebas.py` corre 165). |
+
+**Resultados** (retardo medio en s/veh, incluye la espera residual al final del horizonte; FLC-O con vista adelante de 10 s, como supone el modelo original):
+
+| Conjunto de prueba | Pappis y Mamdani | Actuado afinado | FLC-O | FLC-O frente a Pappis | FLC-O frente al actuado afinado |
+|---|---|---|---|---|---|
+| Oficial (16 pares de la Tabla VIII × 20 réplicas) | 10.95 | 9.63 | 7.91 | −27.8 % | −17.8 % |
+| 64 caudales no vistos | 10.40 | 9.17 | 7.40 | −28.8 % | −19.3 % |
+| Demanda variable | 8.65 | 8.07 | 6.07 | −29.8 % | −24.7 % |
+| Cerca de la saturación | 105.87 | 24.13 | 24.29 | −77.1 % | +0.7 % (empate) |
+
+En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani y que el actuado afinado en los 16 pares (Wilcoxon pareado con Holm) y no es peor en ninguno. La política óptima por programación dinámica con caudales conocidos da 9.35.
+
+**Límites que el manuscrito declara:**
+
+1. La mejora depende de la vista adelante de 10 s (llegadas de los próximos 10 s conocidas), que es un supuesto del modelo original. Sin ella, FLC-O causal da 9.97 (3.5 % peor que el actuado afinado) y la mejor variante causal, una política neuronal, da 9.46 (1.7 % mejor).
+2. Cerca de la saturación FLC-O empata con el actuado afinado; no lo supera.
+3. Todo es simulación de una intersección aislada con llegadas de Bernoulli; no hay datos de campo.
+4. El mejor resultado usa un verde mínimo de 3 s; con 5 s da 8.21 y con 7 s da 8.60 en el conjunto oficial. Si 3 s no fuera admisible en la práctica, esas son las cifras que corresponden.
+5. El retardo corregido (con espera residual) no es comparable con el de la Tabla VIII del original.
+
+**Reproducir:** `python codigo/ejecutar_pruebas.py` (165 comprobaciones), `python codigo/opt_evaluacion_final.py` (evaluación completa), `python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py` (tablas y figuras), `python codigo/simulador_opt.py` (comparación visual). Los modelos entrenados están en `resultados/opt/` (`modelos_finales.json` indica cuál es cuál). El paso a paso de las configuraciones F5 está en `README_VSCODE.md`.

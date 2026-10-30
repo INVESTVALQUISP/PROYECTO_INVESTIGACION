@@ -37,3 +37,4 @@ articulo_ieee/*.blg
 *.bbl
 *.out
 *.toc
+resultados/opt/evaluacion_final_rapido.json

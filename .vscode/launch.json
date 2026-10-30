@@ -30,7 +30,16 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/informe_disparos.py",
-      "args": ["--ns", "720", "--ew", "2160", "--seconds", "1800", "--seed", "1"],
+      "args": [
+        "--ns",
+        "720",
+        "--ew",
+        "2160",
+        "--seconds",
+        "1800",
+        "--seed",
+        "1"
+      ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },
@@ -39,8 +48,24 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/simulador_gui.py",
-      "args": ["--video", "salidas/simulacion.mp4", "--ns", "720", "--ew", "2160",
-               "--seconds", "120", "--fps", "30", "--sub", "3", "--seed", "1", "--csv", "salidas/disparos_video.csv"],
+      "args": [
+        "--video",
+        "salidas/simulacion.mp4",
+        "--ns",
+        "720",
+        "--ew",
+        "2160",
+        "--seconds",
+        "120",
+        "--fps",
+        "30",
+        "--sub",
+        "3",
+        "--seed",
+        "1",
+        "--csv",
+        "salidas/disparos_video.csv"
+      ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },
@@ -49,6 +74,49 @@
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/codigo/run_experiments.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "7. Comparar Pappis y Mamdani con FLC-O (ventana)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/simulador_opt.py",
+      "args": [
+        "--ns",
+        "720",
+        "--ew",
+        "2160",
+        "--seed",
+        "3"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "8. Animación GIF: Pappis y Mamdani frente a FLC-O (salidas/comparacion.gif)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/simulador_opt.py",
+      "args": [
+        "--gif",
+        "salidas/comparacion.gif",
+        "--guardar",
+        "salidas/comparacion.png",
+        "--sin-ventana"
+      ],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "9. Evaluación de optimización (rápida: 5 réplicas, 3600 s)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/codigo/opt_evaluacion_final.py",
+      "args": [
+        "--rapido",
+        "--sin-mdp"
+      ],
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}"
     },

@@ -5,7 +5,7 @@ Evaluacion de los controladores (referencias, optimizados y cotas) sobre conjunt
 entrenar, con la misma estadistica del resto del proyecto (estadistica.py):
 
   oficial      los 16 pares de caudales de la Tabla VIII x semillas 0..19, 7200 s (numeros aleatorios comunes)
-  no_vistos    64 pares sorteados con otras semillas (200000+), 7200 s
+  no_vistos    64 pares sorteados (caudales y semillas 500000+ distintos de los de validacion), 7200 s
   variable     demanda que cambia en el tiempo (perfil por tramos de 600 s, factor 0.4 a 1.6 sobre un caudal base)
   saturado     caudales cerca de la saturacion (suma de 3000 a 3300 veh/h)
 

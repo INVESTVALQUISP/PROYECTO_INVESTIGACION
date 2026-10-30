@@ -10,6 +10,7 @@ sistema funciona. Deja el texto en salidas/pruebas.txt.
   3b. test_autos.py       : autos con separacion segura, reglas apagadas, autos a mano y explicaciones
   3c. test_parametros.py, test_estadistica.py, verificar_formulas.py : parametros explicitos, estadistica y deducciones
   3c'. test_sim_batch.py : el simulador vectorizado (rama de optimizacion) reproduce exactamente al de referencia
+  3c''. test_opt.py : componentes de la optimizacion (CMA-ES, programacion dinamica, FLC-O)
   3d. test_archivos_citados.py : todo archivo citado por el articulo existe (reproducibilidad del paquete)
   4. Resultados oficiales : Tabla I y Tabla VIII (leidos de resultados/resultados_oficiales.json)
 
@@ -71,6 +72,7 @@ def main():
     ok &= run_test("test_autos.py", r"TODO OK", "Autos sin superponerse, reglas apagadas, autos a mano, explicaciones")
     ok &= run_test("test_parametros.py", r"TODO OK", "Lecturas de A y Q explicitas, mt/lt = Tabla V, contabilidad del retardo")
     ok &= run_test("test_sim_batch.py", r"TODO OK", "Simulador vectorizado == simulador de referencia (exacto)")
+    ok &= run_test("test_opt.py", r"TODO OK", "CMA-ES, particion de Ruspini, programacion dinamica, FLC-O y Pappis afinado")
     ok &= run_test("test_estadistica.py", r"TODO OK", "Wilcoxon, Friedman, Holm, t y chi2 (valores conocidos)")
     ok &= run_test("verificar_formulas.py", r"TODO OK", "Deducciones matematicas del articulo = calculos independientes")
     ok &= run_test("test_archivos_citados.py", r"TODO OK", "Todo script, JSON, CSV y fuente LaTeX citado existe y compila")

@@ -116,7 +116,7 @@ def main():
     salida = {}
     conjuntos = {"oficial": escenarios_oficiales(reps, H)}
     if not args.rapido:
-        conjuntos["no_vistos"] = escenarios_validacion(64, H)
+        conjuntos["no_vistos"] = escenarios_validacion(64, H, seed=12, semilla0=500000, suma_max=3000)   # distinto del de validacion
         conjuntos["variable"] = ev.escenarios_variables(64, H)
         conjuntos["saturado"] = ev.escenarios_saturados(32, H)
     for nombre, (fl, arr) in conjuntos.items():

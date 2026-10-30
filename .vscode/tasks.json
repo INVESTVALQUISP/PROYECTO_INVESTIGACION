@@ -12,7 +12,10 @@
       "type": "shell",
       "command": "python codigo/ejecutar_pruebas.py",
       "problemMatcher": [],
-      "group": { "kind": "test", "isDefault": true }
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
     },
     {
       "label": "Informe de reglas y disparos",
@@ -24,6 +27,12 @@
       "label": "Simulador gráfico",
       "type": "shell",
       "command": "python codigo/simulador_gui.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "Comparar Pappis y Mamdani con FLC-O",
+      "type": "shell",
+      "command": "python codigo/simulador_opt.py",
       "problemMatcher": []
     }
   ]

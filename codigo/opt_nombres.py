@@ -17,7 +17,7 @@ ETIQUETA = {
     "mdp": "Óptimo (PD, caudales conocidos)",
     "flc": "FLC-O (propuesto)",
     "flc_causal": "FLC-O causal",
-    "mlp": "Política neuronal (cota)",
+    "mlp": "Política neuronal (referencia)",
     "mlp_causal": "Política neuronal causal",
 }
 

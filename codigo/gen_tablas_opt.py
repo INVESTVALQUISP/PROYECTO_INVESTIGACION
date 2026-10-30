@@ -69,6 +69,22 @@ def main():
             L.append(f"\\newcommand{{\\ParPeor{rn}}}{{{c['peor_signif']}}}")
             L.append(f"\\newcommand{{\\ParMin{rn}}}{{{min(c['mejora_por_par']):.1f}}}")
             L.append(f"\\newcommand{{\\ParMax{rn}}}{{{max(c['mejora_por_par']):.1f}}}")
+    # macros de las variantes de la ablacion y de las semillas: \\Delay{Of,Nv,Va,Sa}<Id> y reduccion frente al actuado afinado \\RedAct<Id>
+    ids = {"flcs_v3_g3": "Fijos", "flcs4_v3_g3": "Reglas", "flcopt_g7": "GSiete", "flcopt_g5": "GCinco",
+           "flcopt_g4": "GCuatro", "flcopt_g3": "SemCero", "flcopt_g3_s1": "SemUno", "flcopt_g3_s2": "SemDos",
+           "lineal_causal_v3_g3": "LinC"}
+    for modelo_, id_ in ids.items():
+        for sn_, nom_ in SETS.items():
+            if modelo_ in d[sn_]["delay"]:
+                v_ = float(np.mean(d[sn_]["delay"][modelo_]))
+                L.append(f"\\newcommand{{\\Delay{nom_}{id_}}}{{{v_:.2f}}}")
+        if modelo_ in d["oficial"]["delay"]:
+            v_ = float(np.mean(d["oficial"]["delay"][modelo_]))
+            L.append(f"\\newcommand{{\\RedAct{id_}}}{{{100 * (base['actuado_af'] - v_) / base['actuado_af']:.1f}}}")
+            L.append(f"\\newcommand{{\\RedPap{id_}}}{{{100 * (base['pappis'] - v_) / base['pappis']:.1f}}}")
+    for r, rn in CTRL.items():       # reduccion frente al actuado afinado en el conjunto oficial
+        if r in base and r != "actuado_af":
+            L.append(f"\\newcommand{{\\RedAct{rn}}}{{{100 * (base['actuado_af'] - base[r]) / base['actuado_af']:.1f}}}")
     for sn_, nom_ in (("oficial", "Of"), ("saturado", "Sa")):
         x_ = np.array(d[sn_]["delay"][key["pappis"]]); y_ = np.array(d[sn_]["delay_servidos"][key["pappis"]])
         rel_ = (x_ - y_) / x_ * 100

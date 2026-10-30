@@ -29,3 +29,11 @@ articulo_ieee/*.blg
 
 # Puntos de control del entrenamiento (se reemplazan por el resultado final)
 *.parcial
+
+# Auxiliares de LaTeX
+*.aux
+*.log
+*.blg
+*.bbl
+*.out
+*.toc

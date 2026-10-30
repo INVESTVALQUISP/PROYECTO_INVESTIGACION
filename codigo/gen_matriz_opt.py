@@ -93,7 +93,7 @@ PARTE_A = [
      f"FLC-O lo mejora en {N['ParMediaActAf']} % por par, con {N['ParMejorActAf']} pares significativamente mejores y {N['ParPeorActAf']} peores ({ref('tab:comparaciones')})."),
     ("6", "Números aleatorios comunes, dispersión y pruebas no paramétricas", "Importante", "Atendida",
      f"Conjunto oficial con 20 réplicas y números aleatorios comunes; media, desviación estándar muestral (n−1) e IC 95 % por par; Wilcoxon pareado con Holm "
-     f"({ref('tab:oficial')}, {ref('tab:comparaciones')}; todos los pares en la Tabla S del suplemento). Los conjuntos adicionales usan 64 escenarios."),
+     f"({ref('tab:oficial')}, {ref('tab:comparaciones')}; todos los pares en la Tabla S4 del suplemento). Los conjuntos adicionales usan 64 escenarios."),
     ("7", "Activación de reglas con una semilla y 1800 s", "Importante", "Superada por el cambio de alcance",
      f"El manuscrito ya no reporta activación de reglas del controlador de 1977 con una semilla. La interpretación de FLC-O se da con su base de reglas aprendida ({ref('tab:reglasflc')}, {ref('fig:difuso')}) "
      "y todos los resultados usan 20 réplicas de 7200 s o 64 escenarios de 7200 s. El análisis agregado de disparos de la réplica sigue en el artículo de réplica."),
@@ -137,7 +137,7 @@ PARTE_B = [
      f"Cuatro conjuntos de prueba que no se usaron para entrenar: oficial, 64 caudales no vistos, demanda variable y cerca de la saturación ({ref('tab:conjuntos')}).",
      f"Reducción frente a Pappis y Mamdani: oficial {N['RedPapOf']} %, no vistos {N['RedPapNv']} %, variable {N['RedPapVa']} %, saturado {N['RedPapSa']} %."),
     ("B6", "Sobreajuste y fuga de información",
-     f"Entrenamiento con caudales sorteados (semillas 100000+), validación con otros (200000+) y prueba en la Tabla VIII; el verde mínimo se eligió con validación, no con la prueba. La sensibilidad a la semilla de entrenamiento está en la Tabla S del suplemento.",
+     f"Entrenamiento con caudales sorteados (semillas 100000+), validación con otros (200000+) y prueba en la Tabla VIII; el verde mínimo se eligió con validación, no con la prueba. La sensibilidad a la semilla de entrenamiento (tres semillas) está en la Tabla S5 del suplemento.",
      "Ver el suplemento, Sec. S2 y S6."),
     ("B7", "Limitaciones declaradas",
      f"{ref('sec:discusion')}: la mejora depende de la vista adelante; cerca de la saturación el resultado no es el mejor; todo es simulación con un cruce y llegadas de Bernoulli; el retardo corregido no es comparable con la Tabla VIII del original.",

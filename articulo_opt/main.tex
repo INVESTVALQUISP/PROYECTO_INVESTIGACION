@@ -104,13 +104,13 @@ D=\sum_{n=0}^{H-1}\bigl(Q_{1,n}+Q_{2,n}\bigr),\qquad d_m=\frac{D}{\sum_{n<H}(\al
 \end{equation}
 La primera igualdad es una deducción, no una convención: el retardo de un vehículo es el número de finales de segundo en que está en cola (de su llegada a su salida, o al horizonte si sigue en cola), y sumar primero por vehículo y luego por segundo, o al revés, da la suma de las colas, es decir, el área bajo las curvas de cola; la segunda es la definición de media. El original suma la espera de un vehículo cuando sale; los que siguen en cola al final del horizonte cuentan en el denominador y aportan cero, lo que subestima el retardo, en especial con colas largas. En este artículo el retardo es siempre \eqref{eq:dm}, que incluye la espera residual. Para el controlador de Pappis y Mamdani, la diferencia entre ambas convenciones es de \ResDifOf\,\% en promedio en el conjunto oficial (hasta \ResDifOfMax\,\% en un escenario) y de \ResDifSa\,\% en promedio cerca de la saturación (hasta \ResDifSaMax\,\%).
 
-\begin{table}[t]
+\begin{table*}[!t]
 \centering
 \caption{Notación (cada símbolo con un único significado)}
 \label{tab:notacion}
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{@{}cp{0.34\columnwidth}cp{0.34\columnwidth}@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}cp{0.31\textwidth}cp{0.31\textwidth}@{}}
 \toprule
 Símbolo & Significado & Símbolo & Significado \\
 \midrule
@@ -125,7 +125,7 @@ $g_{\min}$, $g_{\max}$ & verde mínimo y máximo & $J(\theta)$ & objetivo de ent
 \bottomrule
 \end{tabular}
 \fuente{elaboración propia; los símbolos de Pappis y Mamdani \cite{Pappis1977} se conservan, salvo la tasa de llegada, que se escribe $\qbar_i$ para reservar $q$ a las colas.}
-\end{table}
+\end{table*}
 
 La línea base clásica es el ciclo fijo de Webster, con $y_i=\qbar_i/s$, $Y=y_1+y_2$, $L=10$\,s:
 \begin{equation}
@@ -141,11 +141,13 @@ tomados de Webster \cite{Webster1958} tal como los imprime el original (p.~709),
 \subsection{Estructura}
 \label{sec:estructura}
 El controlador interviene a los 7, 17, 27, 37 y 47\,s del verde y decide la extensión $e^*\in\{0,1,\dots,10\}$ s del verde; $e^*=0$ cambia de fase y el verde máximo es de 57\,s. Usa cuatro variables sobre universos discretos: el tiempo $T$ y la extensión $E$ ($1$ a $10$\,s), los arribos $A$ ($1$ a $10$ veh en el brazo con paso) y la cola $Q$ ($4$ a $32$ veh en el brazo en rojo). Las reglas usan versiones monótonas de los conjuntos con dos operadores: si $x_0$ es el punto donde $\mu_A$ es máxima,
-\begin{align}
-\mu_{lt(A)}(x)&=\begin{cases}1-\mu_A(x), & x<x_0\\ 0, & x\ge x_0\end{cases} &
+\begin{equation}
+\begin{aligned}
+\mu_{lt(A)}(x)&=\begin{cases}1-\mu_A(x), & x<x_0\\ 0, & x\ge x_0\end{cases}\\
 \mu_{mt(A)}(x)&=\begin{cases}0, & x<x_0\\ 1-\mu_A(x), & x\ge x_0\end{cases}
+\end{aligned}
 \label{eq:mtlt}
-\end{align}
+\end{equation}
 de modo que $lt(A)\cup mt(A)=\overline{A}$ y $lt(A)\cap mt(A)=\emptyset$ en todo el universo, incluido $x_0$, porque en cada $x$ solo una de las dos es no nula; \eqref{eq:mtlt} son las definiciones del original (p.~710). Las 25 reglas son «si $T=t$ y $A=mt(a)$ y $Q=lt(q)$ entonces $E=e$», con $E=T$, cinco por intervención. La contribución de la regla $j$ a la extensión $e$ es $\min\{\mu_{T_j}(e),\mu_{mt(A_j)}(a_e),\mu_{lt(Q_j)}(q_e),\mu_{E_j}(e)\}$, el grado es $\gamma(e)=\max_j$ de ellas, y la decisión es
 \begin{equation}
 e^*=\begin{cases}\max\{e:\gamma(e)=\gamma_{\max}\}, & \gamma_{\max}\ge 0.5\\ 0, & \gamma_{\max}<0.5\end{cases}
@@ -313,7 +315,7 @@ La Tabla~\ref{tab:ablacion} compara variantes entrenadas con las mismas condicio
 \section{Discusión}
 \label{sec:discusion}
 
-\textbf{Qué se logró.} Dentro del modelo del original, un controlador difuso de 27 reglas y 42 parámetros entrenado con caudales sorteados reduce el retardo en \RedFlc\,\% frente al de 1977 en la Tabla VIII, y en \RedActAfOf\,\% frente a un actuado afinado con el mismo rango de parámetros, que es una referencia más exigente que la del original. La mejora se mantiene con caudales no vistos (\RedPapNv\,\% y \RedActAfNv\,\%) y con demanda variable (\RedPapVa\,\% y \RedActAfVa\,\%). Según la ablación, las razones son tres: decide cada segundo y no cada 10\,s, admite un verde mínimo menor, y mide la demanda y la presión con pesos de la vista adelante aprendidos y no con las tablas fijas de 1977. La variación entre semillas de entrenamiento es pequeña (Tabla~S3 del suplemento).
+\textbf{Qué se logró.} Dentro del modelo del original, un controlador difuso de 27 reglas y 42 parámetros entrenado con caudales sorteados reduce el retardo en \RedFlc\,\% frente al de 1977 en la Tabla VIII, y en \RedActAfOf\,\% frente a un actuado afinado con el mismo rango de parámetros, que es una referencia más exigente que la del original. La mejora se mantiene con caudales no vistos (\RedPapNv\,\% y \RedActAfNv\,\%) y con demanda variable (\RedPapVa\,\% y \RedActAfVa\,\%). Según la ablación, las razones son tres: decide cada segundo y no cada 10\,s, admite un verde mínimo menor, y mide la demanda y la presión con pesos de la vista adelante aprendidos y no con las tablas fijas de 1977. La variación entre semillas de entrenamiento es pequeña (Tabla~S5 del suplemento).
 
 \textbf{Qué no se logró.} (i) La mejora depende de la vista adelante de 10\,s. Es un supuesto del original, que equivale a detectores aguas arriba sin error de medición, y es optimista en la práctica. Sin ella, el mejor controlador aprendido mejora al actuado afinado solo en \RedActMlpC\,\% y el difuso causal no lo mejora. (ii) Cerca de la saturación \FLC{} no mejora al actuado afinado (\DelaySaFlc{} frente a \DelaySaActAf{}\,s/veh); su ventaja es sobre Pappis y Mamdani (\DelaySaPap{}), limitado por su verde máximo de 57\,s, y sobre el ciclo fijo (\DelaySaFijo{}). (iii) El verde mínimo de 3\,s elegido por validación puede no ser admisible en una intersección real, por seguridad y por la norma local; con 5\,s la ganancia es de \RedPapGCinco\,\% frente a Pappis y Mamdani. (iv) Todo es simulación con llegadas de Bernoulli, un solo cruce y un flujo de saturación fijo; no hay datos de campo, ni giros, ni peatones, ni redes. (v) El retardo corregido no es el que imprimía el original, por lo que las cifras no son comparables con las de su Tabla VIII.
 
@@ -328,7 +330,7 @@ Se pudo mejorar el controlador difuso de Pappis y Mamdani. Con un procedimiento 
 % =============================================================================
 \section*{Disponibilidad del código}
 \label{sec:disp}
-El código, las pruebas, los resultados y el simulador están en la rama \texttt{optimizacion} del repositorio público \url{https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION/tree/optimizacion}; la rama \texttt{main} conserva la réplica. Las pruebas se ejecutan con \texttt{python codigo/ejecutar\_pruebas.py}; el entrenamiento, con \texttt{codigo/opt\_entrenar\_modelo.py}; la evaluación final, con \texttt{codigo/opt\_evaluacion\_final.py}; y las tablas y figuras de este artículo se regeneran con \texttt{codigo/gen\_tablas\_opt.py} y \texttt{codigo/gen\_fig\_opt.py}. Los resultados están en \texttt{resultados/opt/}. Python 3.13, NumPy 2.5 y semillas de PCG64 fijas.
+\raggedright El código, las pruebas, los resultados y el simulador están en la rama \texttt{optimizacion} del repositorio público \url{https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION/tree/optimizacion}; la rama \texttt{main} conserva la réplica. Las pruebas se ejecutan con \texttt{python codigo/ejecutar\_pruebas.py}; el entrenamiento, con \texttt{codigo/opt\_entrenar\_modelo.py}; la evaluación final, con \texttt{codigo/opt\_evaluacion\_final.py}; y las tablas y figuras de este artículo se regeneran con \texttt{codigo/gen\_tablas\_opt.py} y \texttt{codigo/gen\_fig\_opt.py}. Los resultados están en \texttt{resultados/opt/}. Python 3.13, NumPy 2.5 y semillas de PCG64 fijas.
 
 \bibliographystyle{IEEEtran}
 \bibliography{referencias}

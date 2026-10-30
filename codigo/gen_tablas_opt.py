@@ -176,11 +176,11 @@ def main():
         va = float(np.mean(d["variable"]["delay"][modelo])) if modelo in d["variable"]["delay"] else float("nan")
         R.append(f"{etiqueta} & {npar} & {nota} & {f(o)} & {f(nv, 1)} & {f(va, 1)} \\\\")
     if R:
-        T = ["\\begin{table}[t]", "\\centering", "\\caption{Variantes de FLC-O y controladores aprendidos. Retardo medio (s/veh) en la Tabla VIII, "
+        T = ["\\begin{table*}[!t]", "\\centering", "\\caption{Variantes de FLC-O y controladores aprendidos, entrenados con las mismas condiciones. Retardo medio (s/veh) en la Tabla VIII, "
              "en caudales no vistos y con demanda variable. $g_{\\min}$: verde m\\'inimo.}", "\\label{tab:ablacion}", "\\scriptsize",
              "\\setlength{\\tabcolsep}{2.4pt}", "\\begin{tabular}{@{}lrlrrr@{}}", "\\toprule",
              "Variante & Par. & Informaci\\'on & Oficial & No vistos & Variable \\\\", "\\midrule"] + R + \
-            ["\\bottomrule", "\\end{tabular}", "\\fuente{simulaci\\'on del autor; par.: n\\'umero de par\\'ametros entrenados.}", "\\end{table}"]
+            ["\\bottomrule", "\\end{tabular}", "\\fuente{simulaci\\'on del autor; par.: n\\'umero de par\\'ametros entrenados; las filas de $g_{\\min}$ usan la misma semilla de entrenamiento.}", "\\end{table*}"]
         open(f"{OUT}/tabla_ablacion.tex", "w").write("\n".join(T) + "\n")
 
     # ---------------- tabla_reglas_flc.tex (FLC-O elegido)

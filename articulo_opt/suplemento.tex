@@ -63,6 +63,10 @@ Verde máximo & 57\,s (Pappis y Mamdani); 90\,s (modelos entrenados con rango am
 \label{fig:s-aprendizaje}
 \end{figure}
 
+\section{Referencias afinadas}
+\label{sec:s-ref}
+El actuado y la presión máxima se afinaron con los mismos 64 escenarios de entrenamiento que los controladores aprendidos y dentro del mismo rango de verde mínimo (de 3 a 7\,s) y con verde máximo de a lo sumo 90\,s. La rejilla del actuado fue hueco de 1 a 3\,s, verde mínimo de 3 a 7\,s y máximo de 57, 80 y 90\,s (45 configuraciones); resultó hueco de 1\,s, mínimo de 3\,s y máximo de 90\,s. La de la presión máxima fue margen de 0, 1, 2, 3, 5, 8, 12 y 16 vehículos, mínimo de 3, 4, 5 y 7\,s y máximo de 57, 80 y 90\,s; resultó margen de 12 vehículos, mínimo de 4\,s y máximo de 57\,s. Una rejilla anterior, con verde mínimo de 5 a 10\,s y máximo de 57 a 120\,s (\texttt{resultados/opt/actuado\_afinado\_v1.json}), daba un actuado 5\,\% más lento: restringir el verde mínimo a 5\,s o más habría favorecido al controlador propuesto, y por eso se amplió. Los parámetros están en \texttt{resultados/opt/actuado\_afinado.json} y \texttt{resultados/opt/maxpressure\_afinado.json}.
+
 \section{Verificación del simulador vectorizado}
 \label{sec:s-equiv}
 La prueba \texttt{test\_sim\_batch.py} (parte de las comprobaciones de \texttt{ejecutar\_pruebas.py}) simula 8 escenarios de 2400\,s con el simulador de referencia (\texttt{traffic\_model.py}) y con el vectorizado, y compara el retardo con las dos convenciones: con residuo y solo de los vehículos servidos.
@@ -108,7 +112,8 @@ CMA-ES es estocástico. Para medir cuánto depende \FLC{} de la semilla, se entr
 Desde la carpeta del proyecto, con Python 3.13 y NumPy 2.5:
 \begin{itemize}
 \item \texttt{python codigo/ejecutar\_pruebas.py}: todas las comprobaciones, incluida la equivalencia de los simuladores.
-\item \texttt{python codigo/opt\_entrenar\_modelo.py -{}-modelo flcopt -{}-gmin 5 -{}-max-green 90 -{}-suma-max 3300 -{}-ref actuado\_af -{}-gens 150 -{}-out resultados/opt/flcopt\_g5.json}: entrena \FLC{} (unos 15 minutos con 4 núcleos).
+\item \texttt{python codigo/opt\_entrenar\_modelo.py -{}-modelo flcopt -{}-gmin 3 -{}-seed 2 -{}-max-green 90 -{}-suma-max 3300 -{}-ref actuado\_af -{}-gens 150 -{}-out resultados/opt/flcopt\_g3\_s2.json}: entrena el \FLC{} propuesto (unos 15 minutos con 4 núcleos); sin \texttt{-{}-seed} se obtiene la semilla 0.
+\item \texttt{python codigo/opt\_validar.py flcopt\_g3 flcopt\_g4 flcopt\_g5}: ordena variantes con los escenarios de validación, sin mirar los de prueba.
 \item \texttt{python codigo/opt\_evaluacion\_final.py}: evalúa todos los controladores en los cuatro conjuntos de prueba y calcula la estadística.
 \item \texttt{python codigo/gen\_tablas\_opt.py} y \texttt{python codigo/gen\_fig\_opt.py}: regeneran las tablas, las cifras del texto y las figuras.
 \end{itemize}

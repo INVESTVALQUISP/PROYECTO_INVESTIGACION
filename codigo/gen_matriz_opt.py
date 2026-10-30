@@ -145,7 +145,7 @@ PARTE_B = [
 ]
 
 NOTAS = [
-    "El repositorio público https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION contiene el código, las pruebas, los resultados (resultados/opt/) y los manuscritos de ambas versiones.",
+    "La rama optimizacion del repositorio público https://github.com/INVESTVALQUISP/PROYECTO_INVESTIGACION/tree/optimizacion contiene el código, las pruebas, los resultados (resultados/opt/) y los manuscritos de ambas versiones; la rama main conserva la versión de réplica.",
     "Puntos abiertos que dependen de los autores: validar con datos de campo, y entrenar con un rango de caudales que cubra la saturación (trabajo futuro del manuscrito).",
 ]
 

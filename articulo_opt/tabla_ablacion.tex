@@ -1,0 +1,20 @@
+\begin{table}[t]
+\centering
+\caption{Variantes de FLC-O y controladores aprendidos. Retardo medio (s/veh) en la Tabla VIII, en caudales no vistos y con demanda variable. $g_{\min}$: verde m\'inimo.}
+\label{tab:ablacion}
+\scriptsize
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrlrrr@{}}
+\toprule
+Variante & Par. & Informaci\'on & Oficial & No vistos & Variable \\
+\midrule
+Pappis y Mamdani afinado & 30 & vista adelante & 9.69 & 9.1 & 8.0 \\
+Difuso 27 reglas ($g_{\min}=7$) & 36 & vista adelante & 9.14 & 8.3 & 7.3 \\
+Difuso 81 reglas con hueco & 93 & vista adelante & 9.16 & 8.5 & 7.3 \\
+Difuso 27 reglas, causal & 36 & solo pasado & 10.53 & 9.8 & 9.0 \\
+Política neuronal & 121 & vista adelante & 8.68 & 7.9 & 6.9 \\
+Política neuronal, causal & 121 & solo pasado & 10.17 & 9.6 & 8.8 \\
+\bottomrule
+\end{tabular}
+\fuente{simulaci\'on del autor; par.: n\'umero de par\'ametros entrenados.}
+\end{table}

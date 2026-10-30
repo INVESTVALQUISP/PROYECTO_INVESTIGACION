@@ -84,13 +84,18 @@ def correr_todos(arr, fl, modelos, mdp_tablas=None):
 
 
 def tablas_mdp(fl):
-    """Politica optima por cada par de caudales distinto (conoce los caudales)."""
-    cache, out = {}, []
+    """Politica optima por cada par de caudales distinto (conoce los caudales). Se guarda en salidas/mdp_cache.pkl."""
+    import pickle
+    ruta = "salidas/mdp_cache.pkl"
+    cache = pickle.load(open(ruta, "rb")) if os.path.exists(ruta) else {}
+    out = []
     for a, b in fl:
-        k = (round(a, 3), round(b, 3))
+        k = (round(float(a), 3), round(float(b), 3))
         if k not in cache:
             cache[k] = opt_mdp.resolver(a / 3600.0, b / 3600.0, qmax=80, tol=1e-6)[0]
         out.append(cache[k])
+    os.makedirs("salidas", exist_ok=True)
+    pickle.dump(cache, open(ruta, "wb"))
     return np.stack(out)
 
 
@@ -98,9 +103,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rapido", action="store_true", help="5 replicas y 3600 s (solo para probar)")
     ap.add_argument("--sin-mdp", action="store_true")
+    ap.add_argument("--modelos", default="", help="lista separada por comas de modelos entrenados a evaluar (por defecto, todos)")
+    ap.add_argument("--salida", default="", help="sufijo del archivo de salida")
     args = ap.parse_args()
     reps, H = (5, 3600) if args.rapido else (20, 7200)
     modelos = cargar_modelos()
+    if args.modelos:
+        pedidos = [m.strip() for m in args.modelos.split(",") if m.strip()]
+        modelos = {m: modelos[m] for m in pedidos}
     print("modelos entrenados:", list(modelos), flush=True)
     t0 = time.time()
     salida = {}
@@ -110,7 +120,7 @@ def main():
         conjuntos["variable"] = ev.escenarios_variables(64, H)
         conjuntos["saturado"] = ev.escenarios_saturados(32, H)
     for nombre, (fl, arr) in conjuntos.items():
-        mdp = None if args.sin_mdp else tablas_mdp(fl)
+        mdp = None if (args.sin_mdp or nombre == "saturado") else tablas_mdp(fl)
         res = correr_todos(arr, fl, modelos, mdp)
         info = dict(flujos=fl.tolist(), H=H, delay={k: v["delay"].tolist() for k, v in res.items()},
                     delay_servidos={k: v["delay_served"].tolist() for k, v in res.items()},
@@ -120,14 +130,14 @@ def main():
                     cambios_fase={k: v["n_switch"].tolist() for k, v in res.items()})
         if nombre == "oficial":
             info["por_par"] = {k: ev.resumen_por_par(np.array(info["delay"][k]), fl, reps) for k in res}
-            refs = [r for r in ("fijo", "actuado", "actuado_af", "pappis") if r in res]
+            refs = [r for r in ("fijo", "actuado", "actuado_af", "pappis", "mdp", "afinado_pappis") if r in res]
             info["comparaciones"] = {f"{a}__vs__{b}": ev.comparar(np.array(info["delay"][a]), np.array(info["delay"][b]), reps)
                                      for a in res for b in refs if a != b}
         salida[nombre] = info
         medias = {k: float(np.mean(v)) for k, v in info["delay"].items()}
         print(f"[{nombre}] ({len(fl)} escenarios, {time.time()-t0:.0f} s) retardo medio:",
               {k: round(v, 2) for k, v in medias.items()}, flush=True)
-    sufijo = "_rapido" if args.rapido else ""
+    sufijo = ("_rapido" if args.rapido else "") + args.salida
     with open(f"{OUT}/evaluacion_final{sufijo}.json", "w") as f:
         json.dump(salida, f)
     print("guardado", f"{OUT}/evaluacion_final{sufijo}.json")

@@ -120,7 +120,7 @@ class BatchSim:
         self.arr = arrivals
         self.lost, self.gmin, self.delta, self.max_green = lost, gmin, delta, max_green
 
-    def run(self, ctrl, metrics=True):
+    def run(self, ctrl, metrics=True, trace=False):
         a = self.arr
         R, H = a.R, a.H
         q_ns = np.zeros(R, dtype=np.int32)
@@ -152,6 +152,9 @@ class BatchSim:
             if g is not None:
                 gend[:] = g
         allidx = np.arange(R)
+        if trace:
+            tr_q = np.zeros((R, H, 2), dtype=np.int16)
+            tr_ph = np.zeros((R, H), dtype=np.int8)       # 0 / 1: brazo con verde; 2: tiempo perdido
         gmin, delta = self.gmin, self.delta
         mg = INF if self.max_green is None else self.max_green
         for t in range(H):
@@ -189,6 +192,10 @@ class BatchSim:
             q_ew -= g_ew
             D_ns += q_ns
             D_ew += q_ew
+            if trace:
+                tr_q[:, t, 0] = q_ns
+                tr_q[:, t, 1] = q_ew
+                tr_ph[:, t] = np.where(lost_mode, 2, phase)
             if metrics:
                 np.maximum(qmax_ns, q_ns, out=qmax_ns)
                 np.maximum(qmax_ew, q_ew, out=qmax_ew)
@@ -220,6 +227,8 @@ class BatchSim:
         out["delay_ns"] = D_ns / np.maximum(1, a.C_ns[:, H])
         out["delay_ew"] = D_ew / np.maximum(1, a.C_ew[:, H])
         out["delay_served"] = self._served_delay(out)
+        if trace:
+            out["trace_q"], out["trace_phase"] = tr_q, tr_ph
         return out
 
     def _served_delay(self, out):

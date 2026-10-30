@@ -110,3 +110,32 @@ animación va lenta en tu equipo, baja la «Velocidad (fps)» de la ventana.
 * *No se abre la ventana (Linux/macOS):* instala Tkinter (`sudo apt install python3-tk`) o usa la versión web.
 * *No exporta MP4:* instala `imageio-ffmpeg`; si no, el script guarda un GIF.
 * La carpeta `muestras/` trae un ejemplo ya generado (video, informe, CSV y captura de la ventana).
+
+## 6. Optimización: comparar el controlador de 1977 con FLC-O
+
+La versión de optimización agrega un controlador difuso nuevo (FLC-O, 27 reglas, 42 parámetros entrenados con CMA-ES) y herramientas
+para compararlo con el de Pappis y Mamdani sobre **las mismas llegadas de vehículos**. Estas configuraciones de **F5** ya vienen en `.vscode/launch.json`:
+
+| Configuración | Qué hace |
+|---|---|
+| **7. Comparar Pappis y Mamdani con FLC-O (ventana)** | Abre una figura con las colas de los dos brazos y la fase de cada controlador, y muestra en la terminal el retardo medio, la cola máxima y los cambios de fase de cada uno. |
+| **8. Animación GIF** | Guarda `salidas/comparacion.gif` (colas como barras y semáforos de los dos controladores) y `salidas/comparacion.png`. |
+| **9. Evaluación de optimización (rápida)** | Evalúa todos los controladores con 5 réplicas de 3600 s (unos minutos) y escribe `resultados/opt/evaluacion_final_rapido.json`. |
+
+Por terminal:
+
+```bash
+python codigo/simulador_opt.py                                        # escenario del artículo (720 / 2160 veh/h), abre una ventana
+python codigo/simulador_opt.py --ns 1080 --ew 1800 --seed 5 --seconds 1200
+python codigo/simulador_opt.py --gif salidas/comparacion.gif --guardar salidas/comparacion.png --sin-ventana
+python codigo/opt_evaluacion_final.py                                 # evaluación completa (conjuntos oficial, no vistos, variable y saturado)
+python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py       # regenera tablas, cifras y figuras del artículo de optimización
+```
+
+Entrenar un controlador (unos 15 minutos con 4 núcleos; los puntos de control se guardan en `*.parcial` y se retoman con `--resume`):
+
+```bash
+python codigo/opt_entrenar_modelo.py --modelo flcopt --gmin 5 --max-green 90 --suma-max 3300 --ref actuado_af --gens 150 --out resultados/opt/mi_modelo.json
+```
+
+En Windows se usan los mismos comandos con `python` dentro del entorno virtual (`.venv\Scripts\Activate.ps1`).

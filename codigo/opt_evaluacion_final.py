@@ -52,7 +52,9 @@ def construir_modelo(d):
     th = np.array(d["theta"])
     mg = d.get("max_green", 57)
     if modelo == "mlp":
-        return (lambda arr: BatchSim(arr, max_green=mg)), opt_politicas.PoliticaStop(th, d["hidden"], d["preview"], d["gmin"])
+        return (lambda arr: BatchSim(arr, max_green=mg)), opt_politicas.PoliticaStop(th, d["hidden"], d["preview"], d["gmin"], d.get("gaps", False))
+    if modelo == "flcs4":
+        return (lambda arr: BatchSim(arr, max_green=mg)), opt_flc2.FuzzyGap(th, d["preview"], d["gmin"])
     if modelo == "flcs":
         return (lambda arr: BatchSim(arr, max_green=mg)), opt_flc2.FuzzySegundo(th, d["preview"], d["gmin"])
     if modelo == "afinado":

@@ -14,22 +14,28 @@ Caracteristicas (todas normalizadas aprox. a [0, 1]):
     pg5, pr5        llegadas por segundo en los ultimos 5 s (verde, rojo)  (causal)
     pg20, pr20      llegadas por segundo en los ultimos 20 s               (causal)
     cola_vacia      1 si el brazo con verde no tiene cola
+    gap_g, gap_r    (version 2) segundos desde la ultima llegada al brazo con verde / en rojo (tope 30 s), /10 (causal)
 Con preview=False las cuatro caracteristicas de vista adelante valen 0: la politica es CAUSAL (solo usa lo ya ocurrido).
 """
 import numpy as np
 
 NOMBRES = ["q_g", "q_r", "el", "wg3", "wg10", "wr3", "wr10", "pg5", "pr5", "pg20", "pr20", "cola_vacia"]
-F = len(NOMBRES) + 1       # + sesgo
+NOMBRES_GAP = NOMBRES + ["gap_g", "gap_r"]
+F = len(NOMBRES) + 1       # + sesgo (version 1)
 
 
-def caracteristicas(sim, t, preview=True):
+def n_car(gaps=False):
+    return len(NOMBRES_GAP if gaps else NOMBRES) + 1
+
+
+def caracteristicas(sim, t, preview=True, gaps=False):
     a = sim.arr
     ns = sim.phase == 0
     q_g = np.where(ns, sim.q_ns, sim.q_ew).astype(np.float32)
     q_r = np.where(ns, sim.q_ew, sim.q_ns).astype(np.float32)
     el = (t - sim.tstart).astype(np.float32)
     c0_ns, c0_ew = a.C_ns[:, t], a.C_ew[:, t]
-    X = np.empty((a.R, F), dtype=np.float32)
+    X = np.empty((a.R, n_car(gaps)), dtype=np.float32)
     X[:, 0] = 1.0
     X[:, 1] = q_g / 10
     X[:, 2] = q_r / 10
@@ -46,26 +52,33 @@ def caracteristicas(sim, t, preview=True):
         X[:, col] = np.where(ns, c0_ns - a.C_ns[:, tp], c0_ew - a.C_ew[:, tp]) / kk
         X[:, col + 1] = np.where(ns, c0_ew - a.C_ew[:, tp], c0_ns - a.C_ns[:, tp]) / kk
     X[:, 12] = (q_g == 0)
+    if gaps:
+        gg = np.where(ns, sim.last_ns, sim.last_ew)
+        gr = np.where(ns, sim.last_ew, sim.last_ns)
+        X[:, 13] = np.minimum(t - gg, 30) / 10.0
+        X[:, 14] = np.minimum(t - gr, 30) / 10.0
     return X
 
 
-def n_parametros(hidden):
-    return F + 1 if hidden == 0 else F * hidden + hidden + hidden + 1
+def n_parametros(hidden, gaps=False):
+    f = n_car(gaps)
+    return f + 1 if hidden == 0 else f * hidden + hidden + hidden + 1
 
 
 class PoliticaStop:
     """Corta el verde cuando la salida de la red es positiva (y el verde ya paso el minimo gmin).
     hidden=0: politica lineal; hidden>0: perceptron de una capa oculta con tanh."""
 
-    def __init__(self, theta, hidden=8, preview=True, gmin=7):
+    def __init__(self, theta, hidden=8, preview=True, gmin=7, gaps=False):
         theta = np.asarray(theta, dtype=np.float32)
-        self.hidden, self.preview, self.gmin = hidden, preview, gmin
+        self.hidden, self.preview, self.gmin, self.gaps = hidden, preview, gmin, gaps
+        f = n_car(gaps)
         if hidden == 0:
-            self.w = theta[:F]
-            self.b = theta[F]
+            self.w = theta[:f]
+            self.b = theta[f]
         else:
-            i = F * hidden
-            self.W1 = theta[:i].reshape(F, hidden)
+            i = f * hidden
+            self.W1 = theta[:i].reshape(f, hidden)
             self.b1 = theta[i:i + hidden]
             self.w2 = theta[i + hidden:i + 2 * hidden]
             self.b2 = theta[i + 2 * hidden]
@@ -75,7 +88,7 @@ class PoliticaStop:
         cand = green & (el >= self.gmin)
         if not cand.any():
             return cand
-        X = caracteristicas(sim, t, self.preview)
+        X = caracteristicas(sim, t, self.preview, self.gaps)
         if self.hidden == 0:
             s = X @ self.w + self.b
         else:

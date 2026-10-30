@@ -100,3 +100,40 @@ class FuzzySegundo:
                 for k in range(3):
                     out.append((nom[i], nom[j], nom[k], float(self.c[i * 9 + j * 3 + k])))
         return out
+
+
+# ---------------------------------------------------------------------------
+# Variante con el HUECO (s desde la ultima llegada al brazo con verde) como cuarta variable linguistica
+# ---------------------------------------------------------------------------
+N_PARAM_GAP = 93      # 12 nudos + 81 consecuentes
+
+
+def _theta0_gap():
+    c = np.array([[[[(1.0 if (g == 0 and gp >= 1 and r >= 1) else -1.0) for e in range(3)]
+                    for r in range(3)] for gp in range(3)] for g in range(3)]).ravel()
+    return np.concatenate([[0.0, 2.0, 3.0], [1.0, 2.0, 4.0], [0.0, 8.0, 12.0], [7.0, 18.0, 30.0], c])
+
+
+THETA0_GAP = _theta0_gap()
+
+
+class FuzzyGap(FuzzySegundo):
+    """Cuatro variables (G demanda en verde, H hueco, R presion en rojo, E verde transcurrido) con tres conjuntos cada
+    una: 81 reglas. H es causal por construccion (solo mira lo ya ocurrido)."""
+
+    def __init__(self, theta, preview=True, gmin=7):
+        th = np.asarray(theta, dtype=float)
+        self.kG, self.kH, self.kR, self.kE = (_nudos(th[0:3]), _nudos(th[3:6]), _nudos(th[6:9]), _nudos(th[9:12]))
+        self.c = th[12:93]
+        self.preview, self.gmin = preview, gmin
+
+    def stop(self, sim, t, green):
+        cand = green & ((t - sim.tstart) >= self.gmin)
+        if not cand.any():
+            return cand
+        G, R, E = self.entradas(sim, t)
+        ns = sim.phase == 0
+        H = np.minimum(t - np.where(ns, sim.last_ns, sim.last_ew), 30).astype(float)
+        w = (ruspini(G, self.kG)[:, :, None, None, None] * ruspini(H, self.kH)[:, None, :, None, None]
+             * ruspini(R, self.kR)[:, None, None, :, None] * ruspini(E, self.kE)[:, None, None, None, :]).reshape(len(G), 81)
+        return cand & (((w @ self.c) / (w.sum(1) + 1e-9)) > 0)

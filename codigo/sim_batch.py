@@ -131,6 +131,8 @@ class BatchSim:
         tstart = np.zeros(R, dtype=np.int32)
         gend = np.full(R, INF, dtype=np.int64)
         last_arr = np.zeros(R, dtype=np.int32)
+        last_ns = np.full(R, -1000, dtype=np.int32)      # instante de la ultima llegada en cada brazo
+        last_ew = np.full(R, -1000, dtype=np.int32)
         D_ns = np.zeros(R, dtype=np.int64)
         D_ew = np.zeros(R, dtype=np.int64)
         qmax_ns = np.zeros(R, dtype=np.int32)
@@ -138,6 +140,7 @@ class BatchSim:
         n_switch = np.zeros(R, dtype=np.int32)
         green_time = np.zeros(R, dtype=np.int64)
         self.q_ns, self.q_ew, self.phase, self.tstart, self.last_arr = q_ns, q_ew, phase, tstart, last_arr
+        self.last_ns, self.last_ew = last_ns, last_ew
         self.t = 0
         has_start = hasattr(ctrl, "on_green_start")
         has_dec = hasattr(ctrl, "decide")
@@ -177,6 +180,9 @@ class BatchSim:
             a_ew = a.arr_ew[:, t]
             q_ns += a_ns
             q_ew += a_ew
+            last_ns = np.where(a_ns > 0, t, last_ns)
+            last_ew = np.where(a_ew > 0, t, last_ew)
+            self.last_ns, self.last_ew = last_ns, last_ew
             g_ns = green & (phase == 0) & (q_ns > 0)
             g_ew = green & (phase == 1) & (q_ew > 0)
             q_ns -= g_ns

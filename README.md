@@ -40,7 +40,7 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 12 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor (DOCX y PDF). |

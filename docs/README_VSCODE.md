@@ -95,7 +95,7 @@ La ventana se ve así (captura de una corrida de 114 s, 720 / 2160 veh/h):
 
 **Abajo a la izquierda,** la traza de d<sub>m</sub>(t) con un cuadrado rojo en cada cambio de fase y, punteada, la curva del controlador
 de 1977 sobre las mismas llegadas. **En la columna derecha de controles** se explica en palabras qué mira FLC-O y qué decide en cada segundo.
-Al terminar se muestran d<sub>m</sub> con la convención del original (solo vehículos que ya salieron) y con la espera residual del artículo.
+Al terminar se muestran d<sub>m</sub> con la convención de la réplica anterior (solo vehículos que ya salieron) y con la espera residual del artículo.
 *Pausar en cada decisión* detiene la corrida en cada cambio de fase.
 
 ### 3.2 Con Pappis y Mamdani (1977)

@@ -29,7 +29,7 @@
 \maketitle
 
 \section{Alcance}
-Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la verificación del simulador vectorizado, la cota por programación dinámica, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
+Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la definición de las entradas $A$ y $Q$, la verificación del simulador vectorizado, la cota por programación dinámica, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
 
 \section{Entrenamiento}
 \label{sec:s-entrena}
@@ -66,6 +66,12 @@ Verde máximo & 57\,s (Pappis y Mamdani); 90\,s (modelos entrenados con rango am
 \section{Referencias afinadas}
 \label{sec:s-ref}
 El actuado y la presión máxima se afinaron con los mismos 64 escenarios de entrenamiento que los controladores aprendidos y dentro del mismo rango de verde mínimo (de 3 a 7\,s) y con verde máximo de a lo sumo 90\,s. La rejilla del actuado fue hueco de 1 a 3\,s, verde mínimo de 3 a 7\,s y máximo de 57, 80 y 90\,s (45 configuraciones); resultó hueco de 1\,s, mínimo de 3\,s y máximo de 90\,s. La de la presión máxima fue margen de 0, 1, 2, 3, 5, 8, 12 y 16 vehículos, mínimo de 3, 4, 5 y 7\,s y máximo de 57, 80 y 90\,s; resultó margen de 12 vehículos, mínimo de 4\,s y máximo de 57\,s. Una rejilla anterior, con verde mínimo de 5 a 10\,s y máximo de 57 a 120\,s (\texttt{resultados/opt/actuado\_afinado\_v1.json}), daba un actuado 5\,\% más lento: restringir el verde mínimo a 5\,s o más habría favorecido al controlador propuesto, y por eso se amplió. Los parámetros están en \texttt{resultados/opt/actuado\_afinado.json} y \texttt{resultados/opt/maxpressure\_afinado.json}.
+
+\section{Definición de las entradas $A$ y $Q$: las ocho lecturas}
+\label{sec:s-lecturas}
+El original define las entradas del controlador con un ejemplo de arreglos de detectores (pp.~709, 710 y 713) y no fija cómo calcularlas en una simulación con colas reales. Se probaron las ocho combinaciones razonables de tres elecciones, con las 25 reglas del Apéndice fijas: (i) $A$ como arribos acumulados detectados en $e$ segundos (la lectura literal del ejemplo) o como los vehículos que realmente cruzan, limitados por la saturación de 1\,veh/s, lo que incluye la cola del verde; (ii) $Q$ evaluada en la cola actual o en la cola prevista $\beta'_e=Q+\sum_{i\le e}x'_i$ del ejemplo; (iii) $Q$ como toda la cola del brazo en rojo o solo los vehículos llegados desde que empezó el verde actual. Cada una se simuló con 20 réplicas de 7200\,s y números aleatorios comunes y se comparó con la Tabla VIII del original (Tabla~\ref{tab:slecturas}). Solo la última fila reproduce el comportamiento publicado: mejora al ciclo fijo en 16 de 16 pares con un error medio de 9.2\,\%. Las lecturas literales saturan el sistema: el verde se corta en torno a los 9\,s en cuanto sube el caudal y la capacidad no alcanza. La última fila es la que adopta este trabajo, como decisión de diseño y no como una afirmación sobre la implementación original.
+
+\input{tabla_s_lecturas}
 
 \section{Verificación del simulador vectorizado}
 \label{sec:s-equiv}

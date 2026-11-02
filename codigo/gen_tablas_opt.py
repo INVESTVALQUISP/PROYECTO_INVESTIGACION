@@ -249,6 +249,24 @@ def main():
              "Entrenamiento & Oficial & No vistos & Variable & Saturado \\\\", "\\midrule"] + R + \
             ["\\bottomrule", "\\end{tabular}", "\\fuente{simulaci\\'on del autor; cada fila es un entrenamiento independiente con otra semilla de CMA-ES y los mismos escenarios.}", "\\end{table}"]
         open(f"{OUT}/tabla_s_semillas.tex", "w").write("\n".join(T) + "\n")
+    # (d) las ocho lecturas de A y Q frente a la Tabla VIII del original (resultados/fidelity_audit.json)
+    if os.path.exists("resultados/fidelity_audit.json"):
+        au = json.load(open("resultados/fidelity_audit.json"))
+        nomA = {"arrivals": "arribos acumulados", "crossing": "cruces (m\\'ax.\\ 1 veh/s)"}
+        nomQ = {"predicted": "prevista $\\beta'_e$", "current": "actual"}
+        nomS = {"total": "toda la cola", "green_arrivals": "llegados desde el inicio del verde"}
+        R = []
+        for v in au["variants"]:
+            fila = (f"{nomA[v['a_mode']]} & {nomQ[v['q_mode']]} & {nomS[v['queue_source']]} & {f(v['mean_err'], 1)} & {f(v['max_err'], 1)} & {v['wins']}/16 \\\\")
+            if v["a_mode"] == "crossing" and v["q_mode"] == "current" and v["queue_source"] == "green_arrivals":
+                fila = "\\textbf{" + fila.replace(" & ", "} & \\textbf{").replace(" \\\\", "} \\\\")
+            R.append(fila)
+        T = ["\\begin{table*}[t]", "\\centering", "\\caption{Las ocho lecturas de $A$ y $Q$ con las 25 reglas del Ap\\'endice fijas: error relativo medio y m\\'aximo del retardo "
+             "frente a los impresos en la Tabla VIII del original (20 r\\'eplicas de 7200\\,s, n\\'umeros aleatorios comunes) y pares de caudales en que el difuso queda por debajo del ciclo fijo. En negrita, la lectura adoptada.}",
+             "\\label{tab:slecturas}", "\\scriptsize", "\\begin{tabular}{@{}lllrrr@{}}", "\\toprule",
+             "$A$ & $Q$ evaluada en & Cola $Q$ & Error medio (\\%) & Error m\\'aximo (\\%) & Mejor que el fijo \\\\", "\\midrule"] + R + \
+            ["\\bottomrule", "\\end{tabular}", "\\fuente{codigo/fidelity\\_audit.py y resultados/fidelity\\_audit.json.}", "\\end{table*}"]
+        open(f"{OUT}/tabla_s_lecturas.tex", "w").write("\n".join(T) + "\n")
     print("escrito en", OUT)
 
 

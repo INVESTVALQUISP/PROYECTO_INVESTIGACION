@@ -149,8 +149,8 @@ indica el número de réplicas ("many runs"), solo los 7200 s por corrida.
 
 ## 5. Interpretaciones: lo que el paper no precisa
 
-Las reglas, los conjuntos y los operadores son datos del paper. Lo que **no** está especificado
-es cómo su programa calculaba, en cada intervención,
+Las reglas, los conjuntos y los operadores son datos del paper. El paper describe las entradas con detectores y un ejemplo
+(pp. 709, 710 y 713), pero **no fija** cómo calcular, en una simulación con colas reales, en cada intervención,
 
 * **A** (vehículos que cruzan el punto crítico en e s), y
 * **Q** (cola del brazo en rojo).
@@ -186,10 +186,10 @@ Las dos lecturas que se dejan en el código:
   en su valor actual. **Se eligió por ser la única que reproduce la Tabla VIII en todo el
   rango**, no porque el texto del paper la indique.
 
-> **Advertencia sobre la lectura calibrada.** Es una inferencia a partir de los resultados, no una
+> **Sobre la lectura calibrada.** Es una decisión de diseño de este trabajo, calibrada con los resultados publicados, no una
 > cita del paper. Además es sensible: contar la cola completa, o añadir los ~2 vehículos
 > llegados durante el tiempo perdido, ya la vuelve inestable. Debe presentarse
-> como una inferencia por falta de datos.
+> como una decisión de diseño documentada, no como la implementación original.
 
 ---
 
@@ -233,7 +233,7 @@ Figuras: `figures/fig4_delay_comparison.png` (calibrada) y `fig4b_delay_comparis
 
 1. No se dispone del código ni del generador aleatorio de 1977; la réplica es estadística,
    no dígito a dígito.
-2. La lectura calibrada de A y Q es una inferencia (§5).
+2. La lectura calibrada de A y Q es una decisión de diseño calibrada con los resultados publicados, no una cita (§5).
 3. El paper no da el número de réplicas ni cómo se discretiza el tiempo perdido; se usó 5 s + 5 s.
 4. Tabla I: 360/2160 queda 8 % por debajo (verde de 8.1 s redondeado a 8 s).
 5. Los PDFs, el informe LaTeX y los zips anteriores usan las reglas mal transcritas y **no deben
@@ -248,7 +248,7 @@ Pappis, C. P., & Mamdani, E. H. (1977). A Fuzzy Logic Controller for a Traffic J
 
 ## 9. Mejora del controlador: optimización (FLC-O)
 
-El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (9 páginas) con su suplemento `articulo/suplemento.tex` (3 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
+El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (10 páginas) con su suplemento `articulo/suplemento.tex` (3 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
 
 **Archivos (todos en `codigo/`):**
 

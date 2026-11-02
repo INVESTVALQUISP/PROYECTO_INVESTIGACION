@@ -40,7 +40,7 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 9 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 11 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 12 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor (DOCX y PDF). |
@@ -104,7 +104,7 @@ carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el pa
 
 ### Artículo
 
-`articulo/` contiene el manuscrito (`main.tex`, 9 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
+`articulo/` contiene el manuscrito (`main.tex`, 10 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
 del entrenamiento, referencias afinadas, verificación del simulador, cota por programación dinámica, resultados completos por par y sensibilidad a la
 semilla de entrenamiento) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con
 pdfLaTeX y BibTeX. Las tablas y las cifras del texto no se escriben a mano: las genera `codigo/gen_tablas_opt.py` desde `resultados/opt/*.json`
@@ -150,8 +150,9 @@ las páginas del original y verificadas por pruebas automáticas. Con 20 réplic
   difuso es mejor en 10 flujos (caudales bajos y medios), peor en 5 (caudales altos, hasta +29 %) e indistinguible en 1; en promedio de los
   16 flujos son equivalentes (10.93 frente a 10.88 s/veh). La defuzzificación por centroide degrada el sistema (230.9 s) y todos los
   subconjuntos reducidos de reglas son significativamente peores que las 25 reglas (con 15 reglas, +1.6 %).
-- **Inferencia por falta de datos:** el artículo no dice cómo se miden los arribos *A* y la cola *Q* en la simulación. De ocho lecturas
-  probadas, solo una («calibrada») reproduce la Tabla VIII; se presenta como una inferencia, no como una cita del original.
+- **Las entradas A y Q:** el artículo las describe con detectores y un ejemplo (pp. 709, 710 y 713) pero no fija su cálculo en una simulación;
+  aplicadas al pie de la letra, el controlador se satura. De ocho lecturas probadas, solo una («calibrada») reproduce el comportamiento de la
+  Tabla VIII; es una decisión de diseño de este trabajo (artículo, Sec. IV-B, y suplemento, Tabla S2), no una cita del original.
 
 Comandos de la réplica:
 

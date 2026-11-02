@@ -4,7 +4,7 @@ test_sim_batch.py
 El simulador VECTORIZADO (sim_batch.py, R escenarios a la vez) da exactamente los mismos retardos que el
 simulador de referencia (traffic_model.py), escenario por escenario y con las dos convenciones de retardo:
   * con residuo     (espera de todos los vehiculos hasta el horizonte)  -> traffic_model.simulate_*(include_residual=True)
-  * solo servidos   (convencion del articulo original)                  -> include_residual=False
+  * solo servidos   (convencion de la replica anterior)                  -> include_residual=False
 para los cinco controladores de referencia (ciclo fijo con redondeo al entero mas proximo y con reparto exacto,
 actuado por detector, difuso de Pappis y Mamdani en sus dos lecturas), y que PappisAfinado con los parametros
 del paper reproduce a PappisFuzzy. Ademas: la contabilidad D = suma por segundo de las colas y la conservacion

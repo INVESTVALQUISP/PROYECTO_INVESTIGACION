@@ -204,7 +204,7 @@ LA PANTALLA
     Salida (casilla «Grados»): u; si u > 0 se cambia de fase. Fuerza de las 27 reglas (casilla «Disparos»): rojo = la regla
     empuja a cambiar, azul = a seguir.
     Traza: d_m en el tiempo; cada cuadrado rojo es un cambio de fase.
-  d_m cuenta solo los vehículos que ya salieron (convención del original). El artículo usa además la espera residual al final;
+  d_m cuenta solo los vehículos que ya salieron (convención de la réplica anterior). El artículo usa además la espera residual al final;
   al terminar, la ventana muestra las dos cifras.
 """
 
@@ -649,7 +649,7 @@ def run_gui(test_hook=None, controlador="flco"):
             else:
                 otro = f" · FLC-O: {self.ref.dm:.3f}" if self.ref is not None else ""
             res = f"{self.sim.dm_residual:.3f}" + (f" frente a {self.ref.dm_residual:.3f}" if self.ref is not None else "")
-            return (f"Final: d_m = {st.dm:.3f} s/veh{otro} (convención del original, solo vehículos servidos). "
+            return (f"Final: d_m = {st.dm:.3f} s/veh{otro} (solo vehículos servidos, como la réplica anterior). "
                     f"Con la espera residual del artículo: {res}.")
 
         def _after_state(self, st):

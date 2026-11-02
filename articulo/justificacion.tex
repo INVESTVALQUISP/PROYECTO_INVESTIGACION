@@ -16,6 +16,7 @@
 \usepackage{array}
 \usepackage[table]{xcolor}
 \usepackage{enumitem}
+\usepackage{longtable}
 \usepackage{url}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 \graphicspath{{figures/}}
@@ -85,10 +86,44 @@ Cerca de la saturación & \DelaySaPap{} & \DelaySaActAf{} & \DelaySaFlc{} & $-$\
 El controlador de Pappis y Mamdani \cite{Pappis1977} gobierna una intersección aislada de dos calles unidireccionales. Interviene a los 7, 17, 27, 37 y 47\,s de verde y, con 25 reglas, decide cuántos segundos (de 1 a 10) extender el verde o si cambiar de fase. La réplica previa de los autores lo reprodujo y dejó tres hechos que motivaron este trabajo:
 \begin{enumerate}
 \item Mejora al ciclo fijo de Webster en 16 de 16 combinaciones de caudal, como publicó el original.
-\item Frente a un controlador \emph{actuado} por detector, que el original no incluye, no es mejor en promedio (\DelayOfPap{} contra \DelayOfAct{}\,s/veh en el conjunto oficial).
-\item Sus reglas se ajustaron por prueba y error en 1977; no hay razón para pensar que sean las mejores.
+\item La línea base de la Tabla~VIII del original se llama «vehicle-actuated», pero sus retardos son los del ciclo fijo óptimo de su Tabla~I, que el original supone equivalentes a los de un actuado eficiente (p.~709). Frente a un actuado por detector \emph{simulado}, el controlador no es mejor en promedio (\DelayOfPap{} contra \DelayOfAct{}\,s/veh en el conjunto oficial).
+\item El original obtuvo sus reglas por prueba y error y habla de «satisficing control» (p.~714): un conjunto suficientemente bueno, no necesariamente el mejor.
 \end{enumerate}
 La pregunta de investigación fue entonces: \emph{¿cuánto puede mejorarse ese controlador si se optimizan sus parámetros y su estructura con un procedimiento reproducible, y contra qué referencias justas hay que medirlo?} El criterio de éxito adoptado fue ser mejor que el original \emph{y} que un rival fuerte (el actuado afinado), en escenarios que no se usaron para entrenar.
+
+% =============================================================================
+\section{Lo que dice el artículo original y lo que se decidió aquí}
+\label{sec:original}
+
+Como este trabajo ya no es una réplica, lo que el original no precisa se decide aquí y se declara como decisión propia. La tabla separa, con la página del original, lo que el artículo dice de lo que se hace en este trabajo.
+
+{\footnotesize
+\setlength{\LTpre}{2pt}
+\begin{longtable}{@{}p{2.3cm}p{6.5cm}p{6.4cm}@{}}
+\toprule
+Tema & Lo que dice el original & Lo que se hace aquí \\
+\midrule
+\endhead
+Modelo (pp.~708--709) & Dos brazos unidireccionales sin giros; flujo de saturación de 3600\,veh/h; tiempo perdido total de 10\,s por ciclo; llegadas aleatorias decididas cada segundo comparando un número pseudoaleatorio con la tasa media; cada simulación, de 7200\,s. & Igual. Precisiones propias: los 10\,s por ciclo se reparten en 5\,s por cambio de fase; un vehículo que llega a una cola vacía cruza sin esperar; paso de 1\,s. \\
+Retardo (pp.~708--709) & $d_m=D/\sum q_n$, con $D$ la espera de cada ciclo, que suma segundo a segundo los vehículos en cola durante el rojo y el verde. No dice qué hacer con la cola que queda al terminar. & La misma definición aplicada a todo el horizonte, con la espera residual. La réplica anterior no la contaba. \\
+Ciclo fijo de Webster (p.~709) & $c=(1.5L+5)/(1-Y)$ y verde repartido en proporción a $y_i$. & Idéntico. \\
+Línea base de la Tabla~VIII (pp.~707--709, 715) & La titula «vehicle-actuated», pero sus retardos son los de la Tabla~I (ciclo fijo óptimo), que supone equivalentes a los de un actuado eficiente. & Se agrega un actuado por detector simulado y afinado, y se compara también con el ciclo fijo. \\
+Detectores y vista adelante (pp.~709, 713) & Detectores lejos de la línea de parada informan de las llegadas a ambos brazos en los segundos siguientes (10\,s por intervención). & Se mantiene esa vista adelante en los controladores que la usan y se mide cuánto depende de ella. \\
+Intervenciones (pp.~709, 712--713) & Cada 10\,s de verde, la primera a los 7\,s; el verde efectivo máximo es de 57\,s. & Igual en Pappis y Mamdani. FLC-O decide cada segundo, con verde máximo de 90\,s. \\
+Variables $A$ y $Q$ (pp.~710, 713) & $A$: vehículos que llegan al brazo con paso; $Q$: la cola. El ejemplo usa $\beta_e$ y $\beta'_e=Q+\sum x'_i$ con vectores dados y no fija el cálculo en una simulación. & Definición propia (lectura calibrada), elegida entre ocho combinaciones por ser la única que reproduce el comportamiento publicado. Difiere del ejemplo en que $Q$ cuenta solo los llegados desde el inicio del verde (Tabla~S2 del suplemento). \\
+Las 25 reglas (pp.~712--716) & Cinco por intervención, en el Apéndice. Obtenidas por prueba y error («satisficing control»), tras varias modificaciones del conjunto inicial (p.~714). & Pappis y Mamdani: intactas, como línea base. Pappis y Mamdani afinado: las mismas reglas con parámetros ajustados. FLC-O: 27 reglas nuevas. \\
+Conjuntos difusos (p.~714) & Se modificaron las reglas y no los conjuntos, porque agregar sus parámetros como variables de decisión aumentaría radicalmente la dimensión del problema. & FLC-O aprende también sus conjuntos (9 nudos) con CMA-ES. \\
+Decisión (pp.~713--714) & Se elige la extensión de mayor grado; si todos los grados son menores que 0.5 se cambia de fase; en un empate, la mayor extensión. & Idéntico en Pappis y Mamdani. FLC-O cambia de fase si $u>0$. \\
+Resultados (pp.~714--715) & Tabla~VIII: el difuso mejora a su línea base entre 10 y 21\,\% en los 16 pares. Atribuye la mejora a los detectores lejos de la línea de parada, a detectar ambos brazos a la vez y al conjunto de reglas obtenido por prueba y error. & Se reproduce el comportamiento con un error medio de 9.2\,\% (máximo 18.6\,\%). La ablación coincide con la primera causa: la mayor parte de la mejora depende de la vista adelante. \\
+Lo que no dice & Número de réplicas; generador aleatorio; cálculo de $A$ y $Q$ en simulación; qué hacer con la cola residual; reparto del tiempo perdido por cambio de fase; ajustes del actuado «eficiente». & Decisiones propias, declaradas en el artículo y su suplemento. \\
+\bottomrule
+\end{longtable}
+}
+\fuente{C.~P. Pappis y E.~H. Mamdani, \emph{A fuzzy logic controller for a traffic junction}, IEEE Trans. Syst., Man, Cybern., vol.~SMC-7, no.~10, 1977 \cite{Pappis1977}; páginas de la revista. Lectura del original y de este trabajo hecha por los autores.}
+
+\textbf{Por qué 25 reglas y por qué reglas nuevas.} El controlador de 1977 se conserva con sus 25 reglas porque es el sistema que se quiere mejorar y la línea base de toda comparación: modificarlo confundiría qué mejora y cuánto. Las reglas nuevas de FLC-O son otro camino hacia la misma meta, y se justifican con dos hechos. El primero lo reconoce el propio original: sus reglas salen de prueba y error y no optimizó los conjuntos difusos por la dimensión del problema (p.~714). El segundo es la evidencia de este trabajo: afinar solo los números de las 25 reglas mejora \RedPapAf\,\% y falla cerca de la saturación, mientras que cambiar la estructura (reglas nuevas que deciden cada segundo) mejora \RedFlc\,\%. No se probó un camino intermedio: conservar la estructura de las 25 reglas y optimizar también sus conjuntos difusos y consecuentes; es una extensión posible.
+
+\textbf{Las entradas $A$ y $Q$ son una decisión de este trabajo.} El original las describe con un ejemplo pero no fija su cálculo en una simulación. Aplicadas al pie de la letra, el controlador se satura; se adoptó la única de las ocho lecturas razonables que reproduce el comportamiento publicado, y se declara como decisión propia y no como la implementación original.
 
 % =============================================================================
 \section{Cómo se hizo la optimización}
@@ -101,14 +136,14 @@ La medida es el retardo medio por vehículo
 d_m=\frac{1}{N}\sum_{n=0}^{H-1}\bigl(Q_{1,n}+Q_{2,n}\bigr),
 \label{eq:dm}
 \end{equation}
-con $N$ los vehículos llegados, $H$ el horizonte (7200\,s en las pruebas) y $Q_{i,n}$ la cola del brazo $i$ en el segundo $n$. \emph{Origen:} cada vehículo en cola acumula un segundo de espera por segundo, así que sumar las colas segundo a segundo suma las esperas (definición propia; por la ley de Little \cite{Little1961}, $L=\lambda W$, es equivalente a la espera media por vehículo cuando se la mide hasta que sale). El original solo cuenta a los vehículos que ya salieron; la diferencia es la espera de quienes siguen en la cola al terminar. Importa cuando el controlador deja crecer la cola:
+con $N$ los vehículos llegados, $H$ el horizonte (7200\,s en las pruebas) y $Q_{i,n}$ la cola del brazo $i$ en el segundo $n$. \emph{Origen:} es la definición del original, que calcula la espera de cada ciclo sumando, segundo a segundo, los vehículos en cola durante el rojo y el verde (p.~708), aplicada a todo el horizonte. Cada vehículo en cola acumula un segundo de espera por segundo, así que sumar las colas suma las esperas; por la ley de Little \cite{Little1961}, $L=\lambda W$, es equivalente a la espera media por vehículo. El original no dice qué hacer con los vehículos que siguen en cola al terminar la simulación. La réplica anterior de los autores solo contaba a los que ya habían salido; la diferencia es la espera de quienes siguen en la cola al terminar, y importa cuando el controlador deja crecer la cola:
 
 \begin{center}
 \small
 \begin{tabular}{@{}lrrrr@{}}
 \toprule
  & \multicolumn{2}{c}{Oficial} & \multicolumn{2}{c}{Saturado} \\
- & solo servidos & con residuo & solo servidos & con residuo \\
+ & solo servidos (réplica) & con residuo & solo servidos (réplica) & con residuo \\
 \midrule
 Pappis y Mamdani & \JPapServOf{} & \JPapResOf{} & \JPapServSa{} & \JPapResSa{} \\
 \FLC{} & \JFlcServOf{} & \JFlcResOf{} & \JFlcServSa{} & \JFlcResSa{} \\
@@ -116,7 +151,7 @@ Pappis y Mamdani & \JPapServOf{} & \JPapResOf{} & \JPapServSa{} & \JPapResSa{} \
 \end{tabular}
 \fuente{\texttt{resultados/opt/evaluacion\_final.json}, campos \texttt{delay} y \texttt{delay\_servidos}.}
 \end{center}
-En el conjunto oficial la diferencia es mínima, pero cerca de la saturación la convención del original oculta el \JOcultoSa\,\% del retardo de Pappis y Mamdani. Un objetivo que ignorara esa espera premiaría a un controlador que abandona colas. Por eso el artículo usa \eqref{eq:dm} y reporta aparte, en \texttt{resultados/opt/evaluacion\_final.json}, la convención del original.
+En el conjunto oficial la diferencia es mínima, pero cerca de la saturación la convención de la réplica oculta, en promedio por escenario, el \ResDifSa\,\% del retardo de Pappis y Mamdani (hasta el \ResDifSaMax\,\% en un escenario; el \JOcultoSa\,\% si se comparan los promedios de la tabla). Un objetivo que ignorara esa espera premiaría a un controlador que abandona colas. Por eso el artículo usa \eqref{eq:dm} y reporta aparte, en \texttt{resultados/opt/evaluacion\_final.json}, la convención de la réplica.
 
 \subsection{El simulador vectorizado}
 \label{sec:simulador}
@@ -296,7 +331,7 @@ Se deja constancia porque ayuda a juzgar el procedimiento:
 \item \textbf{Verde mínimo de 3\,s.} Puede no ser admisible por seguridad o norma; con 5\,s el resultado es \DelayOfGCinco{}\,s/veh.
 \item \textbf{Simulación.} Un cruce aislado, llegadas de Bernoulli, flujo de saturación fijo, sin giros, peatones ni redes. Los parámetros se entrenan y se evalúan en el mismo simulador, aunque con caudales y semillas distintos. No hay datos de campo. Los modelos exploratorios (Sec.~\ref{sec:camino}) guiaron el diseño de las familias de candidatos; por eso las decisiones finales se tomaron con la validación y se reportan todas las variantes, incluidas las peores.
 \item \textbf{Alcance de las comparaciones.} El actuado afinado y la presión máxima se afinaron con rejillas finitas; no hay garantía de que sean los mejores de su clase. La red neuronal es de una arquitectura y un entrenamiento; otra podría superarla. No se comparó CMA-ES con otros optimizadores.
-\item \textbf{Medida.} El retardo corregido no es el que imprimía el original, así que las cifras no son comparables con las de su Tabla VIII.
+\item \textbf{Cifras del controlador de 1977.} Salen de nuestra simulación con las definiciones de $A$ y $Q$ de la Sec.~\ref{sec:original}, no de la Tabla VIII impresa, que se reproduce con un error medio de 9.2\,\% y máximo de 18.6\,\%.
 \end{enumerate}
 
 % =============================================================================
@@ -307,7 +342,7 @@ Se deja constancia porque ayuda a juzgar el procedimiento:
 \item[¿Por qué no usar directamente la red neuronal?] Rinde igual o peor (\DelayOfMlp{} contra \DelayOfFlc{}\,s/veh; \FLC{} es significativamente mejor en \JFlcMlpMejor{} de 16 pares), tiene tres veces más parámetros y no se puede leer ni auditar. Para un semáforo, que alguien pueda revisar por qué cambia de fase es una ventaja práctica.
 \item[¿Por qué CMA-ES y no un algoritmo genético u otro?] Porque el objetivo es una simulación sin derivadas y CMA-ES es un método estándar para ese tipo de problema con decenas de parámetros \cite{Hansen2016}. No se comparó con otros; no se afirma que sea el mejor, solo que funciona y converge (Fig.~\ref{fig:aprendizaje}).
 \item[¿Cómo sabemos que no hay sobreajuste?] Porque se eligió con la validación y se probó en otros cuatro conjuntos; la brecha entre entrenamiento y validación es de \JBrecha\,\%, y la ventaja se mantiene con caudales no vistos (\JRazNv{} veces el actuado afinado) y con demanda variable (\JRazVa).
-\item[¿Por qué el retardo no coincide con la Tabla VIII del original?] Porque se cuenta también la espera de los vehículos que siguen en cola al final. El original no lo hacía. Las cifras de Pappis y Mamdani del artículo salen de la réplica con esta medida, no de la tabla impresa.
+\item[¿Por qué los retardos no coinciden con los de la Tabla VIII del original?] Porque el controlador de 1977 que se compara sale de nuestra simulación, con las definiciones de $A$ y $Q$ de la Sec.~\ref{sec:original}, y porque el original no da el número de réplicas ni el generador aleatorio. Esa simulación reproduce la tabla con un error medio de 9.2\,\% (máximo 18.6\,\%) y reproduce la conclusión del original: mejora al ciclo fijo en 16 de 16 pares. Además, aquí se cuenta la espera residual al final, que el original no precisa.
 \item[¿Por qué el verde mínimo es de 3\,s?] Porque fue el mejor en validación (Sec.~\ref{sec:porque}). Es una elección de simulación; si hace falta más, con 5\,s la mejora frente a Pappis y Mamdani sigue siendo de \RedPapGCinco\,\%.
 \item[¿Por qué el controlador ve el futuro?] Porque el modelo original ya lo supone (las llegadas de los próximos 10\,s). Se mantuvo para comparar en las mismas condiciones y se midió cuánto depende de ello, que es mucho.
 \item[¿Se puede usar en una intersección real?] No se afirma. Faltan datos de campo, errores de detección y los demás elementos de una intersección real (Sec.~\ref{sec:limites}).

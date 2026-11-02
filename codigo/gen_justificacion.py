@@ -141,7 +141,7 @@ def main():
     macro("JRedSemMedia", f1(100 * (1 - np.mean(sem) / pap)))
     macro("JRedSemPeor", f1(100 * (1 - max(sem) / pap)))
     macro("JSemRango", f2(max(sem) - min(sem)))
-    # convencion del retardo: con espera residual (articulo) frente a solo vehiculos servidos (original)
+    # convencion del retardo: con espera residual (articulo) frente a solo vehiculos servidos (replica anterior)
     for k, s in (("Of", "oficial"), ("Sa", "saturado")):
         for c, n in (("Pap", "pappis"), ("Flc", "flcopt_g3_s2")):
             macro(f"J{c}Res{k}", f2(media[s][n]))

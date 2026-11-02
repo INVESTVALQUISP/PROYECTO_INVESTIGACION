@@ -401,7 +401,7 @@ class StepSim:
     @property
     def dm_residual(self) -> float:
         """Retardo medio contando tambien la espera residual hasta el final del horizonte (la medida del articulo de mejora);
-        d_m, en cambio, sigue la convencion del original: solo los vehiculos que ya salieron."""
+        d_m, en cambio, sigue la convencion de la replica anterior: solo los vehiculos que ya salieron."""
         if self.sim.total_arrivals == 0:
             return 0.0
         return (self.sim.total_delay + self.sim.residual_delay(self.cfg.duration)) / self.sim.total_arrivals

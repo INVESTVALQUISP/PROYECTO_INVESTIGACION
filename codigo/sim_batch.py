@@ -14,7 +14,7 @@ Retardo. La espera total de todos los vehiculos hasta el horizonte H es la suma 
     D = sum_{t=0}^{H-1} (Q_NS,t + Q_EW,t)     (colas al final de cada segundo, tras llegadas y descarga),
 que coincide con total_delay + residual_delay de traffic_model.Sim. Con ella la simulacion no necesita las
 listas FIFO: solo mantiene las longitudes de cola. El retardo medio es D / (llegadas en [0, H)).
-La convencion del articulo original (solo vehiculos ya servidos, sin el residuo) se obtiene aparte
+La convencion de la replica anterior (solo vehiculos ya servidos, sin el residuo) se obtiene aparte
 (retardo_servidos) para poder comparar.
 
 Un controlador implementa (todos opcionales):
@@ -232,7 +232,7 @@ class BatchSim:
         return out
 
     def _served_delay(self, out):
-        """Convencion del articulo original: solo la espera de los vehiculos que ya salieron (sin el residuo)."""
+        """Convencion de la replica anterior: solo la espera de los vehiculos que ya salieron (sin el residuo)."""
         a = self.arr
         H = a.H
         res = np.zeros(a.R, dtype=np.int64)

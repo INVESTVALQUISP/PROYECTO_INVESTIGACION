@@ -86,14 +86,14 @@ PARTE_A = [
      f"La definición correcta (0 para x<x0 y 1−μA(x) para x≥x0; lt∪mt = complemento y lt∩mt = ∅ en todo el universo, incluido x0) se conserva en {ref('eq:mtlt')}, {ref('sec:estructura')}; "
      "es lo que ejecuta el código (mt_arr, lt_queue) y lo comprueban test_paper_tables.py y test_parametros.py."),
     ("2", "Parámetros latentes de CALIBRADA", "Crítica", "Conservada",
-     f"La lectura calibrada se declara de forma explícita (a_e = min(e, Q_G+Σx_i), q_e = Q_V, q_mode='current', predicted_q=False) y como inferencia por falta de datos en {ref('sec:lecturas')}. "
+     f"La lectura calibrada se declara de forma explícita (a_e = min(e, Q_G+Σx_i), q_e = Q_V, q_mode='current', predicted_q=False) y como decisión de diseño propia (el original describe $A$ y $Q$ con un ejemplo pero no fija su cálculo en una simulación) en {ref('sec:lecturas')}, con la tabla de las ocho lecturas en {refs('tab:slecturas')}. "
      "Los parámetros se guardan resueltos en SimConfig y CALIBRADA; ninguno se ignora (test_parametros.py)."),
     ("3", "Scripts ausentes y LaTeX obsoleto", "Crítica", "Atendida",
      "Todo archivo que el manuscrito o el suplemento citan existe: test_archivos_citados.py (réplica) y test_archivos_citados_opt.py (esta versión) lo comprueban y forman parte de "
      "ejecutar_pruebas.py. Las tablas y las cifras del texto no se escriben a mano: gen_tablas_opt.py las genera desde los resultados (numeros.tex, tabla_*.tex)."),
     ("4", "Retardo residual al final del horizonte", "Importante", "Superada y ampliada",
      f"El retardo del manuscrito es ahora siempre el que incluye la espera residual, {ref('eq:dm')} (D = suma por segundo de las colas); la identidad es una deducción y se verifica en "
-     "test_sim_batch.py (D = D_ns + D_ew y equivalencia con el simulador de referencia). La convención del original (solo vehículos servidos) se reporta aparte (delay_servidos en evaluacion_final.json)."),
+     "test_sim_batch.py (D = D_ns + D_ew y equivalencia con el simulador de referencia). La convención de la réplica anterior (solo vehículos servidos) se reporta aparte (delay_servidos en evaluacion_final.json)."),
     ("5", "Línea base redondeada y alcance de la comparación", "Importante", "Atendida por completo",
      f"Además del ciclo fijo de Webster se comparan un actuado por detector, un actuado afinado con el mismo presupuesto, la presión máxima, la cota óptima por programación dinámica, "
      f"una política neuronal y FLC-O ({ref('tab:controladores')}, {ref('tab:conjuntos')}). El actuado afinado es un rival más fuerte que el original: "
@@ -147,8 +147,16 @@ PARTE_B = [
      f"Entrenamiento con caudales sorteados (semillas 100000+), validación con otros (200000+) y prueba en la Tabla VIII; el verde mínimo se eligió con validación, no con la prueba. La sensibilidad a la semilla de entrenamiento (tres semillas) está en la {refs('tab:ssemillas')}.",
      f"Hiperparámetros: {refs('sec:s-entrena')}; semillas: {refs('sec:s-semillas')}."),
     ("B7", "Limitaciones declaradas",
-     f"{ref('sec:discusion')}: la mejora depende de la vista adelante; cerca de la saturación el resultado no es el mejor; todo es simulación con un cruce y llegadas de Bernoulli; el retardo corregido no es comparable con la Tabla VIII del original.",
+     f"{ref('sec:discusion')}: la mejora depende de la vista adelante; cerca de la saturación el resultado no es el mejor; todo es simulación con un cruce y llegadas de Bernoulli; las cifras de Pappis y Mamdani salen de nuestra simulación y reproducen la Tabla VIII del original con un error medio de 9.2 %.",
      f"Saturado: FLC-O {N['DelaySaFlc']}, Pappis y Mamdani {N['DelaySaPap']}, actuado afinado {N['DelaySaActAf']} s/veh."),
+    ("B8", "Qué dice el artículo original y qué se decidió en este trabajo (entradas A y Q, retardo, reglas)",
+     f"El manuscrito separa lo que el original dice, con su página, de lo que se define aquí. Entradas A y Q: el original las describe con detectores y un ejemplo "
+     f"(pp. 709, 710 y 713) pero no fija su cálculo en una simulación; se define una lectura propia, elegida entre ocho por ser la única que reproduce el comportamiento publicado "
+     f"({ref('sec:lecturas')}; las ocho, en la {refs('tab:slecturas')}). Retardo: es la definición del original (suma de colas, p. 708) aplicada a todo el horizonte ({ref('sec:modelo')}). "
+     f"Reglas: el controlador de 1977 se conserva con sus 25 reglas como línea base y se estudian dos caminos, afinar sus números y diseñar reglas nuevas, con la razón dada por el propio original "
+     f"(reglas por prueba y error y conjuntos sin optimizar por la dimensión del problema, p. 714) ({ref('sec:opt')}).",
+     f"Pappis y Mamdani afinado (25 reglas, mismos conjuntos): {N['DelayOfPapAf']} s/veh; FLC-O (27 reglas nuevas): {N['DelayOfFlc']} s/veh; Pappis y Mamdani: {N['DelayOfPap']} s/veh. "
+     f"El original atribuye su mejora, entre otras causas, a los detectores lejos de la línea de parada (p. 715); la ablación lo confirma ({ref('sec:res-abl')})."),
 ]
 
 NOTAS = [

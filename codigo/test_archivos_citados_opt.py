@@ -26,7 +26,7 @@ def check(name, ok, detail=""):
 
 
 ART = "articulo"
-docs = {n: open(os.path.join(ART, n), encoding="utf-8").read() for n in ("main.tex", "suplemento.tex")}
+docs = {n: open(os.path.join(ART, n), encoding="utf-8").read() for n in ("main.tex", "suplemento.tex", "justificacion.tex")}
 BUSCAR = ["codigo", "resultados", ART, "docs", "."]
 
 
@@ -47,7 +47,7 @@ for tex in list(docs.values()) + list(tablas.values()):
         for tok in re.findall(r"[\w./-]+\.(?:py|json|csv|tex|md|txt)\b", t):
             citados.add(tok)
 faltan = sorted(c for c in citados if not existe(c))
-check(f"{len(citados)} archivos citados en main.tex, suplemento.tex y tabla_*.tex", not faltan, f"faltan: {faltan}" if faltan else "")
+check(f"{len(citados)} archivos citados en main.tex, suplemento.tex, justificacion.tex y tabla_*.tex", not faltan, f"faltan: {faltan}" if faltan else "")
 
 print("\\input e \\includegraphics")
 rotos = []
@@ -68,7 +68,7 @@ print("Fuentes LaTeX obsoletas")
 usadas = {os.path.basename(m.group(1)) + ".tex" if not m.group(1).endswith(".tex") else os.path.basename(m.group(1))
           for tex in docs.values() for m in re.finditer(r"\\input\{([^}]+)\}", tex)}
 sueltas = sorted(os.path.basename(f) for f in glob.glob(os.path.join(ART, "tabla_*.tex")) if os.path.basename(f) not in usadas)
-check("todas las tabla_*.tex se usan en main.tex o suplemento.tex", not sueltas, f"sin usar: {sueltas}" if sueltas else "")
+check("todas las tabla_*.tex se usan en main.tex, suplemento.tex o justificacion.tex", not sueltas, f"sin usar: {sueltas}" if sueltas else "")
 
 print("Los scripts citados compilan")
 malos = []

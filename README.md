@@ -40,7 +40,7 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 9 páginas) y su suplemento (`suplemento.tex`, 3 páginas), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 9 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 11 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor (DOCX y PDF). |
@@ -85,6 +85,7 @@ python codigo/simulador_opt.py          # compara Pappis y Mamdani con FLC-O sob
 python codigo/simulador_opt.py --gif salidas/comparacion.gif --guardar salidas/comparacion.png --sin-ventana
 python codigo/opt_evaluacion_final.py   # evaluación completa en los cuatro conjuntos de prueba (varios minutos)
 python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py   # regenera tablas, cifras del texto y figuras del artículo
+python codigo/gen_justificacion.py     # regenera las cifras y la tabla del documento de justificación (después, compilar articulo/justificacion.tex)
 python codigo/opt_entrenar_modelo.py --modelo flcopt --gmin 3 --max-green 90 --suma-max 3300 --ref actuado_af --out resultados/opt/mi_modelo.json
 ```
 

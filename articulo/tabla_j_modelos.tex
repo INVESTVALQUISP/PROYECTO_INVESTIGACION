@@ -1,0 +1,35 @@
+% Generado por gen_justificacion.py (no editar a mano)
+\begin{table*}[t]
+\centering
+\caption{Candidatos entrenados con las mismas condiciones: $J$ de entrenamiento (3600\,s, 64 escenarios) y de validación (7200\,s, 64 escenarios distintos; 1 es igual al actuado afinado, menos es mejor) y retardo medio en los cuatro conjuntos de prueba (s/veh)}
+\label{tab:jmodelos}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}p{5.3cm}rcrrrrrr@{}}
+\toprule
+Candidato & Par. & Vista & $J$ entr. & $J$ val. & Oficial & No vistos & Variable & Saturado \\
+\midrule
+Actuado afinado (referencia) & 3 & no & -- & 1 & 9.63 & 9.17 & 8.07 & 24.13 \\
+Pappis y Mamdani (1977) & 0 & 10 s & -- & -- & 10.95 & 10.40 & 8.65 & 105.87 \\
+\midrule
+Pappis y Mamdani afinado (25 reglas) & 30 & 10 s & 1.246 & 1.420 & 9.67 & 9.30 & 8.06 & 58.11 \\
+\midrule
+Difuso 27 reglas, horizontes fijos & 36 & 10 s & 0.826 & 0.837 & 8.44 & 7.88 & 6.56 & 24.80 \\
+Difuso 81 reglas con hueco & 93 & 10 s & 0.827 & 0.838 & 8.47 & 7.93 & 6.55 & 25.00 \\
+\midrule
+FLC-O, $g_{\min}=7$\,s & 42 & 10 s & 0.860 & 0.899 & 8.60 & 8.14 & 6.85 & 25.15 \\
+FLC-O, $g_{\min}=5$\,s & 42 & 10 s & 0.815 & 0.834 & 8.21 & 7.75 & 6.41 & 25.16 \\
+FLC-O, $g_{\min}=4$\,s & 42 & 10 s & 0.795 & 0.807 & 8.04 & 7.58 & 6.20 & 24.38 \\
+FLC-O, $g_{\min}=3$\,s, semilla 0 & 42 & 10 s & 0.794 & 0.805 & 8.00 & 7.51 & 6.21 & 24.79 \\
+FLC-O, $g_{\min}=3$\,s, semilla 1 & 42 & 10 s & 0.788 & 0.807 & 8.04 & 7.49 & 6.24 & 24.63 \\
+\textbf{FLC-O, $g_{\min}=3$\,s, semilla 2 (elegido)} & 42 & 10 s & 0.777 & 0.800 & 7.91 & 7.40 & 6.07 & 24.29 \\
+\midrule
+Política neuronal & 121 & 10 s & 0.793 & 0.809 & 8.09 & 7.53 & 6.24 & 25.10 \\
+\midrule
+Difuso 27 reglas, causal & 36 & no & 0.982 & 1.065 & 9.97 & 9.37 & 8.41 & 25.74 \\
+Política lineal causal & 16 & no & 0.949 & 0.992 & 9.53 & 8.97 & 8.10 & 25.11 \\
+Política neuronal causal & 121 & no & 0.942 & 0.982 & 9.46 & 8.95 & 8.05 & 24.29 \\
+\bottomrule
+\end{tabular}
+\fuente{\texttt{resultados/opt/evaluacion\_final.json} (prueba), \texttt{codigo/opt\_validar.py} (validación) y campo \texttt{fitness\_train} de cada modelo de \texttt{resultados/opt/} (entrenamiento); tabla generada por \texttt{codigo/gen\_justificacion.py}.}
+\end{table*}

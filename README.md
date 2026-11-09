@@ -40,10 +40,10 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 4 páginas), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 11 páginas), su suplemento (`suplemento.tex`, 4 páginas), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
-| `entregas/` | Matriz de respuesta del autor (DOCX y PDF) y cuadro de observaciones levantadas de la segunda ronda (DOCX y PDF). |
+| `entregas/` | Matriz de respuesta del autor, cuadro de observaciones levantadas de la segunda ronda (DOCX y PDF) y la evaluación de esas observaciones (`Revision_de_observaciones.pdf`). |
 | `articulo_replica/` | Artículo y suplemento de la réplica del controlador de 1977 (15 y 9 páginas), antecedente de este trabajo. |
 | `resultados/` (raíz) | Resultados de la réplica en JSON (Tablas I y VIII, auditoría, estadística) y las 180 reglas en `reglas_180.csv`. |
 | `figures/`, `muestras/`, `notebooks/` | Figuras, ejemplos y cuaderno de la réplica. |
@@ -106,7 +106,7 @@ carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el pa
 
 ### Artículo
 
-`articulo/` contiene el manuscrito (`main.tex`, 10 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
+`articulo/` contiene el manuscrito (`main.tex`, 11 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
 del entrenamiento, referencias afinadas, verificación del simulador, cota por programación dinámica, resultados completos por par y sensibilidad a la
 semilla de entrenamiento) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con
 pdfLaTeX y BibTeX. Las tablas y las cifras del texto no se escriben a mano: las genera `codigo/gen_tablas_opt.py` desde `resultados/opt/*.json`

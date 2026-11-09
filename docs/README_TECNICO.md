@@ -267,23 +267,23 @@ El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo q
 | `sim_engine.py`, `intersection_view.py`, `simulador_gui.py`, `web_sim.py` | **Simulador interactivo** (calle, autos y semáforos) con los dos controladores: `StepSim` avanza 1 s por tick y con `controller="flco"` ejecuta FLC-O con la misma aritmética que `opt_flc2.FuzzyOpt`; `IntersectionView(flco=...)` dibuja entradas, salida u y fuerza de las 27 reglas; la ventana Tk y la web eligen el controlador y dibujan la curva del otro sobre las mismas llegadas. |
 | `test_sim_batch.py`, `test_opt.py`, `test_sim_flco.py`, `test_flco_ecuaciones.py`, `test_archivos_citados_opt.py` | 10 + 11 + 27 + 8 + 12 comprobaciones (en total, `ejecutar_pruebas.py` corre 200). `test_flco_ecuaciones.py` reconstruye FLC-O solo con las ecuaciones y los 42 parámetros del suplemento y lo compara con el código. `test_sim_flco.py` comprueba que el motor paso a paso y el simulador por lotes dan el mismo retardo y los mismos cambios de fase en 6 escenarios. |
 
-**Resultados** (retardo medio en s/veh, incluye la espera residual al final del horizonte; FLC-O con vista adelante de 10 s, como supone el modelo original):
+**Resultados** (retardo medio en s/veh, incluye la espera residual al final del horizonte; todos con vista adelante de 10 s salvo el actuado afinado, como supone el modelo original):
 
-| Conjunto de prueba | Pappis y Mamdani | Actuado afinado | FLC-O | FLC-O frente a Pappis | FLC-O frente al actuado afinado |
-|---|---|---|---|---|---|
-| Oficial (16 pares de la Tabla VIII × 20 réplicas) | 10.95 | 9.63 | 7.91 | −27.8 % | −17.8 % |
-| 64 caudales no vistos | 10.40 | 9.17 | 7.40 | −28.8 % | −19.3 % |
-| Demanda variable | 8.65 | 8.07 | 6.07 | −29.8 % | −24.7 % |
-| Cerca de la saturación | 105.87 | 24.13 | 24.29 | −77.1 % | +0.7 % (empate) |
+| Conjunto de prueba | Pappis y Mamdani reconstruido | Actuado afinado | Actuado afinado con vista adelante | FLC-O | FLC-O frente a Pappis | frente al actuado afinado | frente al actuado con vista adelante |
+|---|---|---|---|---|---|---|---|
+| Oficial (16 pares de la Tabla VIII × 20 réplicas) | 10.95 | 9.63 | 8.34 | 7.91 | −27.8 % | −17.8 % | −5.1 % |
+| 64 caudales no vistos | 10.40 | 9.17 | 7.82 | 7.40 | −28.8 % | −19.3 % | −5.3 % |
+| 64 escenarios de demanda variable | 8.65 | 8.07 | 6.65 | 6.07 | −29.8 % | −24.7 % | −8.7 % |
+| 32 escenarios cerca de la saturación | 105.87 | 24.13 | 25.61 | 24.29 | −77.1 % | +0.7 % (empate, p = 0.36) | −5.2 % |
 
-En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani y que el actuado afinado en los 16 pares (Wilcoxon pareado con Holm) y no es peor en ninguno. La política óptima por programación dinámica con caudales conocidos da 9.35.
+En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani reconstruido y que el actuado afinado en los 16 pares, y que el actuado con vista adelante en 14 (Wilcoxon pareado con Holm); no es peor en ninguno. La política óptima por programación dinámica con caudales conocidos da 9.35. El actuado con vista adelante (`opt_controladores.ActuatedPreview`, afinado con `opt_afinar_referencias.py`: hueco 2 s, hueco en rojo 3 s, mínimo 3 s, máximo 90 s) es la comparación con la misma información que pidió la revisión del 07-11-2026.
 
 **Límites que el manuscrito declara:**
 
-1. La mejora depende de la vista adelante de 10 s (llegadas de los próximos 10 s conocidas), que es un supuesto del modelo original. Sin ella, FLC-O causal da 9.97 (3.5 % peor que el actuado afinado) y la mejor variante causal, una política neuronal, da 9.46 (1.7 % mejor).
-2. Cerca de la saturación FLC-O empata con el actuado afinado; no lo supera.
+1. La mayor parte de la mejora depende de la vista adelante de 10 s (llegadas de los próximos 10 s conocidas), un supuesto del modelo original. Con la misma información, la ganancia sobre un actuado es de 5.1 %. Sin ella, FLC-O causal da 9.97 (3.5 % peor que el actuado afinado) y la mejor variante causal, una política neuronal, da 9.46 (1.7 % mejor).
+2. Cerca de la saturación FLC-O empata con el actuado afinado (p = 0.36); no lo supera, y con 32 escenarios no se puede afirmar equivalencia.
 3. Todo es simulación de una intersección aislada con llegadas de Bernoulli; no hay datos de campo.
-4. El mejor resultado usa un verde mínimo de 3 s; con 5 s da 8.21 y con 7 s da 8.60 en el conjunto oficial. Si 3 s no fuera admisible en la práctica, esas son las cifras que corresponden.
+4. El mejor resultado usa un verde mínimo de 3 s; con tres semillas por variante, con 5 s da 8.19 ± 0.05 y con 7 s, 8.55 ± 0.05 en el conjunto oficial. Si 3 s no fuera admisible en la práctica, esas son las cifras que corresponden.
 5. El retardo corregido (con espera residual) no es comparable con el de la Tabla VIII del original.
 
 **Reproducir:** `python codigo/ejecutar_pruebas.py` (200 comprobaciones), `python codigo/opt_evaluacion_final.py` (evaluación completa), `python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py` (tablas y figuras), `python codigo/simulador_gui.py` (simulador interactivo con calle y autos; `--controlador pappis` para el de 1977), `python codigo/simulador_opt.py` (comparación en figura o GIF). Los modelos entrenados están en `resultados/opt/` (`modelos_finales.json` indica cuál es cuál). El paso a paso de las configuraciones F5 está en `README_VSCODE.md`.

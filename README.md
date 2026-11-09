@@ -13,28 +13,62 @@ retardo que cuenta toda la espera hasta el final del horizonte.
 > **Autores:** Raul Nolberto Quispe Saya y Kevin Luis Valero Ccacya
 > Escuela Profesional de Ingeniería Electrónica, Universidad Nacional de San Agustín de Arequipa.
 
+## Revisión del 07-11-2026: observaciones levantadas
+
+Versión del 9 de noviembre de 2026. Para revisar lo que se hizo con las observaciones, empezar por estos documentos (todos en este repositorio):
+
+| Documento | Qué contiene |
+|---|---|
+| [Revisión de las observaciones](entregas/Revision_de_observaciones.pdf) | Evaluación de la revisión: si está bien estructurada y, para cada una de las 21 observaciones, si procede o no y por qué. **11 proceden, 4 proceden en parte, 5 no proceden y 1 no es verificable**; las que no proceden están resaltadas en rojo. |
+| [Cuadro de observaciones levantadas](entregas/Cuadro_Observaciones_Levantadas.pdf) ([DOCX](entregas/Cuadro_Observaciones_Levantadas.docx)) | Qué se hizo con cada observación y dónde quedó (sección, tabla y página del artículo o del suplemento), y los pedidos del ingeniero de las rondas anteriores que van en el material suplementario. |
+| [Artículo corregido](articulo/main.pdf) | El manuscrito con las correcciones (11 páginas). |
+| [Material suplementario](articulo/suplemento.pdf) | 22 páginas: entrenamiento y evaluación en detalle, FLC-O completo (ecuaciones, 42 parámetros y un ejemplo), diagramas de bloques, las 25 reglas de 1977 en cuadro vertical, las 180 combinaciones con las 25 usadas en verde, las 27 reglas de FLC-O y el simulador interactivo explicado apartado por apartado (la calle y cada panel en una figura aparte). |
+| [Justificación de la optimización](articulo/justificacion.pdf) | Cómo se optimizó y por qué se eligió FLC-O (13 páginas). |
+| [Matriz de respuesta](entregas/Matriz_Respuesta_Optimizacion.pdf) | Respuesta a la primera ronda de observaciones. |
+
+**Cambio principal.** La observación más importante tenía razón: FLC-O ve las llegadas de los próximos 10 s (como el controlador de 1977), pero el
+actuado afinado con el que se comparaba no. Se agregó un actuado afinado **con la misma vista adelante**. Con la misma información, FLC-O mejora en
+**5.1 %** (significativo en 14 de los 16 pares y nunca peor); el 17.8 % de antes se conserva, rotulado como «frente al actuado sin vista adelante».
+Un actuado simple con vista adelante ya mejora en 23.9 % al controlador de 1977: la mayor parte de la ganancia sobre 1977 viene de la información,
+y el aporte propio de FLC-O es lo que queda sobre ese actuado. La mejora frente al controlador de 1977 (27.8 %) no cambia.
+
+**Observaciones que no proceden** (detalle en el documento de revisión): O6 («CONTROLDORES») y O15 («venta») son errores de extracción de texto
+del PDF; los fuentes y los PDF dicen «Controladores» y «ventana». O14 pide unidades que la Tabla S2 ya tiene (%). O20 cita la Tabla 3, pero los
+nudos están en la Tabla 2 (el fondo, ecuaciones exactas, se atendió en O2). O21 atribuye a FLC-O causal la mejora de 1.7 %, que es de la política
+neuronal causal; FLC-O causal es 3.5 % peor que el actuado afinado. O19 (repositorio no verificable) es una limitación del entorno del revisor:
+el repositorio es público y un clon limpio pasa todas las pruebas.
+
 ## Resultados
 
-Retardo medio en s/veh, con la vista adelante de 10 s (llegadas de los próximos 10 s) que supone el modelo original:
+Retardo medio en s/veh (incluye la espera de los vehículos que siguen en cola al final), con la vista adelante de 10 s que supone el modelo
+original. «Pappis y Mamdani reconstruido» es el controlador de 1977 con sus 25 reglas, conjuntos y operadores impresos y la definición de las
+entradas A y Q de este trabajo; reproduce la Tabla VIII del original con un error medio de 9.2 % (máximo 18.6 %).
 
-| Conjunto de prueba | Pappis y Mamdani | Actuado afinado | FLC-O | FLC-O frente a Pappis | FLC-O frente al actuado afinado |
-|---|---|---|---|---|---|
-| Oficial (16 pares de la Tabla VIII × 20 réplicas) | 10.95 | 9.63 | 7.91 | −27.8 % | −17.8 % |
-| 64 caudales no vistos | 10.40 | 9.17 | 7.40 | −28.8 % | −19.3 % |
-| Demanda variable | 8.65 | 8.07 | 6.07 | −29.8 % | −24.7 % |
-| Cerca de la saturación | 105.87 | 24.13 | 24.29 | −77.1 % | +0.7 % (empate) |
+| Conjunto de prueba | Pappis y Mamdani reconstruido | Actuado afinado | Actuado afinado con vista adelante | FLC-O | FLC-O frente a Pappis | frente al actuado afinado | frente al actuado con vista adelante |
+|---|---|---|---|---|---|---|---|
+| Oficial (16 pares de la Tabla VIII × 20 réplicas) | 10.95 | 9.63 | 8.34 | 7.91 | −27.8 % | −17.8 % | −5.1 % |
+| 64 caudales no vistos | 10.40 | 9.17 | 7.82 | 7.40 | −28.8 % | −19.3 % | −5.3 % |
+| 64 escenarios de demanda variable | 8.65 | 8.07 | 6.65 | 6.07 | −29.8 % | −24.7 % | −8.7 % |
+| 32 escenarios cerca de la saturación | 105.87 | 24.13 | 25.61 | 24.29 | −77.1 % | +0.7 % (empate, p = 0.36) | −5.2 % |
 
-En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani y que el actuado afinado en los 16 pares (Wilcoxon pareado con
-Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la política óptima por programación dinámica con caudales conocidos, 9.35.
+En el conjunto oficial FLC-O es significativamente mejor que Pappis y Mamdani reconstruido y que el actuado afinado en los 16 pares, y que el
+actuado con vista adelante en 14 (Wilcoxon pareado con Holm); no es peor en ninguno. Con caudales no vistos mejora al actuado con vista adelante
+en 53 de 64 escenarios y es peor en 11 (p < 0.001). Para ciclo fijo de Webster el retardo es 13.81 y para la política óptima por programación
+dinámica con caudales conocidos, 9.35. El modelo elegido por validación es el mejor de tres semillas de entrenamiento; la media de las tres es
+7.98 ± 0.06 s/veh (27.1 % menos que Pappis y Mamdani reconstruido).
 
 **Límites** (el artículo los declara en la Sección IX):
 
-1. La mejora depende de la vista adelante de 10 s, que es un supuesto del modelo original. Sin ella, el difuso causal queda 3.5 % peor que el actuado
-   afinado (9.97 frente a 9.63) y la mejor variante causal, una política neuronal, lo mejora solo 1.7 % (9.46).
-2. Cerca de la saturación FLC-O empata con el actuado afinado; no lo supera.
+1. La mayor parte de la mejora depende de la vista adelante de 10 s, un supuesto del modelo original. Con la misma información, la ganancia de
+   FLC-O sobre un actuado es de 5.1 %. Sin vista adelante, FLC-O causal queda 3.5 % peor que el actuado afinado (9.97 frente a 9.63) y la mejor
+   variante causal, una política neuronal, lo mejora solo 1.7 % (9.46).
+2. Cerca de la saturación FLC-O empata con el actuado afinado (p = 0.36; mejor en 14 de 32 escenarios y peor en 18): no lo supera, y con 32
+   escenarios tampoco se puede afirmar que sean equivalentes.
 3. Todo es simulación de una intersección aislada con llegadas de Bernoulli; no hay datos de campo.
-4. El mejor resultado usa un verde mínimo de 3 s; con 5 s el retardo oficial es 8.21 y con 7 s, 8.60.
-5. El retardo corregido (con espera residual) no es comparable con el de la Tabla VIII del original.
+4. El mejor resultado usa un verde mínimo de 3 s. Con tres semillas por variante, con 5 s el retardo oficial es 8.19 ± 0.05 y con 7 s, 8.55 ± 0.05;
+   entre 3 y 4 s la diferencia está dentro de la variación entre semillas.
+5. El retardo con la espera residual no es comparable con el de la Tabla VIII del original, que no la cuenta.
+6. Solo se probó una familia de actuado con vista adelante; uno más elaborado podría reducir la ventaja de FLC-O.
 
 ## Qué contiene
 

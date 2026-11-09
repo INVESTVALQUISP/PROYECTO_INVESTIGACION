@@ -1,6 +1,8 @@
 %% =============================================================================
 %%  Material suplementario del articulo de optimizacion (IEEEtran, journal). Compilar con pdfLaTeX.
-%%  Las tablas tabla_s_*.tex las genera codigo/gen_tablas_opt.py desde resultados/opt/*.json.
+%%  Las tablas tabla_s_*.tex las genera codigo/gen_tablas_opt.py desde resultados/opt/*.json; las de reglas,
+%%  codigo/gen_tablas_suplemento.py y codigo/gen_tabla_180.py; las figuras del simulador,
+%%  codigo/gen_fig_suplemento_simulador.py (apartados) y codigo/captura_ventana_suplemento.py (ventana).
 %% =============================================================================
 \documentclass[journal]{IEEEtran}
 \usepackage[utf8]{inputenc}
@@ -14,8 +16,12 @@
 \usepackage[table]{xcolor}
 \usepackage{array}
 \usepackage{url}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{longtable}
 \graphicspath{{figures/}}
 \input{numeros}
+\input{sup_simulador_datos}
 \newcommand{\fuente}[1]{\par\vspace{3pt}\noindent{\scriptsize\textit{Fuente:} #1\par}}
 \renewcommand{\thetable}{S\arabic{table}}
 \renewcommand{\thefigure}{S\arabic{figure}}
@@ -29,7 +35,7 @@
 \maketitle
 
 \section{Alcance}
-Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la definición de las entradas $A$ y $Q$, la verificación del simulador vectorizado, la cota por programación dinámica, los parámetros completos de FLC-O, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
+Este documento reúne lo que el artículo principal no puede incluir por espacio. Primera parte (a dos columnas): los hiperparámetros del entrenamiento, las referencias afinadas, la definición de las entradas $A$ y $Q$, la verificación del simulador vectorizado, la cota por programación dinámica, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y FLC-O completo (ecuaciones, 42 parámetros y un ejemplo). Segunda parte (a una columna, para que las figuras se lean): los diagramas de bloques de los dos controladores (Sec.~\ref{sec:s-bloques}); las reglas completas: las 25 de Pappis y Mamdani en un cuadro vertical, las 180 combinaciones posibles con las 25 usadas resaltadas y las 27 de FLC-O una por una (Sec.~\ref{sec:s-reglas}); y el simulador interactivo con la calle y los autos, con cada apartado de la ventana en una figura aparte y la explicación de cada elemento (Sec.~\ref{sec:s-sim}). Al final, cómo reproducir cada cifra. Las ecuaciones, tablas y secciones citadas sin la letra S son las del artículo principal.
 
 \section{Entrenamiento}
 \label{sec:s-entrena}
@@ -117,8 +123,9 @@ CMA-ES es estocástico. Para medir cuánto depende \FLC{} de la semilla, se entr
 \label{sec:s-flco}
 Esta sección reúne todo lo necesario para reconstruir el controlador sin leer el código. En cada segundo de verde, con $E=t-t_0$ los segundos de verde transcurridos, $Q_g$ y $Q_r$ las colas de los brazos con verde y en rojo al empezar el segundo y $W_g(l)$, $W_r(l)$ las llegadas previstas en $[t,t+l)$, se calcula
 \begin{align*}
-G&=Q_g+\omega_1W_g(2)+\omega_2W_g(5)+\omega_3W_g(10), & R&=Q_r+\rho_1W_r(3)+\rho_2W_r(6)+\rho_3W_r(10),\\
-V&=E, & \operatorname{sat}(z)&=\min\{1,\max\{0,z\}\}.
+G&=Q_g+\omega_1W_g(2)+\omega_2W_g(5)+\omega_3W_g(10),\\
+R&=Q_r+\rho_1W_r(3)+\rho_2W_r(6)+\rho_3W_r(10),\\
+V&=E,\qquad \operatorname{sat}(z)=\min\{1,\max\{0,z\}\}.
 \end{align*}
 Cada variable $x\in\{G,R,V\}$ tiene tres nudos $k_1<k_2<k_3$ y las pertenencias $\mu_{\text{bajo}}(x)=\operatorname{sat}\bigl(\tfrac{k_2-x}{k_2-k_1}\bigr)$, $\mu_{\text{alto}}(x)=\operatorname{sat}\bigl(\tfrac{x-k_2}{k_3-k_2}\bigr)$ y $\mu_{\text{medio}}(x)=1-\mu_{\text{bajo}}(x)-\mu_{\text{alto}}(x)$; por debajo de $k_1$ valen $(1,0,0)$ y por encima de $k_3$, $(0,0,1)$. La fuerza de la regla $(i,j,k)$ es $w_{ijk}=\mu_i(G)\,\mu_j(R)\,\mu_k(V)$, la salida es $u=\sum w_{ijk}c_{ijk}/(\sum w_{ijk}+10^{-9})$ y se cambia de fase si $E\ge g_{\min}$ y $u>0$, o si $E\ge g_{\max}$; en el modelo elegido $g_{\min}=3$\,s y $g_{\max}=90$\,s. La Tabla~\ref{tab:sparametros} da los 42 parámetros con 6 decimales y la Tabla~\ref{tab:sejemplo}, un ejemplo para comprobar una implementación.
 
@@ -126,6 +133,299 @@ Cada variable $x\in\{G,R,V\}$ tiene tres nudos $k_1<k_2<k_3$ y las pertenencias 
 
 \input{tabla_s_ejemplo}
 
+% =============================================================================
+% Segunda parte: a una columna (figuras grandes, tabla larga de las 180 reglas)
+% =============================================================================
+\onecolumn
+
+\section{Diagramas de bloques}
+\label{sec:s-bloques}
+Las Figs.~\ref{fig:s-bloques-pappis} y~\ref{fig:s-bloques-flco} muestran el lazo de control de los dos controladores que compara el artículo. Los dos actúan sobre la misma intersección (Sec.~III del artículo) y se miden con el mismo retardo medio, la Ec.~(1): $D$ suma las colas de los dos brazos en cada segundo y $N$ es el número de vehículos que llegaron. Lo que cambia es el controlador, dentro del recuadro punteado: el de 1977 decide solo cinco veces por verde (a los 7, 17, 27, 37 y 47\,s) cuántos segundos extenderlo, con 25 reglas, inferencia mín--máx y un umbral de 0.5; FLC-O decide cada segundo si sigue o cambia, con 27 reglas cuyas entradas, conjuntos y consecuentes se aprendieron. Los números entre paréntesis son las ecuaciones del artículo que implementa cada bloque.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_bloques_pappis.png}
+\caption{Diagrama de bloques del controlador de Pappis y Mamdani (1977), la línea base. Los sensores dan el tiempo $T$, los arribos $A$ y la cola $Q$ (definidos en la Sec.~IV-B del artículo); la fuzzificación usa los conjuntos impresos en las Tablas II a VI del original; la inferencia combina las 25 reglas con mínimo y máximo, y la decisión, Ec.~(4), elige la extensión $e^*$ de mayor grado si llega al umbral de 0.5 (si no, $e^*=0$ y la fase cambia). Elaboración propia a partir del artículo original; código: \texttt{gen\_fig\_suplemento\_simulador.py}.}
+\label{fig:s-bloques-pappis}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_bloques_flco.png}
+\caption{Diagrama de bloques de FLC-O. Los detectores dan las colas del brazo con verde ($Q_g$) y en rojo ($Q_r$) y las llegadas previstas en los 10\,s siguientes (la misma vista adelante que supone el original); las entradas $G$ y $R$ suman a cada cola esas llegadas con pesos aprendidos, Ec.~(5); cada entrada se fuzzifica en tres conjuntos (bajo, medio, alto), Ec.~(6); la fuerza de cada una de las 27 reglas es el producto de sus tres pertenencias, Ec.~(7), y la salida $u$ es el promedio de los consecuentes ponderado por esas fuerzas, Ec.~(8). Se cambia de fase si $u>0$, una vez cumplido el verde mínimo de 3\,s, o al llegar al verde máximo de 90\,s. Elaboración propia; código: \texttt{gen\_fig\_suplemento\_simulador.py}.}
+\label{fig:s-bloques-flco}
+\end{figure}
+
+\FloatBarrier
+\section{Las reglas completas}
+\label{sec:s-reglas}
+\FloatBarrier
+\subsection{Las 25 reglas de Pappis y Mamdani}
+La Tabla~\ref{tab:sreglas25} desglosa las 25 reglas del Apéndice del original en un cuadro vertical: una columna por intervención y una caja por regla. Cada regla dice: si el verde lleva el tiempo $T$, y llegan \emph{más que} $A$ vehículos al brazo con verde, y la cola del brazo en rojo es \emph{menor que} $Q$, entonces extender el verde $E=T$ segundos. Se leen de arriba abajo: R1 corta el verde cuando no llega nadie, y de R2 a R5 se pide cada vez más tráfico para extenderlo cada vez más, con una cola en rojo admisible que crece con el verde ya dado. Es el controlador que se quiere mejorar, y el artículo lo conserva sin cambios como línea base.
+
+\input{tabla_s_reglas25}
+
+\FloatBarrier
+\subsection{Las 180 combinaciones y las 25 que se usan}
+Con las etiquetas de las Tablas II a IV del original hay $5\times6\times6=180$ reglas posibles de la forma de la Tabla~\ref{tab:sreglas25} (cinco tiempos, seis niveles de arribos y seis de cola). La Tabla~\ref{tab:s180} las lista todas, una por fila, y resalta en verde, con $\checkmark$, las que usa el original; las demás llevan $\times$. Las columnas de intervención indican en cuál de las cinco intervenciones se usa cada regla y con qué número (R1 a R5). La regla R1 del original no pone condición sobre la cola ($Q=$ any), así que cubre las seis filas de su combinación de $T$ y $A$, y varias reglas se repiten igual en más de una intervención (por ejemplo, R2 es la misma a los 7, 17 y 27\,s); por eso las 25 reglas ocupan 19 filas distintas de la lista. La Sec.~VI del artículo explica por qué la mejora conserva estas 25 reglas como línea base y diseña aparte una base nueva, en lugar de elegir otra combinación de las 180; el documento de justificación lo discute en detalle.
+
+\input{tabla_s_180}
+
+\FloatBarrier
+\subsection{Las 27 reglas de FLC-O, una por una}
+La Tabla~2 del artículo da los 27 consecuentes de FLC-O en forma compacta. La Tabla~\ref{tab:sreglas27} los desglosa regla por regla, en el mismo formato «si \dots\ entonces» que las del original, con lo que cada regla empuja a hacer. Por ejemplo, la regla 6 dice: si la demanda en verde es baja y la presión en rojo es media y el verde ya es largo, conviene cambiar de fase ($c=+2.37$, la más fuerte en ese sentido); la regla 22 dice: si la demanda en verde es alta, la presión en rojo es media y el verde es corto, conviene seguir ($c=-3.32$). En cada segundo actúan a la vez varias reglas con distinta fuerza; la Sec.~\ref{sec:s-sim} muestra un ejemplo concreto.
+
+\input{tabla_s_reglas27}
+
+\clearpage
+\FloatBarrier
+\section{El simulador interactivo, apartado por apartado}
+\label{sec:s-sim}
+El simulador interactivo dibuja la intersección vista desde arriba, con autos que llegan, esperan, avanzan y cruzan, y semáforos de tres luces, y muestra en vivo qué ve y qué decide el controlador. Se abre con \texttt{python codigo/simulador\_gui.py} (con FLC-O) o \texttt{python codigo/simulador\_gui.py -{}-controlador pappis} (con el de 1977); la versión para el navegador, con los mismos apartados, es \texttt{python codigo/web\_sim.py}. Usa el mismo motor que los resultados del artículo: la prueba \texttt{test\_sim\_flco.py} comprueba que, con las mismas llegadas, da el mismo retardo y los mismos cambios de fase que el simulador por lotes.
+
+Todas las figuras de esta sección son del mismo instante y de las mismas llegadas: los valores por defecto de la ventana (720\,veh/h en el brazo N-S, 2160\,veh/h en el E-W, semilla 1, 3600\,s) en $t=\SimT$\,s, cuando el brazo \SimVerde{} lleva \SimV\,s en verde. Para FLC-O se muestra además $t=\SimTb$\,s, cuando decide cambiar de fase. Las capturas de la ventana completa son de la ventana real (\texttt{captura\_ventana\_suplemento.py}); cada apartado por separado se dibuja con el mismo código de la ventana a mayor resolución (\texttt{gen\_fig\_suplemento\_simulador.py}).
+
+\FloatBarrier
+\subsection{La ventana completa}
+La Fig.~\ref{fig:s-ventana-flco} muestra la ventana con FLC-O y la Fig.~\ref{fig:s-ventana-pappis}, con el controlador de 1977, en el mismo instante y con las mismas llegadas. Los apartados están rotulados de (a) a (i) y se explican uno por uno en las secciones siguientes:
+\begin{itemize}
+\item[(a)] pestañas de configuración: escenario, controlador y vista didáctica (Sec.~\ref{sec:s-sim-a});
+\item[(b)] la calle: cruce, autos, semáforos y colas (Sec.~\ref{sec:s-sim-b});
+\item[(c)--(e)] la columna del controlador: con FLC-O, sus entradas, su salida $u$ y la fuerza de sus 27 reglas (Secs.~\ref{sec:s-sim-c} a~\ref{sec:s-sim-e}); con el de 1977, las reglas de la intervención, los grados de cada extensión y los disparos acumulados (Sec.~\ref{sec:s-sim-p});
+\item[(f)] la traza del retardo medio en el tiempo, con la curva del otro controlador (Sec.~\ref{sec:s-sim-f});
+\item[(g)] los botones (Sec.~\ref{sec:s-sim-g});
+\item[(h)] la explicación en palabras de lo que decide el controlador (Sec.~\ref{sec:s-sim-h});
+\item[(i)] el registro de decisiones (Sec.~\ref{sec:s-sim-h}).
+\end{itemize}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_ventana_flco.png}
+\caption{Ventana del simulador con FLC-O en $t=\SimT$\,s (720/2160\,veh/h, semilla 1). (a) Pestañas de configuración; (b) la calle; (c) entradas $G$, $R$ y $V$ sobre sus conjuntos difusos; (d) salida $u$ de este segundo; (e) fuerza de cada una de las 27 reglas; (f) retardo medio en el tiempo, con la curva del controlador de 1977 sobre las mismas llegadas; (g) botones; (h) explicación de la decisión; (i) registro de cambios de fase. Captura de la ventana real.}
+\label{fig:s-ventana-flco}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_ventana_pappis.png}
+\caption{La misma ventana con el controlador de Pappis y Mamdani (1977), en el mismo instante y con las mismas llegadas. Cambian los apartados (c) a (e): (c) las cinco reglas de la intervención en curso, con su activación y la regla que dispara; (d) el grado de cada extensión posible y el umbral; (e) los disparos acumulados de las 25 reglas. En (f) la curva punteada es ahora la de FLC-O. Captura de la ventana real.}
+\label{fig:s-ventana-pappis}
+\end{figure}
+
+\FloatBarrier
+\subsection{(a) Pestañas de configuración}
+\label{sec:s-sim-a}
+La parte de arriba de la ventana tiene tres pestañas (Figs.~\ref{fig:s-pestana1} a~\ref{fig:s-pestana3}).
+
+\textbf{1 · Escenario} (Fig.~\ref{fig:s-pestana1}). \emph{Escenario}: caudales de ejemplo, entre ellos el par de 720/2160\,veh/h de la Tabla VIII del original. \emph{Flujo N-S} y \emph{Flujo E-W}: vehículos por hora que llegan a cada brazo. \emph{Duración}: segundos que se simulan. \emph{Semilla}: fija las llegadas aleatorias; con la misma semilla, los mismos caudales y la misma duración, las llegadas son idénticas, y eso permite comparar controladores de forma justa. \emph{Velocidad}: segundos simulados por cada segundo real (1 para ir muy despacio). Los flujos, la duración y la semilla se aplican al pulsar Reiniciar; la velocidad, en vivo.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_pestana_1.png}
+\caption{Pestaña «1 · Escenario»: caudales, duración, semilla y velocidad. Captura de la ventana real.}
+\label{fig:s-pestana1}
+\end{figure}
+
+\textbf{2 · Controlador} (Fig.~\ref{fig:s-pestana2}). \emph{Controlador}: FLC-O (el controlador mejorado del artículo) o Pappis y Mamdani (1977); al cambiarlo, la simulación se reinicia con los mismos flujos y la misma semilla. \emph{Mostrar d\_m del otro controlador}: dibuja en la traza (f), punteada, la curva del controlador que no se está viendo, simulado sobre las mismas llegadas. Los demás controles son solo del controlador de 1977 y con FLC-O aparecen apagados, con una nota que lo explica: \emph{Umbral de decisión} (0.5 en el original), \emph{Lectura de A y Q} («calibrada» es la definición de la Sec.~IV-B del artículo; «literal» sigue al pie de la letra el ejemplo del original) y \emph{Reglas del controlador}, con el número de reglas encendidas y el botón \emph{Encender / apagar reglas\dots} (Fig.~\ref{fig:s-editor}).
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_pestana_2.png}\\[4pt]
+\includegraphics[width=\textwidth]{fig_sup_pestana_2p.png}
+\caption{Pestaña «2 · Controlador»: arriba, con FLC-O (los controles propios del controlador de 1977 están apagados); abajo, con Pappis y Mamdani (1977), con el umbral, la lectura de $A$ y $Q$ y las reglas activas. Capturas de la ventana real.}
+\label{fig:s-pestana2}
+\end{figure}
+
+\textbf{3 · Vista didáctica} (Fig.~\ref{fig:s-pestana3}). \emph{Apartados visibles}: muestra u oculta cada panel de la columna del controlador y la traza, para explicar de a poco (con FLC-O se llaman Entradas, Salida u, Fuerza de reglas y Traza d\_m; con el de 1977, Reglas, Grados, Disparos y Traza d\_m). \emph{Para explicar}: \emph{Pausar en cada decisión} detiene la simulación cada vez que el controlador decide (con FLC-O, en cada cambio de fase); \emph{Explicar cada decisión} llena el cuadro (h); \emph{Mostrar detectores} marca dónde estarían los detectores que miden las llegadas de los 10\,s siguientes. \emph{Autos}: separación entre autos detenidos (nunca se tocan) y tipos de auto (variados o solo sedán); es solo el dibujo, no cambia la simulación. \emph{Ayuda} abre una ventana con esta misma explicación resumida.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_pestana_3.png}
+\caption{Pestaña «3 · Vista didáctica»: apartados visibles, opciones para explicar, aspecto de los autos y ayuda. Captura de la ventana real.}
+\label{fig:s-pestana3}
+\end{figure}
+
+\FloatBarrier
+\subsection{(b) La calle}
+\label{sec:s-sim-b}
+La Fig.~\ref{fig:s-calle} es la intersección vista desde arriba. El brazo N-S es la calle vertical (los autos bajan de N a S) y el brazo E-W, la horizontal (los autos van de E a O, como indica la flecha blanca); son las dos calles de un solo sentido del modelo del original, sin giros. Sus elementos son:
+\begin{itemize}
+\item \textbf{Autos}: en tonos azules los del brazo N-S y en tonos cálidos (naranja, rojo, amarillo) los del E-W. Llegan por el borde, frenan detrás del auto de adelante sin superponerse (se encienden sus luces de freno), avanzan cuando sale el de adelante y aceleran al cruzar. Cada auto es un vehículo del modelo: una llegada de Bernoulli en ese segundo.
+\item \textbf{Semáforos}: uno de tres luces por brazo. Verde: ese brazo tiene paso y descarga un vehículo por segundo. En cada cambio de fase hay 5\,s de tiempo perdido: el brazo que pierde el verde pasa a ámbar 3\,s y después los dos quedan en rojo 2\,s.
+\item \textbf{Línea de parada} (blanca, transversal al carril) y \textbf{franja sombreada} sobre el carril: la franja marca el largo de la cola de ese brazo.
+\item \textbf{Etiquetas de cola} («N-S: \SimQns{} veh (+2)»): número de vehículos en cola en ese brazo; el «(+2)» indica que dos de ellos no caben en el dibujo.
+\item \textbf{Encabezado}: tiempo (mm:ss), fase y segundo de verde, colas de los dos brazos y retardo medio $d_m$ hasta ese momento. \textbf{Pie}: controlador (y el modelo entrenado), caudales y semilla.
+\end{itemize}
+En el instante de la figura el brazo E-W lleva \SimV\,s en verde: sus autos cruzan uno tras otro y su cola es de \SimQew{} vehículo, mientras que en el brazo N-S, en rojo, esperan \SimQns.
+
+El $d_m$ de la ventana cuenta solo los vehículos que ya cruzaron, la convención de la réplica anterior; el artículo usa la Ec.~(1), que suma además la espera de los que siguen en cola al final. Al terminar la simulación, la ventana muestra las dos cifras.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.62\textwidth]{fig_sup_calle.png}
+\caption{(b) La calle con FLC-O en $t=\SimT$\,s: cruce, autos (azules: N-S; cálidos: E-W), semáforos de tres luces (E-W en verde, N-S en rojo), colas con su franja y su etiqueta, encabezado con tiempo, fase, colas y $d_m$, y pie con el controlador y el escenario. Dibujada con el código de la ventana (\texttt{intersection\_view.py}).}
+\label{fig:s-calle}
+\end{figure}
+
+\FloatBarrier
+\subsection{(c) Entradas de FLC-O y sus conjuntos difusos}
+\label{sec:s-sim-c}
+La Fig.~\ref{fig:s-entradas} tiene un gráfico por cada entrada de FLC-O, Ec.~(5) del artículo: $G$, la demanda en el brazo con verde (su cola más las llegadas previstas, ponderadas); $R$, la presión en el brazo en rojo (ídem), y $V$, los segundos de verde transcurridos. En cada gráfico están los tres conjuntos difusos aprendidos de esa variable, Ec.~(6): bajo (azul), medio (verde) y alto (naranja), con los nudos de la Tabla~2 del artículo. La línea roja vertical es el valor actual de la entrada y los puntos marcan su grado de pertenencia a cada conjunto (la altura donde la línea roja corta cada curva); los tres grados suman 1.
+
+En $t=\SimT$\,s: $G=\SimG$ es medio con grado 0.60 y alto con 0.40; $R=\SimR$ es casi del todo medio (0.97, y alto 0.03); $V=\SimV$\,s es medio con 0.69 y alto con 0.31.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_sup_entradas.png}
+\caption{(c) Entradas de FLC-O en $t=\SimT$\,s sobre sus conjuntos difusos (bajo, medio y alto). Línea roja: valor actual; puntos: grado de pertenencia a cada conjunto.}
+\label{fig:s-entradas}
+\end{figure}
+
+\FloatBarrier
+\subsection{(d) Salida $u$ de FLC-O}
+\label{sec:s-sim-d}
+La Fig.~\ref{fig:s-salida} muestra la salida de este segundo, $u=\sum w\,c/\sum w$, Ec.~(8). El fondo azul ($u\le0$) es la zona en que el verde sigue y el rojo ($u>0$), la zona en que se cambia de fase; la barra va de 0 al valor de $u$ y el texto dice el valor y la decisión. Si todavía no se cumplió el verde mínimo de 3\,s, el texto lo indica y no se cambia aunque $u$ sea positiva; al llegar a 90\,s de verde se cambia sea cual sea $u$. En $t=\SimT$\,s, $u=\SimU$ y el verde sigue; en $t=\SimTb$\,s, con $G=\SimGb$, $R=\SimRb$ y $V=\SimVb$\,s, $u=\SimUb$ y FLC-O cambia de fase.
+
+\begin{figure}[!htbp]
+\centering
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\textwidth]{fig_sup_salida.png}\\ \small (i) $t=\SimT$\,s: $u=\SimU$, el verde sigue
+\end{minipage}\hfill
+\begin{minipage}{0.49\textwidth}\centering
+\includegraphics[width=\textwidth]{fig_sup_salida_cambia.png}\\ \small (ii) $t=\SimTb$\,s: $u=\SimUb$, cambia de fase
+\end{minipage}
+\caption{(d) Salida $u$ de FLC-O en dos segundos: (i) negativa, el verde E-W sigue; (ii) positiva, se cambia de fase.}
+\label{fig:s-salida}
+\end{figure}
+
+\FloatBarrier
+\subsection{(e) Fuerza de cada una de las 27 reglas}
+\label{sec:s-sim-e}
+La Fig.~\ref{fig:s-fuerza} lista las 27 reglas de FLC-O como «$G\cdot R\cdot V\rightarrow c$» (por ejemplo, «medio·medio·medio $\rightarrow-0.27$»: si $G$ es medio, $R$ es medio y $V$ es medio, el consecuente es $-0.27$), en el orden de la Tabla~\ref{tab:sreglas27}; las líneas horizontales separan los tres niveles de $G$. La barra de cada regla es su fuerza en este segundo, el producto de sus tres pertenencias, Ec.~(7), en proporción del total; el porcentaje se escribe si pasa del 2\,\%. El color dice hacia dónde empuja: rojo, consecuente positivo (cambiar); azul, negativo (seguir).
+
+En $t=\SimT$\,s cuatro reglas suman el 97\,\% de la fuerza y todas empujan a seguir: medio·medio·medio (40\,\%, $c=-0.27$), alto·medio·medio (27\,\%, $c=-2.08$), medio·medio·alto (18\,\%, $c=-0.20$) y alto·medio·alto (12\,\%, $c=-1.81$). Su promedio ponderado da $u\approx0.40(-0.27)+0.27(-2.08)+0.18(-0.20)+0.12(-1.81)=-0.93$. En $t=\SimTb$\,s la demanda en verde ya bajó y el verde es largo: pesan bajo·medio·alto (35\,\%, $c=+2.37$), medio·medio·alto (33\,\%, $c=-0.20$), bajo·alto·alto (15\,\%, $c=-0.19$) y medio·alto·alto (15\,\%, $c=+0.60$), y la salida es $u\approx+0.83$: la regla «poca demanda en verde, presión media en rojo, verde largo» decide el cambio.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{fig_sup_fuerza.png}\\[2pt]
+\small (i) $t=\SimT$\,s: dominan reglas azules (seguir)\\[6pt]
+\includegraphics[width=0.82\textwidth]{fig_sup_fuerza_cambia.png}\\[2pt]
+\small (ii) $t=\SimTb$\,s: la regla roja bajo·medio·alto es la de mayor fuerza (cambiar)
+\caption{(e) Fuerza de las 27 reglas de FLC-O en los dos segundos de la Fig.~\ref{fig:s-salida}. Rojo: la regla empuja a cambiar de fase; azul: a seguir en verde.}
+\label{fig:s-fuerza}
+\end{figure}
+
+\FloatBarrier
+\subsection{(f) Traza del retardo medio}
+\label{sec:s-sim-f}
+La Fig.~\ref{fig:s-traza} es el retardo medio $d_m$ desde el inicio hasta cada segundo. La línea continua es el controlador elegido en la ventana; cada cuadrado rojo es un cambio de fase que decidió FLC-O, y el texto de arriba resume el último. La línea punteada gris es el otro controlador, el de 1977, simulado sobre las mismas llegadas: es la comparación en vivo. La curva sube mientras se forman colas y baja cuando se despachan. Hasta $t=\SimTb$\,s, FLC-O lleva un retardo medio de \SimDmFin\,s/veh y el de 1977, de \SimDmRefFin{} (con la convención de la ventana); en algunos tramos (por ejemplo, cerca de $t=\SimT$\,s) la curva de 1977 está por debajo: lo que compara el artículo es el promedio de 20 réplicas de 7200\,s, no un instante. El eje de tiempo crece solo a medida que avanza la simulación.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_traza.png}
+\caption{(f) Retardo medio $d_m$ con FLC-O (continua) hasta $t=\SimTb$\,s; cuadrados rojos: cambios de fase; punteada: el controlador de 1977 con las mismas llegadas.}
+\label{fig:s-traza}
+\end{figure}
+
+\FloatBarrier
+\subsection{(g) Botones}
+\label{sec:s-sim-g}
+La columna derecha (Fig.~\ref{fig:s-botones}) tiene: \emph{Iniciar}, \emph{Pausa} (que pasa a \emph{Continuar}), \emph{Paso}, que avanza un segundo simulado para explicar con calma, y \emph{Reiniciar}, que vuelve a $t=0$ con los parámetros elegidos; la barra de avance y el estado (tiempo y $d_m$); \emph{Agregar autos a mano}, que suma 1 o 5 autos a un brazo (entran de a uno por segundo) para ver cómo reacciona el controlador; \emph{Guardar disparos (CSV)}, que guarda cada decisión con la activación de cada regla, y \emph{Guardar imagen (PNG)}, que guarda la pantalla.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.42\textwidth]{fig_sup_botones.png}
+\caption{(g) Botones, barra de avance, estado, autos a mano y guardado. Captura de la ventana real.}
+\label{fig:s-botones}
+\end{figure}
+
+\FloatBarrier
+\subsection{(h) Explicación y (i) registro de decisiones}
+\label{sec:s-sim-h}
+El cuadro «¿Qué decidió el controlador y por qué?» (Fig.~\ref{fig:s-explicacion}) explica en palabras simples, en cada segundo, qué mira FLC-O (los valores de $G$, $R$ y $V$, con las colas que los forman), qué reglas pesan más y qué decide. La cola que usa el controlador es la del inicio del segundo; el encabezado de la calle muestra la del final, después de que cruzó un vehículo. El registro «Decisiones y regla que dispara» (Fig.~\ref{fig:s-registro}) agrega una línea por cada cambio de fase: el tiempo, el brazo que tenía el verde, cuántos segundos lo tuvo y la salida $u$ que decidió el cambio (con «[verde máx.]» si lo forzó el verde máximo). Hasta $t=\SimTb$\,s hubo \SimNCambios{} cambios de fase, con verdes de 3 a 54\,s: FLC-O no tiene un ciclo fijo, ajusta cada verde a lo que ve.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.66\textwidth]{fig_sup_explicacion.png}
+\caption{(h) Explicación de la decisión de FLC-O en $t=\SimT$\,s, tal como la escribe la ventana.}
+\label{fig:s-explicacion}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{fig_sup_registro.png}
+\caption{(i) Registro de los cambios de fase decididos por FLC-O hasta $t=\SimTb$\,s.}
+\label{fig:s-registro}
+\end{figure}
+
+\FloatBarrier
+\subsection{Con el controlador de Pappis y Mamdani (1977)}
+\label{sec:s-sim-p}
+Con el controlador de 1977, la calle (b), los botones (g) y las pestañas (a) son los mismos; cambian la columna del controlador, la traza, la explicación y el registro, porque ese controlador decide distinto: solo a los 7, 17, 27, 37 y 47\,s de verde, cuánto extenderlo. En $t=\SimT$\,s el brazo E-W lleva \SimPV\,s en verde y llega la intervención de \SimPInt\,s.
+
+\textbf{(c) Reglas de la intervención} (Fig.~\ref{fig:s-p-reglas}): las cinco reglas de la intervención en curso, con las entradas medidas arriba (cola en rojo $Q$, cola en verde y arribos $A$ en los 10\,s siguientes), la activación de cada regla (barra) frente al umbral (línea roja punteada) y, resaltada en verde con $\star$, la regla que dispara, es decir, la que decide la extensión. Aquí dispara \SimPRegla{} con activación \SimPGrado.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_sup_p_reglas.png}
+\caption{(c) Con el controlador de 1977: las cinco reglas de la intervención de \SimPInt\,s, su activación y la regla que dispara (\SimPRegla, $\star$).}
+\label{fig:s-p-reglas}
+\end{figure}
+
+\textbf{(d) Grados de cada extensión} (Fig.~\ref{fig:s-p-grados}): el grado $\gamma(e)$ de cada extensión candidata de 1 a 10\,s, el umbral de 0.5 (línea roja) y la extensión elegida, Ec.~(4) del artículo: la de mayor grado si llega al umbral; si ninguna llega, el verde se corta. Aquí $e^*=\SimPEst$\,s con grado \SimPGrado.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_sup_p_grados.png}
+\caption{(d) Con el controlador de 1977: grado de cada extensión posible, umbral 0.5 y extensión elegida ($e^*=\SimPEst$\,s).}
+\label{fig:s-p-grados}
+\end{figure}
+
+\textbf{(e) Disparos acumulados} (Fig.~\ref{fig:s-p-disparos}): para cada una de las 25 reglas, agrupadas por intervención y con un color por intervención, cuántas veces disparó (barra oscura: decidió la extensión) y cuántas se activó con grado mayor que cero (barra clara). Muestra qué reglas trabajan de verdad: hasta aquí casi todas las extensiones las decidió R5.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_sup_p_disparos.png}
+\caption{(e) Con el controlador de 1977: disparos (oscuro) y activaciones (claro) acumulados de las 25 reglas hasta $t=\SimT$\,s.}
+\label{fig:s-p-disparos}
+\end{figure}
+
+\textbf{(f) Traza} (Fig.~\ref{fig:s-p-traza}): como con FLC-O, pero los triángulos verdes marcan las extensiones del verde y los cuadrados rojos, los cortes; la curva punteada es ahora FLC-O sobre las mismas llegadas.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_p_traza.png}
+\caption{(f) Con el controlador de 1977: retardo medio hasta $t=\SimT$\,s; triángulos verdes: extensiones; cuadrados rojos: cortes; punteada: FLC-O con las mismas llegadas.}
+\label{fig:s-p-traza}
+\end{figure}
+
+\textbf{(h) y (i) Explicación y registro} (Figs.~\ref{fig:s-p-explicacion} y~\ref{fig:s-p-registro}): la explicación dice qué mide el controlador en la intervención, qué reglas se activan y por qué decide esa extensión; el registro tiene una línea por intervención con la extensión elegida y la regla que disparó, o «CORTE» si ninguna llegó al umbral. Hasta $t=\SimT$\,s hubo \SimPNDec{} decisiones.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.78\textwidth]{fig_sup_p_explicacion.png}
+\caption{(h) Con el controlador de 1977: explicación de la decisión en la intervención de \SimPInt\,s.}
+\label{fig:s-p-explicacion}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.45\textwidth]{fig_sup_p_registro.png}
+\caption{(i) Con el controlador de 1977: registro de decisiones hasta $t=\SimT$\,s (extensión $e^*$ y regla que dispara, o corte).}
+\label{fig:s-p-registro}
+\end{figure}
+
+\textbf{Encender y apagar reglas} (Fig.~\ref{fig:s-editor}). Solo con el controlador de 1977, el botón de la pestaña 2 abre una ventana con las 25 reglas, cada una con su casilla: una regla apagada no aporta a la decisión, y el cambio se aplica en vivo. Los botones de abajo dejan configuraciones típicas (todas, solo R1 y R5, solo R1, R3 y R5, sin R5, solo R5) para ver cuánto aporta cada regla. Es una herramienta para explicar; los resultados del artículo usan siempre las 25 reglas.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{fig_sup_editor_reglas.png}
+\caption{Ventana «Encender / apagar reglas» del controlador de 1977: las 25 reglas por intervención, con su casilla, y configuraciones típicas. Captura de la ventana real.}
+\label{fig:s-editor}
+\end{figure}
+
+\clearpage
+\FloatBarrier
 \section{Reproducción}
 \label{sec:s-repro}
 Desde la carpeta del proyecto, con Python 3.13 y NumPy 2.5:

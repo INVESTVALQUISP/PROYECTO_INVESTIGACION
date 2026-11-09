@@ -310,7 +310,7 @@ def run_gui(test_hook=None, controlador="flco"):
             r2 = ttk.Radiobutton(fm, text="literal", value="literal", variable=self.v_mode)
             r2.pack(side=tk.LEFT, padx=4)
             fr = ttk.LabelFrame(t2, text="Reglas del controlador", padding=4)
-            fr.grid(row=1, column=4, columnspan=3, sticky="w", padx=10)
+            fr.grid(row=1, column=4, columnspan=4, sticky="w", padx=10)   # 4 columnas: el boton de reglas entra completo
             r3 = ttk.Radiobutton(fr, text="originales (paper)", value="paper", variable=self.v_rules,
                                  command=self._on_rules)
             r3.pack(side=tk.LEFT, padx=4)
@@ -361,7 +361,7 @@ def run_gui(test_hook=None, controlador="flco"):
             self.canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
             # ---------- columna de controles ----------
-            side = ttk.Frame(root, width=330)
+            side = ttk.Frame(root, width=346)   # ancho para que «Guardar disparos (CSV)» entre completo
             # se empaqueta ANTES que la figura: si la ventana es chica, la figura se
             # achica y los botones (Iniciar, Pausa...) siempre quedan visibles
             side.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 8), pady=8, before=self.canvas.get_tk_widget())

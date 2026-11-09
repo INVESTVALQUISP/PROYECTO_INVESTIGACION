@@ -106,7 +106,8 @@ PARTE_A = [
      "y todos los resultados usan 20 réplicas de 7200 s o 64 escenarios de 7200 s. El análisis agregado de disparos de la réplica sigue en el artículo de réplica."),
     ("8", "Literatura desactualizada y celda incompleta", "Importante", "Atendida",
      f"{ref('sec:sota')} cubre hasta 2026 e incorpora las referencias de optimización (CMA-ES, presión máxima, programación dinámica, ley de Little, Takagi–Sugeno). "
-     "Los DOI se comprueban contra Crossref con codigo/verificar_referencias.py; la celda incompleta de la tabla de antecedentes ya no existe (la tabla de 180 combinaciones queda en el artículo de réplica)."),
+     "Los DOI se comprueban contra Crossref con codigo/verificar_referencias.py; la celda incompleta de la tabla de antecedentes ya no existe. Las 180 combinaciones de reglas, con las 25 del original resaltadas, "
+     f"están en la {refs('tab:s180')}."),
     ("9", "Duplicación estructural", "Importante", "Atendida",
      f"El manuscrito tiene {NP} páginas (la versión de réplica, 15); cada ecuación se define una sola vez ({ref('sec:modelo', False)} y {ref('sec:pappis', False)}) y los detalles de la réplica se remiten al artículo de réplica, no se repiten."),
     ("10", "Entorno de software y hardware y complejidad", "Menor", "Atendida",

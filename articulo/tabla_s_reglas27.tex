@@ -1,0 +1,44 @@
+\begin{table}[H]
+\caption{Desglose de las 27 reglas de FLC-O, una por fila: «\textbf{SI} $G$ es $\mathcal{G}_i$ \textbf{Y} $R$ es $\mathcal{R}_j$ \textbf{Y} $V$ es $\mathcal{V}_k$ \textbf{ENTONCES} $c_{ijk}$». $G$: demanda en el brazo con verde; $R$: presión en el brazo en rojo; $V$: segundos de verde transcurridos. Un consecuente positivo empuja a cambiar de fase y uno negativo a seguir en verde; la decisión de cada segundo es el promedio de los consecuentes ponderado por la fuerza de cada regla (Ec.~(8) del artículo). 9 de las 27 reglas empujan a cambiar.}
+\label{tab:sreglas27}
+\centering
+\small
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.02}
+\begin{tabular}{@{}rlllrl@{}}
+\toprule
+N.º & \textbf{SI} $G$ es & \textbf{Y} $R$ es & \textbf{Y} $V$ es & \textbf{ENTONCES} $c$ & la regla empuja a \\
+\midrule
+1 & bajo & bajo & bajo & +0.06 & \textcolor{red!70!black}{cambiar de fase} \\
+2 & bajo & bajo & medio & +0.04 & \textcolor{red!70!black}{cambiar de fase} \\
+3 & bajo & bajo & alto & $-$0.16 & \textcolor{blue!70!black}{seguir en verde} \\
+4 & bajo & medio & bajo & +1.52 & \textcolor{red!70!black}{cambiar de fase} \\
+5 & bajo & medio & medio & +1.45 & \textcolor{red!70!black}{cambiar de fase} \\
+6 & bajo & medio & alto & +2.37 & \textcolor{red!70!black}{cambiar de fase} \\
+7 & bajo & alto & bajo & +0.34 & \textcolor{red!70!black}{cambiar de fase} \\
+8 & bajo & alto & medio & +2.18 & \textcolor{red!70!black}{cambiar de fase} \\
+9 & bajo & alto & alto & $-$0.19 & \textcolor{blue!70!black}{seguir en verde} \\
+\midrule
+10 & medio & bajo & bajo & $-$2.75 & \textcolor{blue!70!black}{seguir en verde} \\
+11 & medio & bajo & medio & $-$1.06 & \textcolor{blue!70!black}{seguir en verde} \\
+12 & medio & bajo & alto & $-$1.09 & \textcolor{blue!70!black}{seguir en verde} \\
+13 & medio & medio & bajo & $-$0.51 & \textcolor{blue!70!black}{seguir en verde} \\
+14 & medio & medio & medio & $-$0.27 & \textcolor{blue!70!black}{seguir en verde} \\
+15 & medio & medio & alto & $-$0.20 & \textcolor{blue!70!black}{seguir en verde} \\
+16 & medio & alto & bajo & $-$1.61 & \textcolor{blue!70!black}{seguir en verde} \\
+17 & medio & alto & medio & $-$0.36 & \textcolor{blue!70!black}{seguir en verde} \\
+18 & medio & alto & alto & +0.60 & \textcolor{red!70!black}{cambiar de fase} \\
+\midrule
+19 & alto & bajo & bajo & $-$0.52 & \textcolor{blue!70!black}{seguir en verde} \\
+20 & alto & bajo & medio & $-$1.34 & \textcolor{blue!70!black}{seguir en verde} \\
+21 & alto & bajo & alto & +0.33 & \textcolor{red!70!black}{cambiar de fase} \\
+22 & alto & medio & bajo & $-$3.32 & \textcolor{blue!70!black}{seguir en verde} \\
+23 & alto & medio & medio & $-$2.08 & \textcolor{blue!70!black}{seguir en verde} \\
+24 & alto & medio & alto & $-$1.81 & \textcolor{blue!70!black}{seguir en verde} \\
+25 & alto & alto & bajo & $-$2.04 & \textcolor{blue!70!black}{seguir en verde} \\
+26 & alto & alto & medio & $-$0.03 & \textcolor{blue!70!black}{seguir en verde} \\
+27 & alto & alto & alto & $-$1.62 & \textcolor{blue!70!black}{seguir en verde} \\
+\bottomrule
+\end{tabular}
+\fuente{modelo entrenado flcopt\_g3\_s2 (\texttt{resultados/opt/flcopt\_g3\_s2.json}); son los mismos consecuentes de la Tabla~2 del artículo, ordenados como regla por regla.}
+\end{table}

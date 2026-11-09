@@ -162,6 +162,45 @@ def main():
     tb = tabla(doc, ["N.º", "Observación y ubicación citada", "Estado", "Qué se hizo", "Dónde queda"], visibles, [Cm(1.5), Cm(6.0), Cm(2.7), Cm(10.8), Cm(5.7)])
     for k, fila in enumerate(tb.rows[1:]):
         sombrear(fila.cells[2], colores[k])
+    # ---- pedidos del ingeniero (rondas anteriores) que no caben en el articulo y van en el material suplementario
+    doc.add_paragraph()
+    p = doc.add_paragraph()
+    r = p.add_run("Pedidos del ingeniero que van en el material suplementario")
+    r.bold = True
+    r.font.size = Pt(10)
+    p = doc.add_paragraph("Además de las observaciones de esta revisión, el material suplementario reúne lo que el ingeniero pidió en las "
+                          "revisiones anteriores y no entra en el artículo por espacio.")
+    for r in p.runs:
+        r.font.size = Pt(9)
+    R = ea.ref
+    pedidos = [
+        ("P1", "Las figuras de «la calle»", "Atendido",
+         "Figura de la calle del simulador, con la explicación de cada elemento: autos por brazo, semáforos de tres luces, línea de parada, "
+         "franja y etiqueta de cola, encabezado y pie.", f"{R('S:fig:s-calle')}; {R('S:sec:s-sim-b')}"),
+        ("P2", "Las figuras que salen en el simulador, cada apartado en una figura aparte para que se puedan ver", "Atendido",
+         "Cada apartado de la ventana en su propia figura, dibujado con el código de la ventana a mayor resolución, con FLC-O (entradas, salida u "
+         "en dos segundos, fuerza de las 27 reglas, traza, botones, explicación y registro) y con el controlador de 1977 (reglas de la intervención, "
+         "grados, disparos, traza, explicación, registro y editor de reglas). Cada figura tiene su texto explicativo.",
+         f"{R('S:sec:s-sim')}; {R('S:fig:s-entradas')} a {R('S:fig:s-editor')}"),
+        ("P3", "Esas figuras, aparte de la captura de la simulación", "Atendido",
+         "La captura completa de la ventana (con FLC-O y con el de 1977) va aparte, con los nueve apartados rotulados de (a) a (i), y remite a la figura de cada uno; "
+         "las tres pestañas de configuración tienen también su figura.",
+         f"{R('S:fig:s-ventana-flco')}; {R('S:fig:s-ventana-pappis')}; {R('S:fig:s-pestana1')} a {R('S:fig:s-pestana3')}"),
+        ("P4", "Las reglas en un cuadro vertical (tipo desglose de reglas)", "Atendido",
+         "Las 25 reglas de Pappis y Mamdani en cuadro vertical, una caja por regla; las 27 de FLC-O desglosadas una por fila, en forma «si … entonces».",
+         f"{R('S:tab:sreglas25')}; {R('S:tab:sreglas27')}"),
+        ("P5", "Las 180 reglas enteras, con las 25 que usa el autor marcadas en verde y con check", "Atendido",
+         "Lista literal de las 180 combinaciones T × A × Q, una por fila, con las usadas en verde y ✓ y las demás con ×, y en qué intervención se usa cada una.",
+         R('S:tab:s180')),
+        ("P6", "Las gráficas de las pertenencias, tal como estaban", "Atendido", "Sin cambios.", R('fig:fuzzificacion')),
+        ("P7", "Diagrama del sistema de control", "Atendido",
+         "Diagramas de bloques de los dos controladores, con la ecuación del artículo que implementa cada bloque.",
+         f"{R('S:fig:s-bloques-pappis')}; {R('S:fig:s-bloques-flco')}"),
+    ]
+    tb2 = tabla(doc, ["N.º", "Pedido", "Estado", "Qué se hizo", "Dónde queda"], pedidos,
+                [Cm(1.5), Cm(6.0), Cm(2.7), Cm(10.8), Cm(5.7)])
+    for fila in tb2.rows[1:]:
+        sombrear(fila.cells[2], COLOR[PROCEDE])
     cp = doc.core_properties
     cp.author = "Raul Nolberto Quispe Saya; Kevin Luis Valero Ccacya"
     cp.last_modified_by = cp.author

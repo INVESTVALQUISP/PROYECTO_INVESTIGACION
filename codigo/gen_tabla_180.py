@@ -11,6 +11,7 @@ eso cubre las seis reglas (Q = very small ... very long) de su fila en cada inte
 
 Salida:  resultados/reglas_180.csv        (una fila por regla)
          articulo_replica/tabla_180.tex      (tabla larga con las 180 reglas; va en suplemento.tex)
+         articulo/tabla_s_180.tex            (la misma tabla para el suplemento del articulo de la mejora)
          articulo_replica/tabla_matriz180.tex (matriz compacta 5 x (6 x 6) para el articulo)
 Uso:  python codigo/gen_tabla_180.py
 """
@@ -112,7 +113,9 @@ tex = (r"""{\scriptsize
 }
 """)
 open("articulo_replica/tabla_180.tex", "w", encoding="utf-8").write(tex)
-print("guardado articulo_replica/tabla_180.tex y resultados/reglas_180.csv")
+# la misma lista va en el suplemento del articulo de la mejora (las 25 reglas de 1977 son su linea base)
+open("articulo/tabla_s_180.tex", "w", encoding="utf-8").write(tex.replace(r"\label{tab:180}", r"\label{tab:s180}"))
+print("guardado articulo_replica/tabla_180.tex, articulo/tabla_s_180.tex y resultados/reglas_180.csv")
 
 
 # ------------------------------------------------------------ matriz compacta 5 x (6 x 6)

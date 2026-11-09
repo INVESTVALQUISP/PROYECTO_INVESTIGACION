@@ -248,7 +248,7 @@ Pappis, C. P., & Mamdani, E. H. (1977). A Fuzzy Logic Controller for a Traffic J
 
 ## 9. Mejora del controlador: optimización (FLC-O)
 
-El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (11 páginas) con su suplemento `articulo/suplemento.tex` (4 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
+El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (11 páginas) con su suplemento `articulo/suplemento.tex` (22 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
 
 **Archivos (todos en `codigo/`):**
 
@@ -262,6 +262,8 @@ El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo q
 | `opt_evaluacion_final.py`, `opt_evaluar.py` | Evaluación en cuatro conjuntos de prueba con Wilcoxon pareado y Holm → `resultados/opt/evaluacion_final.json`. |
 | `gen_tablas_opt.py`, `gen_fig_opt.py`, `gen_matriz_opt.py`, `gen_justificacion.py` | Tablas, cifras del texto, figuras y matriz de respuesta del artículo, y las cifras y la tabla de candidatos del documento `articulo/justificacion.tex` (cómo se optimizó y por qué se eligió FLC-O). |
 | `simulador_opt.py` | Compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (figura, GIF o ventana). |
+| `gen_fig_suplemento_simulador.py`, `captura_ventana_suplemento.py` | Figuras del simulador para el suplemento: cada apartado de la pantalla (calle, entradas, salida u, fuerza de reglas, traza, explicación, registro; y los del controlador de 1977) dibujado con el código de la ventana en el mismo instante, los diagramas de bloques, y las capturas de la ventana real rotuladas de (a) a (i), con sus pestañas y el editor de reglas. La captura necesita pantalla (en Linux sin escritorio, `xvfb-run`). |
+| `gen_tablas_suplemento.py`, `gen_tabla_180.py` | Reglas del suplemento: las 25 de 1977 en cuadro vertical, las 27 de FLC-O una por fila y las 180 combinaciones con las 25 usadas en verde. |
 | `sim_engine.py`, `intersection_view.py`, `simulador_gui.py`, `web_sim.py` | **Simulador interactivo** (calle, autos y semáforos) con los dos controladores: `StepSim` avanza 1 s por tick y con `controller="flco"` ejecuta FLC-O con la misma aritmética que `opt_flc2.FuzzyOpt`; `IntersectionView(flco=...)` dibuja entradas, salida u y fuerza de las 27 reglas; la ventana Tk y la web eligen el controlador y dibujan la curva del otro sobre las mismas llegadas. |
 | `test_sim_batch.py`, `test_opt.py`, `test_sim_flco.py`, `test_flco_ecuaciones.py`, `test_archivos_citados_opt.py` | 10 + 11 + 27 + 8 + 12 comprobaciones (en total, `ejecutar_pruebas.py` corre 200). `test_flco_ecuaciones.py` reconstruye FLC-O solo con las ecuaciones y los 42 parámetros del suplemento y lo compara con el código. `test_sim_flco.py` comprueba que el motor paso a paso y el simulador por lotes dan el mismo retardo y los mismos cambios de fase en 6 escenarios. |
 

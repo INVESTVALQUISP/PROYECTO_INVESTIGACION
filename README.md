@@ -40,7 +40,7 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 11 páginas), su suplemento (`suplemento.tex`, 4 páginas), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 11 páginas), su suplemento (`suplemento.tex`, 22 páginas: detalles del entrenamiento y la evaluación, FLC-O completo, diagramas de bloques, las 25 reglas de 1977 en cuadro vertical, las 180 combinaciones con las 25 marcadas, las 27 reglas de FLC-O y el simulador interactivo explicado apartado por apartado, con la calle y cada panel en una figura aparte), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor, cuadro de observaciones levantadas de la segunda ronda (DOCX y PDF) y la evaluación de esas observaciones (`Revision_de_observaciones.pdf`). |
@@ -85,6 +85,9 @@ python codigo/simulador_opt.py          # compara Pappis y Mamdani con FLC-O sob
 python codigo/simulador_opt.py --gif salidas/comparacion.gif --guardar salidas/comparacion.png --sin-ventana
 python codigo/opt_afinar_referencias.py   # re-comprueba las referencias afinadas (actuado, presión máxima); con --escribir las vuelve a calcular
 python codigo/test_flco_ecuaciones.py   # FLC-O reconstruido solo con las ecuaciones y los 42 parámetros del suplemento
+python codigo/gen_fig_suplemento_simulador.py   # figuras del suplemento: cada apartado del simulador y los diagramas de bloques
+python codigo/captura_ventana_suplemento.py     # capturas de la ventana del simulador para el suplemento (abre la ventana y se cierra sola)
+python codigo/gen_tablas_suplemento.py && python codigo/gen_tabla_180.py   # reglas del suplemento: 25 de 1977, 27 de FLC-O y las 180
 python codigo/opt_evaluacion_final.py   # evaluación completa en los cuatro conjuntos de prueba (varios minutos)
 python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py   # regenera tablas, cifras del texto y figuras del artículo
 python codigo/gen_justificacion.py     # regenera las cifras y la tabla del documento de justificación (después, compilar articulo/justificacion.tex)
@@ -107,8 +110,9 @@ carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el pa
 ### Artículo
 
 `articulo/` contiene el manuscrito (`main.tex`, 11 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
-del entrenamiento, referencias afinadas, verificación del simulador, cota por programación dinámica, resultados completos por par y sensibilidad a la
-semilla de entrenamiento) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con
+del entrenamiento, referencias afinadas, verificación del simulador, cota por programación dinámica, resultados completos por par, sensibilidad a la
+semilla de entrenamiento, FLC-O completo, diagramas de bloques, las reglas completas de los dos controladores y el simulador interactivo apartado por
+apartado) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con
 pdfLaTeX y BibTeX. Las tablas y las cifras del texto no se escriben a mano: las genera `codigo/gen_tablas_opt.py` desde `resultados/opt/*.json`
 (`numeros.tex`, `tabla_*.tex`), y las figuras, `codigo/gen_fig_opt.py`. La matriz de respuesta se genera con `python codigo/gen_matriz_opt.py`
 después de compilar el artículo. Los documentos de la segunda ronda de observaciones (`articulo/revision_observaciones.tex` y

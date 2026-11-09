@@ -28,11 +28,12 @@ SIN_NUMERO = {"sec:disp": "Disponibilidad del código"}
 
 
 def ref(clave):
-    """'Sec. IV-B (p. 3)', 'Ec. (5) (p. 4)', 'Tabla 4 (p. 8)', 'Tabla S2 del suplemento (p. 2)'."""
+    """'Sec. IV-B (p. 3)', 'Ec. (5) (p. 4)', 'Tabla 4 (p. 8)', 'Tabla S2 del suplemento (p. 2)', 'Fig. S6 del suplemento (p. 13)'."""
     if clave.startswith("S:"):
         c = clave[2:]
         num, pag = LS[c]
-        return (f"Tabla {num} del suplemento (p. {pag})" if c.startswith("tab:") else f"Sec. {num} del suplemento (p. {pag})")
+        tipo = "Tabla" if c.startswith("tab:") else "Fig." if c.startswith("fig:") else "Sec."
+        return f"{tipo} {num} del suplemento (p. {pag})"
     num, pag = L[clave]
     if clave in SIN_NUMERO:
         return f"«{SIN_NUMERO[clave]}» (p. {pag})"

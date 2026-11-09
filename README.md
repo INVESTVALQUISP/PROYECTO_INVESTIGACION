@@ -40,10 +40,10 @@ Holm) y no es peor en ninguno. Para ciclo fijo de Webster da 13.81 y la polític
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 3 páginas) y el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 10 páginas), su suplemento (`suplemento.tex`, 4 páginas), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
-| `entregas/` | Matriz de respuesta del autor (DOCX y PDF). |
+| `entregas/` | Matriz de respuesta del autor (DOCX y PDF) y cuadro de observaciones levantadas de la segunda ronda (DOCX y PDF). |
 | `articulo_replica/` | Artículo y suplemento de la réplica del controlador de 1977 (15 y 9 páginas), antecedente de este trabajo. |
 | `resultados/` (raíz) | Resultados de la réplica en JSON (Tablas I y VIII, auditoría, estadística) y las 180 reglas en `reglas_180.csv`. |
 | `figures/`, `muestras/`, `notebooks/` | Figuras, ejemplos y cuaderno de la réplica. |
@@ -83,6 +83,8 @@ python codigo/simulador_gui.py --controlador pappis   # el mismo, con el control
 python codigo/web_sim.py                # el mismo en el navegador: http://localhost:8000
 python codigo/simulador_opt.py          # compara Pappis y Mamdani con FLC-O sobre las mismas llegadas (figura o GIF)
 python codigo/simulador_opt.py --gif salidas/comparacion.gif --guardar salidas/comparacion.png --sin-ventana
+python codigo/opt_afinar_referencias.py   # re-comprueba las referencias afinadas (actuado, presión máxima); con --escribir las vuelve a calcular
+python codigo/test_flco_ecuaciones.py   # FLC-O reconstruido solo con las ecuaciones y los 42 parámetros del suplemento
 python codigo/opt_evaluacion_final.py   # evaluación completa en los cuatro conjuntos de prueba (varios minutos)
 python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py   # regenera tablas, cifras del texto y figuras del artículo
 python codigo/gen_justificacion.py     # regenera las cifras y la tabla del documento de justificación (después, compilar articulo/justificacion.tex)
@@ -99,7 +101,7 @@ de lo que decide; con el controlador de 1977, las 5 reglas de cada intervención
 
 ![Simulador interactivo con FLC-O](muestras/captura_simulador_flco.png)
 
-Entrenar FLC-O tarda unos 15 minutos con 4 núcleos. Los scripts se pueden ejecutar desde cualquier carpeta. En Visual Studio Code, abra la
+Entrenar FLC-O tarda unos 13 minutos con 4 núcleos. Los scripts se pueden ejecutar desde cualquier carpeta. En Visual Studio Code, abra la
 carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el paso a paso, incluidas las configuraciones 7 a 9 de la mejora.
 
 ### Artículo
@@ -109,17 +111,21 @@ del entrenamiento, referencias afinadas, verificación del simulador, cota por p
 semilla de entrenamiento) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con
 pdfLaTeX y BibTeX. Las tablas y las cifras del texto no se escriben a mano: las genera `codigo/gen_tablas_opt.py` desde `resultados/opt/*.json`
 (`numeros.tex`, `tabla_*.tex`), y las figuras, `codigo/gen_fig_opt.py`. La matriz de respuesta se genera con `python codigo/gen_matriz_opt.py`
-después de compilar el artículo.
+después de compilar el artículo. Los documentos de la segunda ronda de observaciones (`articulo/revision_observaciones.tex` y
+`entregas/Cuadro_Observaciones_Levantadas.docx`) salen de una sola fuente, `codigo/observaciones_revision.py`, con
+`codigo/gen_revision_observaciones.py` y `codigo/gen_cuadro_observaciones.py`; las referencias a secciones, tablas y páginas las lee
+`codigo/etiquetas_articulo.py` de los `.aux` del artículo compilado.
 
 ## Pruebas
 
-`python codigo/ejecutar_pruebas.py` corre 192 comprobaciones automáticas (60 de la mejora y 132 de la réplica):
+`python codigo/ejecutar_pruebas.py` corre 200 comprobaciones automáticas (68 de la mejora y 132 de la réplica):
 
 | Prueba | Qué verifica |
 |---|---|
 | `test_sim_batch.py` (10) | El simulador vectorizado reproduce exactamente al de referencia (6 controladores, 2 convenciones de retardo). |
 | `test_opt.py` (11) | CMA-ES, partición de Ruspini, programación dinámica, FLC-O y Pappis y Mamdani afinado. |
 | `test_sim_flco.py` (27) | El simulador interactivo con FLC-O (motor paso a paso, vista, CSV y web) reproduce exactamente al simulador por lotes; respeta el verde mínimo y máximo; la vista dibuja las 27 reglas, la salida u y la curva de referencia. Con `--gui` prueba además la ventana Tk. |
+| `test_flco_ecuaciones.py` (8) | FLC-O reconstruido solo con las ecuaciones y la tabla de 42 parámetros impresos en el suplemento (implementación independiente) da la misma salida que el código en 500 puntos; las pertenencias suman 1; las entradas G, R y V coinciden con las del simulador; el ejemplo numérico impreso coincide. |
 | `test_archivos_citados_opt.py` (12) | Todo archivo citado por el artículo y el suplemento de la mejora existe. |
 | `test_paper_tables.py` (42) | Réplica: conjuntos, operadores, las 25 reglas, ejemplo de la Tabla VII y estructura temporal frente a lo impreso. |
 | `test_sim_engine.py` (10) | Réplica: el simulador paso a paso da el mismo resultado que la simulación por lotes. |

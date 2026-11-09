@@ -1,17 +1,19 @@
 \begin{table}[t]
 \centering
-\caption{FLC-O frente a cada referencia en la Tabla VIII: mejora media del retardo por par de caudales (\%), intervalo de las 16 mejoras y n\'umero de pares (de 16) en que es significativamente mejor o peor (Wilcoxon pareado sobre 20 r\'eplicas, correcci\'on de Holm, 0.05).}
+\caption{FLC-O frente a cada referencia en la Tabla VIII. Mejora media del retardo por par de caudales (\%); IC de 95\,\% de esa media (t de Student sobre las 16 mejoras por par); rango (m\'inimo a m\'aximo) de las 16 mejoras, que no es un intervalo de confianza; y n\'umero de pares (de 16) en que FLC-O es significativamente mejor o peor (Wilcoxon pareado sobre 20 r\'eplicas, correcci\'on de Holm, 0.05).}
 \label{tab:comparaciones}
 \scriptsize
-\begin{tabular}{@{}lrrrr@{}}
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lrrrrr@{}}
 \toprule
-Referencia & Mejora media & Intervalo & Mejor & Peor \\
+Referencia & Media & IC 95\,\% & Rango & Mejor & Peor \\
 \midrule
-Pappis y Mamdani & +28.2 & +19.5 a +49.3 & 16 & 0 \\
-Ciclo fijo (Webster) & +44.1 & +39.2 a +61.2 & 16 & 0 \\
-Actuado (hueco 3 s) & +31.3 & +11.4 a +56.8 & 16 & 0 \\
-Actuado afinado & +22.0 & +2.9 a +46.5 & 16 & 0 \\
-Óptimo (PD, caudales conocidos) & +19.2 & +2.7 a +43.5 & 16 & 0 \\
+Pappis y Mamdani reconstruido & +28.2 & [+24.1, +32.4] & +19.5 a +49.3 & 16 & 0 \\
+Ciclo fijo (Webster) & +44.1 & [+41.0, +47.1] & +39.2 a +61.2 & 16 & 0 \\
+Actuado (hueco 3 s) & +31.3 & [+23.5, +39.1] & +11.4 a +56.8 & 16 & 0 \\
+Actuado afinado & +22.0 & [+14.9, +29.1] & +2.9 a +46.5 & 16 & 0 \\
+Actuado afinado con vista adelante & +7.7 & [+3.6, +11.8] & +0.5 a +26.0 & 14 & 0 \\
+Óptimo (PD, caudales conocidos) & +19.2 & [+12.9, +25.5] & +2.7 a +43.5 & 16 & 0 \\
 \bottomrule
 \end{tabular}
 \fuente{simulaci\'on del autor; Wilcoxon exacto o con aproximaci\'on normal seg\'un empates (estadistica.py).}

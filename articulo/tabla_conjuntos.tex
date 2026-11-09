@@ -1,22 +1,29 @@
-\begin{table}[t]
+\begin{table*}[!t]
 \centering
-\caption{Retardo medio (s/veh) en los conjuntos de prueba. Oficial: Tabla VIII, 16 pares $\times$ 20 r\'eplicas. No vistos: 64 pares sorteados con otras semillas. Variable: demanda por tramos de 600 s con factor de 0.4 a 1.6. Saturado: suma de caudales de 3000 a 3300 veh/h. Todos con 7200 s.}
+\caption{Retardo medio (s/veh) $\pm$ semiancho del IC de 95\,\% en los cuatro conjuntos de prueba (todos de 7200 s), y reducci\'on de FLC-O por unidad frente a tres referencias. Unidad de an\'alisis y semillas de las llegadas: Oficial, los 16 pares de la Tabla VIII, cada uno con la media de 20 r\'eplicas (semillas 0 a 19); No vistos, 64 escenarios con caudales sorteados (semillas 500000 a 500063); Variable, 64 escenarios con demanda por tramos de 600 s y factor de 0.4 a 1.6 (semillas 300000 a 300063); Saturado, 32 escenarios con suma de caudales de 3000 a 3300 veh/h (semillas 400000 a 400031). Cada escenario es un par de caudales con una r\'eplica; los controladores ven las mismas llegadas.}
 \label{tab:conjuntos}
 \scriptsize
-\begin{tabular}{@{}lrrrr@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lllll@{}}
 \toprule
-Controlador & Oficial & No vistos & Variable & Saturado \\
+Controlador & Oficial ($n=16$ pares) & No vistos ($n=64$) & Variable ($n=64$) & Saturado ($n=32$) \\
 \midrule
-Ciclo fijo (Webster) & 13.8 & 13.0 & 12.3 & 40.7 \\
-Actuado (hueco 3 s) & 10.9 & 10.6 & 9.2 & 54.1 \\
-Actuado afinado & 9.6 & 9.2 & 8.1 & 24.1 \\
-Presión máxima & 17.4 & 16.5 & 19.0 & 152.3 \\
-Pappis y Mamdani & 11.0 & 10.4 & 8.7 & 105.9 \\
-Pappis y Mamdani afinado & 9.7 & 9.3 & 8.1 & 58.1 \\
-FLC-O (propuesto) & 7.9 & 7.4 & 6.1 & 24.3 \\
-Óptimo (PD, caudales conocidos) & 9.3 & 8.8 & 7.9 & -- \\
-Política neuronal (referencia) & 8.1 & 7.5 & 6.2 & 25.1 \\
+Ciclo fijo (Webster) & 13.8 $\pm$ 3.4 & 13.0 $\pm$ 1.4 & 12.3 $\pm$ 1.6 & 40.7 $\pm$ 3.1 \\
+Actuado (hueco 3 s) & 10.9 $\pm$ 1.8 & 10.6 $\pm$ 0.8 & 9.2 $\pm$ 0.6 & 54.1 $\pm$ 16.3 \\
+Actuado afinado & 9.6 $\pm$ 1.8 & 9.2 $\pm$ 0.8 & 8.1 $\pm$ 0.6 & 24.1 $\pm$ 2.1 \\
+Actuado afinado con vista adelante & 8.3 $\pm$ 2.0 & 7.8 $\pm$ 0.8 & 6.6 $\pm$ 0.6 & 25.6 $\pm$ 2.7 \\
+Presión máxima & 17.4 $\pm$ 1.7 & 16.5 $\pm$ 0.7 & 19.0 $\pm$ 0.6 & 152.3 $\pm$ 32.6 \\
+Pappis y Mamdani reconstruido & 11.0 $\pm$ 3.0 & 10.4 $\pm$ 1.2 & 8.7 $\pm$ 1.0 & 105.9 $\pm$ 24.2 \\
+Pappis y Mamdani reconstruido afinado & 9.7 $\pm$ 1.8 & 9.3 $\pm$ 0.7 & 8.1 $\pm$ 0.6 & 58.1 $\pm$ 17.9 \\
+FLC-O (propuesto) & 7.9 $\pm$ 2.2 & 7.4 $\pm$ 0.9 & 6.1 $\pm$ 0.7 & 24.3 $\pm$ 2.3 \\
+Óptimo (PD, caudales conocidos) & 9.3 $\pm$ 1.9 & 8.8 $\pm$ 0.8 & 7.9 $\pm$ 0.6 & -- \\
+Política neuronal (referencia) & 8.1 $\pm$ 2.1 & 7.5 $\pm$ 0.9 & 6.2 $\pm$ 0.7 & 25.1 $\pm$ 2.9 \\
+\midrule
+\multicolumn{5}{l}{Reducci\'on media de FLC-O por unidad (\%) [IC 95\,\%], $p$ de Wilcoxon pareado} \\
+\quad frente a Pappis y Mamdani reconstruido & 28.2 [24.1, 32.4], $p$ $<\!0.001$ & 29.7 [27.6, 31.8], $p$ $<\!0.001$ & 30.0 [28.3, 31.6], $p$ $<\!0.001$ & 69.5 [64.3, 74.7], $p$ $<\!0.001$ \\
+\quad frente a Actuado afinado & 22.0 [14.9, 29.1], $p$ $<\!0.001$ & 23.3 [20.1, 26.5], $p$ $<\!0.001$ & 27.1 [24.8, 29.3], $p$ $<\!0.001$ & $-$0.3 [$-$1.3, 0.6], $p$ = 0.36 \\
+\quad frente a Actuado afinado con vista adelante & 7.7 [3.6, 11.8], $p$ $<\!0.001$ & 7.9 [6.0, 9.8], $p$ $<\!0.001$ & 10.1 [8.8, 11.5], $p$ $<\!0.001$ & 4.4 [3.0, 5.9], $p$ $<\!0.001$ \\
 \bottomrule
 \end{tabular}
-\fuente{simulaci\'on del autor (resultados/opt/evaluacion\_final.json). El \'optimo no se calcula en el conjunto saturado (la cola truncada de la programaci\'on din\'amica no es fiable all\'i).}
-\end{table}
+\fuente{simulaci\'on del autor (resultados/opt/evaluacion\_final.json). El \'optimo no se calcula en el conjunto saturado (la cola truncada de la programaci\'on din\'amica no es fiable all\'i) y es determinista (sin IC).}
+\end{table*}

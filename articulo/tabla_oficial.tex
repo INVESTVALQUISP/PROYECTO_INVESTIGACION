@@ -1,32 +1,32 @@
-\begin{table}[t]
+\begin{table*}[!t]
 \centering
-\caption{Retardo medio por veh\'iculo (s) en los 16 pares de caudales de la Tabla VIII del art\'iculo original, con 20 r\'eplicas de 7200 s y n\'umeros aleatorios comunes. Se cuenta la espera de todos los veh\'iculos hasta el horizonte. $\Delta$: mejora de FLC-O frente a Pappis y Mamdani (\%); $^{*}$: significativa (Wilcoxon pareado, Holm, 0.05). En negrita, el menor de las cuatro primeras columnas.}
+\caption{Retardo medio por veh\'iculo (s) $\pm$ desviaci\'on est\'andar muestral ($n-1$) de las 20 r\'eplicas, en los 16 pares de caudales de la Tabla VIII del art\'iculo original (7200 s, n\'umeros aleatorios comunes). Se cuenta la espera de todos los veh\'iculos hasta el horizonte. ``Pappis reconst.'': controlador de 1977 reconstruido (Sec.~\ref{sec:lecturas}). ``Actuado af. + vista'': actuado afinado con la misma vista adelante de 10 s que FLC-O. $\Delta_P$ y $\Delta_V$: mejora de FLC-O (\%) frente a Pappis reconst. y frente al actuado af. + vista; $^{*}$: significativa (Wilcoxon pareado, Holm, 0.05). En negrita, el menor retardo medio entre los controladores realizables.}
 \label{tab:oficial}
 \scriptsize
-\setlength{\tabcolsep}{2.6pt}
-\begin{tabular}{@{}lrrrrrr@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-N-S / E-W (veh/h) & Webster & Actuado af. & Pappis & FLC-O & $\Delta$ (\%) & \'Optimo$^{\dagger}$ \\
+N-S / E-W (veh/h) & Webster & Actuado af. & Actuado af. + vista & Pappis reconst. & FLC-O & $\Delta_P$ (\%) & $\Delta_V$ (\%) & \'Optimo$^{\dagger}$ \\
 \midrule
-360 / 360 & 7.30 & 5.30 & 5.58 & \textbf{2.83} & +49.3$^{*}$ & 5.01 \\
-360 / 720 & 7.49 & 5.90 & 5.97 & \textbf{3.60} & +39.8$^{*}$ & 5.61 \\
-360 / 1080 & 7.77 & 6.42 & 6.25 & \textbf{4.12} & +34.2$^{*}$ & 5.86 \\
-360 / 1440 & 8.26 & 7.03 & 6.70 & \textbf{4.68} & +30.1$^{*}$ & 6.26 \\
-360 / 1800 & 9.22 & 7.76 & 7.40 & \textbf{5.49} & +25.8$^{*}$ & 6.90 \\
-360 / 2160 & 11.34 & 8.68 & 8.71 & \textbf{6.62} & +24.0$^{*}$ & 7.99 \\
-360 / 2520 & 16.31 & 10.42 & 12.02 & \textbf{9.06} & +24.7$^{*}$ & 9.95 \\
-720 / 720 & 9.36 & 7.13 & 6.57 & \textbf{4.87} & +25.9$^{*}$ & 7.04 \\
-720 / 1080 & 10.65 & 8.05 & 7.54 & \textbf{6.00} & +20.5$^{*}$ & 7.88 \\
-720 / 1440 & 12.53 & 9.15 & 9.34 & \textbf{7.37} & +21.1$^{*}$ & 9.01 \\
-720 / 1800 & 15.38 & 10.82 & 12.21 & \textbf{9.35} & +23.5$^{*}$ & 10.70 \\
-720 / 2160 & 21.27 & 13.66 & 17.69 & \textbf{12.89} & +27.1$^{*}$ & 13.63 \\
-1080 / 1080 & 13.56 & 9.58 & 9.78 & \textbf{7.87} & +19.5$^{*}$ & 9.58 \\
-1080 / 1440 & 17.81 & 11.81 & 13.82 & \textbf{10.53} & +23.8$^{*}$ & 11.79 \\
-1080 / 1800 & 25.68 & 15.85 & 22.41 & \textbf{15.33} & +31.6$^{*}$ & 15.89 \\
-1440 / 1440 & 26.98 & 16.48 & 23.24 & \textbf{16.00} & +31.2$^{*}$ & 16.44 \\
+360 / 360 & 7.30 $\pm$ 0.17 & 5.30 $\pm$ 0.18 & 3.82 $\pm$ 0.16 & 5.58 $\pm$ 0.14 & \textbf{2.83 $\pm$ 0.10} & +49.3$^{*}$ & +26.0$^{*}$ & 5.01 \\
+360 / 720 & 7.49 $\pm$ 0.15 & 5.90 $\pm$ 0.19 & 4.43 $\pm$ 0.17 & 5.97 $\pm$ 0.11 & \textbf{3.60 $\pm$ 0.13} & +39.8$^{*}$ & +18.8$^{*}$ & 5.61 \\
+360 / 1080 & 7.77 $\pm$ 0.24 & 6.42 $\pm$ 0.18 & 4.89 $\pm$ 0.15 & 6.25 $\pm$ 0.11 & \textbf{4.12 $\pm$ 0.10} & +34.2$^{*}$ & +15.9$^{*}$ & 5.86 \\
+360 / 1440 & 8.26 $\pm$ 0.32 & 7.03 $\pm$ 0.15 & 5.45 $\pm$ 0.15 & 6.70 $\pm$ 0.11 & \textbf{4.68 $\pm$ 0.14} & +30.1$^{*}$ & +14.0$^{*}$ & 6.26 \\
+360 / 1800 & 9.22 $\pm$ 0.26 & 7.76 $\pm$ 0.18 & 6.10 $\pm$ 0.22 & 7.40 $\pm$ 0.22 & \textbf{5.49 $\pm$ 0.20} & +25.8$^{*}$ & +9.9$^{*}$ & 6.90 \\
+360 / 2160 & 11.34 $\pm$ 1.32 & 8.68 $\pm$ 0.18 & 7.09 $\pm$ 0.24 & 8.71 $\pm$ 0.29 & \textbf{6.62 $\pm$ 0.28} & +24.0$^{*}$ & +6.7$^{*}$ & 7.99 \\
+360 / 2520 & 16.31 $\pm$ 4.56 & 10.42 $\pm$ 0.35 & 9.17 $\pm$ 0.50 & 12.02 $\pm$ 0.73 & \textbf{9.06 $\pm$ 0.50} & +24.7$^{*}$ & +1.3$^{*}$ & 9.95 \\
+720 / 720 & 9.36 $\pm$ 0.14 & 7.13 $\pm$ 0.14 & 5.52 $\pm$ 0.13 & 6.57 $\pm$ 0.15 & \textbf{4.87 $\pm$ 0.11} & +25.9$^{*}$ & +11.8$^{*}$ & 7.04 \\
+720 / 1080 & 10.65 $\pm$ 0.21 & 8.05 $\pm$ 0.15 & 6.47 $\pm$ 0.14 & 7.54 $\pm$ 0.16 & \textbf{6.00 $\pm$ 0.11} & +20.5$^{*}$ & +7.3$^{*}$ & 7.88 \\
+720 / 1440 & 12.53 $\pm$ 0.42 & 9.15 $\pm$ 0.18 & 7.65 $\pm$ 0.20 & 9.34 $\pm$ 0.29 & \textbf{7.37 $\pm$ 0.18} & +21.1$^{*}$ & +3.7$^{*}$ & 9.01 \\
+720 / 1800 & 15.38 $\pm$ 0.46 & 10.82 $\pm$ 0.30 & 9.48 $\pm$ 0.35 & 12.21 $\pm$ 0.50 & \textbf{9.35 $\pm$ 0.37} & +23.5$^{*}$ & +1.4$^{*}$ & 10.70 \\
+720 / 2160 & 21.27 $\pm$ 0.78 & 13.66 $\pm$ 0.59 & 12.97 $\pm$ 0.63 & 17.69 $\pm$ 1.36 & \textbf{12.89 $\pm$ 0.70} & +27.1$^{*}$ & +0.6 & 13.63 \\
+1080 / 1080 & 13.56 $\pm$ 0.28 & 9.58 $\pm$ 0.20 & 8.14 $\pm$ 0.17 & 9.78 $\pm$ 0.31 & \textbf{7.87 $\pm$ 0.19} & +19.5$^{*}$ & +3.3$^{*}$ & 9.58 \\
+1080 / 1440 & 17.81 $\pm$ 0.42 & 11.81 $\pm$ 0.30 & 10.68 $\pm$ 0.36 & 13.82 $\pm$ 0.53 & \textbf{10.53 $\pm$ 0.29} & +23.8$^{*}$ & +1.4$^{*}$ & 11.79 \\
+1080 / 1800 & 25.68 $\pm$ 0.87 & 15.85 $\pm$ 0.58 & 15.41 $\pm$ 0.68 & 22.41 $\pm$ 1.95 & \textbf{15.33 $\pm$ 0.72} & +31.6$^{*}$ & +0.5 & 15.89 \\
+1440 / 1440 & 26.98 $\pm$ 1.00 & 16.48 $\pm$ 0.69 & 16.13 $\pm$ 0.77 & 23.24 $\pm$ 1.91 & \textbf{16.00 $\pm$ 0.78} & +31.2$^{*}$ & +0.9$^{*}$ & 16.44 \\
 \midrule
-Media & 13.81 & 9.63 & 10.95 & 7.91 & +28.2 & 9.35 \\
+Media de los 16 pares & 13.81 & 9.63 & 8.34 & 10.95 & 7.91 & +28.2 & +7.7 & 9.35 \\
 \bottomrule
 \end{tabular}
-\fuente{simulaci\'on del autor (resultados/opt/evaluacion\_final.json); $^{\dagger}$ cota por programaci\'on din\'amica que conoce los caudales y no ve llegadas futuras (Sec.~\ref{sec:pd}).}
-\end{table}
+\fuente{simulaci\'on del autor (resultados/opt/evaluacion\_final.json); $^{\dagger}$ cota por programaci\'on din\'amica que conoce los caudales y no ve llegadas futuras (Sec.~\ref{sec:pd}); es determinista, sin dispersi\'on.}
+\end{table*}

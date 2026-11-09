@@ -1,0 +1,133 @@
+%% =============================================================================
+%%  Revision de las observaciones recibidas el 07-11-2026: evaluacion de su estructura y de su procedencia.
+%%  Documento aparte del articulo. Compilar con pdfLaTeX. La tabla, los conteos y la lista de observaciones que no tienen sentido
+%%  los escribe codigo/gen_revision_observaciones.py desde codigo/observaciones_revision.py y desde las cifras del manuscrito.
+%% =============================================================================
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[landscape,a4paper,margin=1.7cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{enumitem}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\definecolor{okverde}{rgb}{0.84,0.94,0.84}
+\definecolor{okamarillo}{rgb}{1.0,0.95,0.72}
+\definecolor{okrojo}{rgb}{0.98,0.80,0.78}
+\definecolor{okgris}{rgb}{0.86,0.88,0.92}
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+\setlist{itemsep=2pt,topsep=3pt}
+\emergencystretch=2em
+\input{numeros}
+\input{revision_obs_resumen}
+\newcommand{\FLC}{FLC-O}
+\newcommand{\PMR}{Pappis y Mamdani reconstruido}
+\newcommand{\alerta}[1]{\begin{center}\fcolorbox{red!60!black}{red!4}{\parbox{0.96\textwidth}{#1}}\end{center}}
+\newcommand{\caja}[1]{\begin{center}\fcolorbox{blue!40!black}{blue!4}{\parbox{0.96\textwidth}{#1}}\end{center}}
+
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Revisión de las observaciones recibidas el 07-11-2026}\\[3pt]
+{\large Evaluación de su estructura y de su procedencia, y qué se hizo con cada una}\\[4pt]
+{\small Artículo «Mejora de un controlador de semáforos de lógica difusa para una intersección aislada: optimización del controlador de Pappis y Mamdani (1977)»}\\[2pt]
+{\small Raul Nolberto Quispe Saya y Kevin Luis Valero Ccacya}
+\end{center}
+
+% =============================================================================
+\section{Resumen}
+
+\caja{\textbf{Qué se recibió.} Una revisión de 12 páginas (\texttt{Revision\_Valero}) con formato de plantilla: una etapa de verificación de lo entregado, puntuaciones, nueve criterios técnicos (C1 a C9), una matriz de reproducibilidad, cinco observaciones mayores, diez menores, una evaluación de datos, de figuras y de notación, y la recomendación «Major Rev».\\[3pt]
+\textbf{Cómo está estructurada.} Bien en lo esencial: cada observación mayor trae problema, severidad, impacto técnico y arreglo, y casi todas dicen en qué sección o tabla están. Tiene, sin embargo, errores propios que conviene conocer (Sec.~\ref{sec:estructura}).\\[3pt]
+\textbf{Qué se concluyó.} De las \RevN{} observaciones distintas que se extrajeron del documento, \RevNProcede{} proceden y se levantaron; \RevNParte{} proceden en parte (se levantó lo que tiene fondo); \RevNNo{} \textbf{no proceden} (son artefactos de extracción de texto, referencias cruzadas erróneas, algo ya cumplido o un error factual del revisor) y \RevNNoVer{} no es verificable por el revisor. Todo lo que procede está corregido en la nueva versión del artículo; el cuadro de lo levantado es un documento aparte.}
+
+\alerta{\textbf{Observaciones que no tienen sentido, para tenerlas presentes.}\\[2pt]
+\input{revision_obs_noprocede}}
+
+\textbf{La observación que más importa.} La asimetría de información (O1) era cierta y cambió el resultado. Con la misma vista adelante, la ventaja de \FLC{} sobre el actuado afinado pasa de \RedActAfOf\,\% a \RedActVOf\,\% en el conjunto oficial. Lo que no cambió es la comparación principal, contra el controlador de 1977 reconstruido (\RedFlc\,\%), porque ese controlador ya ve las llegadas de los próximos 10\,s. El detalle está en la Sec.~\ref{sec:hallazgo}.
+
+% =============================================================================
+\section{Evaluación de la estructura del documento recibido}
+\label{sec:estructura}
+
+\textbf{Lo que está bien estructurado.}
+\begin{itemize}
+\item Las cinco observaciones mayores siguen el formato problema, severidad, impacto técnico y arreglo accionable, y cada una cita ubicaciones concretas del manuscrito.
+\item Separa lo que es defecto del manuscrito de lo que es limitación de la extracción de texto (la sección «Extraction Integrity Report») y declara que no hay deficiencias bloqueantes.
+\item Distingue observaciones mayores de menores y las agrupa por tema (reproducibilidad, estadística, presentación).
+\item Reconoce fortalezas reales: separación entrenamiento, validación y prueba, estadística pareada con Holm y verificación exacta del simulador.
+\end{itemize}
+
+\textbf{Lo que no está bien estructurado o es incorrecto.}
+\begin{itemize}
+\item \textbf{Duplicación.} La falta de ecuaciones exactas de las pertenencias aparece al menos ocho veces (Etapa 0, C4, C5, C9, matriz de reproducibilidad, observación mayor 2, Fig.~2 y Tabla~3); la falta de dispersión, otras seis. Contarlas por separado infla la lista: aquí se agrupan en \RevN{} observaciones distintas.
+\item \textbf{Referencias cruzadas erróneas.} Dice que los nudos están en la «Tabla 3», pero están en el pie de la Tabla~2 (la Tabla~3 es la de controladores comparados); ubica las referencias [25] y [26] en la Sec.~IV-B, pero están en la Sec.~II; habla de un «entrenamiento de 20 minutos» que no existe en ningún documento (el manuscrito decía 15 y el tiempo medido es de 13) y lo ubica en la Sec.~V-A, que trata del simulador.
+\item \textbf{Artefactos de extracción presentados como defectos.} Pide corregir «CONTROLDORES» y «venta», y agregar unidades que ya estaban. El propio documento reconoce ruido de extracción en esas páginas, y los tres puntos son consistentes con haber trabajado sobre el texto extraído y no sobre el PDF compilado.
+\item \textbf{Un arreglo con un error factual.} Propone tomar como comparación justa la de «FLC-O causal (mejora de 1.7 \% sobre el actuado)», pero ese 1.7 \% es de la política neuronal causal; FLC-O causal es peor que el actuado (\RedActFlcC\,\%).
+\item \textbf{Una observación sobre algo que el revisor no pudo comprobar.} El estado «no verificable» del repositorio es una limitación de su entorno, no del manuscrito.
+\item \textbf{Observaciones ya cumplidas.} Pide aclarar que la banda de la Fig.~3 es solo de \FLC{}, cuando el pie ya lo decía; y pide dispersión en la Tabla~4 cuando el suplemento ya la traía para tres controladores.
+\item \textbf{Puntuaciones sin criterio.} Las notas numéricas (novedad 3/5, reproducibilidad 3/5, etc.) no traen la regla con que se asignan y no son accionables; no se cuentan como observaciones.
+\end{itemize}
+
+% =============================================================================
+\section{El hallazgo principal: la información igualada}
+\label{sec:hallazgo}
+
+Para responder a la observación O1 se implementó un actuado afinado que recibe la misma información que el controlador de 1977 y que \FLC{}: las llegadas de los próximos 10\,s. Se afinó con los mismos escenarios de entrenamiento y el mismo rango de parámetros que el resto (\texttt{codigo/opt\_afinar\_referencias.py}, que además reproduce exactamente el afinado anterior del actuado y de la presión máxima).
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Conjunto de prueba & \PMR{} & Actuado afinado & Actuado con vista adelante & \FLC{} & \FLC{} frente al actuado & \FLC{} frente al actuado con vista \\
+\midrule
+Oficial (16 pares) & \DelayOfPap{} & \DelayOfActAf{} & \DelayOfActV{} & \DelayOfFlc{} & $-$\RedActAfOf\,\% & $-$\RedActVOf\,\% \\
+No vistos (64) & \DelayNvPap{} & \DelayNvActAf{} & \DelayNvActV{} & \DelayNvFlc{} & $-$\RedActAfNv\,\% & $-$\RedActVNv\,\% \\
+Variable (64) & \DelayVaPap{} & \DelayVaActAf{} & \DelayVaActV{} & \DelayVaFlc{} & $-$\RedActAfVa\,\% & $-$\RedActVVa\,\% \\
+Saturado (32) & \DelaySaPap{} & \DelaySaActAf{} & \DelaySaActV{} & \DelaySaFlc{} & \RedActAfSa\,\% & $-$\RedActVSa\,\% \\
+\bottomrule
+\end{tabular}
+
+{\footnotesize\textit{Fuente:} \texttt{resultados/opt/evaluacion\_final.json}; retardo medio en s/veh; la reducción es sobre el promedio del conjunto.}
+\end{center}
+
+Lo que implica, dicho sin suavizar:
+\begin{itemize}
+\item La comparación principal no cambia: \FLC{} reduce \RedFlc\,\% el retardo de \PMR{}, que tiene la misma información, y es significativamente mejor en \ParMejorPap{} de 16 pares.
+\item La ventaja sobre el actuado era en gran parte información: el actuado afinado gana \RedVistaAfOf\,\% solo con recibir la vista adelante. Con información igualada, \FLC{} mantiene una ventaja de \RedActVOf\,\%, significativa en \ParMejorActV{} de 16 pares y sin ningún par peor, pero es mucho menor que la que se decía.
+\item Un actuado simple con la misma vista adelante ya mejora en \RedVistaPapOf\,\% al controlador de 1977. Una parte grande de la distancia al controlador de 1977 se recorre sin lógica difusa.
+\item Cerca de la saturación, \FLC{} y el actuado afinado siguen empatados (sin diferencia significativa, $p=\EscActAfSaP$), y el actuado con vista adelante es algo peor (\DelaySaActV{}).
+\end{itemize}
+El manuscrito lo dice así en el resumen, la Sec.~VIII-A, la discusión y las conclusiones.
+
+% =============================================================================
+\section{Evaluación observación por observación}
+\label{sec:tabla}
+
+Veredictos: \colorbox{okverde}{PROCEDE} se corrigió; \colorbox{okamarillo}{PROCEDE EN PARTE} tiene un fondo válido que se corrigió y una parte que no; \colorbox{okrojo}{\textbf{NO PROCEDE}} no se corrigió porque no hay defecto o está mal formulada; \colorbox{okgris}{NO VERIFICABLE} depende del entorno del revisor.
+
+\input{revision_obs_tabla}
+
+% =============================================================================
+\section{Qué se hizo además de cambiar el texto}
+
+\begin{itemize}
+\item \textbf{Experimentos nuevos.} El actuado con vista adelante (afinado y evaluado en los cuatro conjuntos de prueba); diez entrenamientos más de las variantes de la ablación, para tener tres semillas en verde mínimo, horizontes fijos y 81 reglas; estadística de dispersión por unidad para todos los controladores.
+\item \textbf{Reproducibilidad.} El afinado de las referencias, que antes no tenía un script, ahora es \texttt{codigo/opt\_afinar\_referencias.py} y reproduce los resultados guardados con 16 cifras. Los 42 parámetros de \FLC{} están completos en el suplemento y una prueba nueva (\texttt{codigo/test\_flco\_ecuaciones.py}) comprueba que las ecuaciones del suplemento, implementadas de forma independiente, dan la misma salida que el código.
+\item \textbf{Referencias.} Se agregó la de Ruspini (verificada en Crossref) y se completó la de Shaheen y colaboradores.
+\end{itemize}
+
+\section{Límites y pendientes}
+\begin{itemize}
+\item El actuado con vista adelante es de una sola familia y de cuatro parámetros; otro más elaborado podría reducir la ventaja de \FLC{}. Está dicho en las amenazas a la validez.
+\item Las filas de la ablación con una sola semilla (política neuronal, difuso causal, política lineal y \PMR{} afinado) siguen siendo exploratorias, y la tabla las marca como tales.
+\item Con 32 escenarios saturados no se puede afirmar que \FLC{} y el actuado afinado sean equivalentes, solo que no se detecta diferencia.
+\item Los tiempos de ejecución se midieron en un contenedor de 4 vCPU; en otro equipo variarán.
+\end{itemize}
+
+\end{document}

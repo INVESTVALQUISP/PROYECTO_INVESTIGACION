@@ -163,7 +163,7 @@ python codigo/opt_evaluacion_final.py                                 # evaluaci
 python codigo/gen_tablas_opt.py && python codigo/gen_fig_opt.py       # regenera tablas, cifras y figuras del artículo de optimización
 ```
 
-Entrenar un controlador (unos 15 minutos con 4 núcleos; los puntos de control se guardan en `*.parcial` y se retoman con `--resume`):
+Entrenar un controlador (unos 13 minutos con 4 núcleos; los puntos de control se guardan en `*.parcial` y se retoman con `--resume`):
 
 ```bash
 python codigo/opt_entrenar_modelo.py --modelo flcopt --gmin 5 --max-green 90 --suma-max 3300 --ref actuado_af --gens 150 --out resultados/opt/mi_modelo.json

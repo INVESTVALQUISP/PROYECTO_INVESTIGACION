@@ -29,7 +29,7 @@
 \maketitle
 
 \section{Alcance}
-Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la definición de las entradas $A$ y $Q$, la verificación del simulador vectorizado, la cota por programación dinámica, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
+Este documento reúne los detalles del artículo principal que no caben en él: los hiperparámetros del entrenamiento, la definición de las entradas $A$ y $Q$, la verificación del simulador vectorizado, la cota por programación dinámica, los parámetros completos de FLC-O, los resultados completos del conjunto oficial, la sensibilidad a la semilla de entrenamiento y la forma de reproducir cada cifra. Las ecuaciones y secciones citadas son las del artículo principal.
 
 \section{Entrenamiento}
 \label{sec:s-entrena}
@@ -113,12 +113,25 @@ CMA-ES es estocástico. Para medir cuánto depende \FLC{} de la semilla, se entr
 
 \input{tabla_s_semillas}
 
+\section{FLC-O completo: ecuaciones, parámetros y un ejemplo}
+\label{sec:s-flco}
+Esta sección reúne todo lo necesario para reconstruir el controlador sin leer el código. En cada segundo de verde, con $E=t-t_0$ los segundos de verde transcurridos, $Q_g$ y $Q_r$ las colas de los brazos con verde y en rojo al empezar el segundo y $W_g(l)$, $W_r(l)$ las llegadas previstas en $[t,t+l)$, se calcula
+\begin{align*}
+G&=Q_g+\omega_1W_g(2)+\omega_2W_g(5)+\omega_3W_g(10), & R&=Q_r+\rho_1W_r(3)+\rho_2W_r(6)+\rho_3W_r(10),\\
+V&=E, & \operatorname{sat}(z)&=\min\{1,\max\{0,z\}\}.
+\end{align*}
+Cada variable $x\in\{G,R,V\}$ tiene tres nudos $k_1<k_2<k_3$ y las pertenencias $\mu_{\text{bajo}}(x)=\operatorname{sat}\bigl(\tfrac{k_2-x}{k_2-k_1}\bigr)$, $\mu_{\text{alto}}(x)=\operatorname{sat}\bigl(\tfrac{x-k_2}{k_3-k_2}\bigr)$ y $\mu_{\text{medio}}(x)=1-\mu_{\text{bajo}}(x)-\mu_{\text{alto}}(x)$; por debajo de $k_1$ valen $(1,0,0)$ y por encima de $k_3$, $(0,0,1)$. La fuerza de la regla $(i,j,k)$ es $w_{ijk}=\mu_i(G)\,\mu_j(R)\,\mu_k(V)$, la salida es $u=\sum w_{ijk}c_{ijk}/(\sum w_{ijk}+10^{-9})$ y se cambia de fase si $E\ge g_{\min}$ y $u>0$, o si $E\ge g_{\max}$; en el modelo elegido $g_{\min}=3$\,s y $g_{\max}=90$\,s. La Tabla~\ref{tab:sparametros} da los 42 parámetros con 6 decimales y la Tabla~\ref{tab:sejemplo}, un ejemplo para comprobar una implementación.
+
+\input{tabla_s_parametros}
+
+\input{tabla_s_ejemplo}
+
 \section{Reproducción}
 \label{sec:s-repro}
 Desde la carpeta del proyecto, con Python 3.13 y NumPy 2.5:
 \begin{itemize}
 \item \texttt{python codigo/ejecutar\_pruebas.py}: todas las comprobaciones, incluida la equivalencia de los simuladores.
-\item \texttt{python codigo/opt\_entrenar\_modelo.py -{}-modelo flcopt -{}-gmin 3 -{}-seed 2 -{}-max-green 90 -{}-suma-max 3300 -{}-ref actuado\_af -{}-gens 150 -{}-out resultados/opt/flcopt\_g3\_s2.json}: entrena el \FLC{} propuesto (unos 15 minutos con 4 núcleos); sin \texttt{-{}-seed} se obtiene la semilla 0.
+\item \texttt{python codigo/opt\_entrenar\_modelo.py -{}-modelo flcopt -{}-gmin 3 -{}-seed 2 -{}-max-green 90 -{}-suma-max 3300 -{}-ref actuado\_af -{}-gens 150 -{}-out resultados/opt/flcopt\_g3\_s2.json}: entrena el \FLC{} propuesto (unos 13 minutos con 4 núcleos); sin \texttt{-{}-seed} se obtiene la semilla 0.
 \item \texttt{python codigo/opt\_validar.py flcopt\_g3 flcopt\_g4 flcopt\_g5}: ordena variantes con los escenarios de validación, sin mirar los de prueba.
 \item \texttt{python codigo/opt\_evaluacion\_final.py}: evalúa todos los controladores en los cuatro conjuntos de prueba y calcula la estadística.
 \item \texttt{python codigo/gen\_tablas\_opt.py} y \texttt{python codigo/gen\_fig\_opt.py}: regeneran las tablas, las cifras del texto y las figuras.

@@ -1,0 +1,28 @@
+\begin{table*}[!t]
+\centering
+\caption{Los 42 par\'ametros de FLC-O (vector $\theta$ de resultados/opt/flcopt\_g3\_s2.json). Nudos de cada variable: $k_1=|p_1|$, $k_2=k_1+|p_2|+0.05$, $k_3=k_2+|p_3|+0.05$; pesos de la vista adelante: $\omega_k$ y $\rho_k$ entran en valor absoluto; $c_{G,R,V}$ es el consecuente de la regla con esos conjuntos de $G$, $R$ y $V$.}
+\label{tab:sparametros}
+\scriptsize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}lrlrlr@{}}
+\toprule
+Par\'ametro & Valor & Par\'ametro & Valor & Par\'ametro & Valor \\
+\midrule
+$p_{1}^{G}$ & 0.000379 & $c_{\text{bajo},\text{medio},\text{alto}}$ & 2.365779 & $c_{\text{alto},\text{bajo},\text{medio}}$ & $-$1.338588 \\
+$p_{2}^{G}$ & 1.044716 & $c_{\text{bajo},\text{alto},\text{bajo}}$ & 0.341950 & $c_{\text{alto},\text{bajo},\text{alto}}$ & 0.333639 \\
+$p_{3}^{G}$ & 3.586405 & $c_{\text{bajo},\text{alto},\text{medio}}$ & 2.179129 & $c_{\text{alto},\text{medio},\text{bajo}}$ & $-$3.317767 \\
+$p_{1}^{R}$ & $-$0.238579 & $c_{\text{bajo},\text{alto},\text{alto}}$ & $-$0.190776 & $c_{\text{alto},\text{medio},\text{medio}}$ & $-$2.084490 \\
+$p_{2}^{R}$ & 7.759846 & $c_{\text{medio},\text{bajo},\text{bajo}}$ & $-$2.749652 & $c_{\text{alto},\text{medio},\text{alto}}$ & $-$1.805667 \\
+$p_{3}^{R}$ & 12.677537 & $c_{\text{medio},\text{bajo},\text{medio}}$ & $-$1.060884 & $c_{\text{alto},\text{alto},\text{bajo}}$ & $-$2.038579 \\
+$p_{1}^{V}$ & 6.562272 & $c_{\text{medio},\text{bajo},\text{alto}}$ & $-$1.089102 & $c_{\text{alto},\text{alto},\text{medio}}$ & $-$0.030253 \\
+$p_{2}^{V}$ & 16.844344 & $c_{\text{medio},\text{medio},\text{bajo}}$ & $-$0.508211 & $c_{\text{alto},\text{alto},\text{alto}}$ & $-$1.624757 \\
+$p_{3}^{V}$ & 31.062505 & $c_{\text{medio},\text{medio},\text{medio}}$ & $-$0.269432 & $\omega_{1}$ & 0.877680 \\
+$c_{\text{bajo},\text{bajo},\text{bajo}}$ & 0.061618 & $c_{\text{medio},\text{medio},\text{alto}}$ & $-$0.204914 & $\omega_{2}$ & 0.210141 \\
+$c_{\text{bajo},\text{bajo},\text{medio}}$ & 0.044959 & $c_{\text{medio},\text{alto},\text{bajo}}$ & $-$1.610689 & $\omega_{3}$ & 0.028786 \\
+$c_{\text{bajo},\text{bajo},\text{alto}}$ & $-$0.156946 & $c_{\text{medio},\text{alto},\text{medio}}$ & $-$0.357626 & $\rho_{1}$ & 0.215011 \\
+$c_{\text{bajo},\text{medio},\text{bajo}}$ & 1.524088 & $c_{\text{medio},\text{alto},\text{alto}}$ & 0.595011 & $\rho_{2}$ & $-$0.876709 \\
+$c_{\text{bajo},\text{medio},\text{medio}}$ & 1.453280 & $c_{\text{alto},\text{bajo},\text{bajo}}$ & $-$0.518592 & $\rho_{3}$ & 0.493267 \\
+\bottomrule
+\end{tabular}
+\fuente{modelo entrenado flcopt\_g3\_s2 (resultados/opt/flcopt\_g3\_s2.json); $\theta$ con 6 decimales.}
+\end{table*}

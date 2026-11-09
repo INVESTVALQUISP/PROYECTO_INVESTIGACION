@@ -6,6 +6,7 @@ y de forma exacta, a los de traffic_model.py:
 
   FixedCycle    ciclo fijo con los ajustes optimos de Webster (conoce los caudales)
   Actuated      verde por detector con extension por hueco (gap-out)
+  ActuatedPreview  el actuado con la misma vista adelante de 10 s que usan Pappis y Mamdani y FLC-O
   PappisFuzzy   controlador difuso de Pappis y Mamdani (1977): 25 reglas, inferencia min-max,
                 decision = argmax del grado, umbral 0.5
 
@@ -69,6 +70,31 @@ class Actuated:
         el = t - sim.tstart
         demanda = (q_g > 0) | ((t - sim.last_arr) < self.gap)
         return green & (el >= self.min_green) & ~demanda & (q_o > 0)
+
+
+class ActuatedPreview:
+    """Actuado con la MISMA informacion que Pappis y Mamdani y FLC-O: detectores aguas arriba que informan de las
+    llegadas de los proximos segundos (vista adelante). Termina el verde cuando, pasado el minimo, el brazo con verde
+    no tiene cola ni se esperan llegadas en los proximos 'gap' s, y el otro brazo tiene vehiculos esperando o se
+    esperan llegadas a el en los proximos 'gap_rojo' s (gap_rojo = 0: solo su cola, como el actuado clasico). El
+    maximo lo da BatchSim(max_green=...). Se agrego para separar la ventaja de la informacion de la del metodo."""
+
+    def __init__(self, min_green=7, gap=3, gap_rojo=0):
+        self.min_green, self.gap, self.gap_rojo = min_green, gap, gap_rojo
+
+    def stop(self, sim, t, green):
+        a = sim.arr
+        ns = sim.phase == 0
+        q_g = np.where(ns, sim.q_ns, sim.q_ew)
+        q_o = np.where(ns, sim.q_ew, sim.q_ns)
+        el = t - sim.tstart
+        fut_g = np.where(ns, a.C_ns[:, t + self.gap] - a.C_ns[:, t], a.C_ew[:, t + self.gap] - a.C_ew[:, t])   # llegadas en [t, t + gap)
+        demanda = (q_g > 0) | (fut_g > 0)
+        espera = q_o > 0
+        if self.gap_rojo:
+            fut_r = np.where(ns, a.C_ew[:, t + self.gap_rojo] - a.C_ew[:, t], a.C_ns[:, t + self.gap_rojo] - a.C_ns[:, t])
+            espera = espera | (fut_r > 0)
+        return green & (el >= self.min_green) & ~demanda & espera
 
 
 # ---------------------------------------------------------------------------

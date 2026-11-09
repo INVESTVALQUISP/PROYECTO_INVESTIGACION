@@ -1,26 +1,26 @@
 \begin{table*}[!t]
 \centering
-\caption{Variantes de FLC-O y controladores aprendidos, entrenados con las mismas condiciones. Retardo medio (s/veh) en la Tabla VIII, en caudales no vistos y con demanda variable. $g_{\min}$: verde m\'inimo.}
+\caption{Variantes de FLC-O y controladores aprendidos, entrenados con las mismas condiciones. Retardo medio (s/veh) en la Tabla VIII, en caudales no vistos y con demanda variable. Con 3 semillas de entrenamiento (columna $n$), media $\pm$ desviaci\'on est\'andar muestral ($n-1$) entre semillas; con $n=1$, un solo entrenamiento (exploratorio, sin incertidumbre). $g_{\min}$: verde m\'inimo.}
 \label{tab:ablacion}
 \scriptsize
 \setlength{\tabcolsep}{2.4pt}
-\begin{tabular}{@{}lrlrrr@{}}
+\begin{tabular}{@{}lrlrrrr@{}}
 \toprule
-Variante & Par. & Informaci\'on & Oficial & No vistos & Variable \\
+Variante & Par. & Informaci\'on & $n$ & Oficial & No vistos & Variable \\
 \midrule
-Pappis y Mamdani afinado (cada 10 s, $g_{\min}=7$) & 30 & vista adelante & 9.67 & 9.3 & 8.1 \\
-Difuso 27 reglas, horizontes fijos ($g_{\min}=3$) & 36 & vista adelante & 8.44 & 7.9 & 6.6 \\
-Difuso 81 reglas con hueco ($g_{\min}=3$) & 93 & vista adelante & 8.47 & 7.9 & 6.5 \\
-FLC-O, $g_{\min}=7$ & 42 & vista adelante & 8.60 & 8.1 & 6.9 \\
-FLC-O, $g_{\min}=5$ & 42 & vista adelante & 8.21 & 7.7 & 6.4 \\
-FLC-O, $g_{\min}=4$ & 42 & vista adelante & 8.04 & 7.6 & 6.2 \\
-FLC-O, $g_{\min}=3$ & 42 & vista adelante & 8.00 & 7.5 & 6.2 \\
-Política neuronal ($g_{\min}=3$) & 121 & vista adelante & 8.09 & 7.5 & 6.2 \\
-Difuso 27 reglas, causal & 36 & solo pasado & 9.97 & 9.4 & 8.4 \\
-Política lineal causal con hueco & 16 & solo pasado & 9.53 & 9.0 & 8.1 \\
-Política neuronal, causal & 121 & solo pasado & 9.46 & 9.0 & 8.1 \\
-\textbf{FLC-O propuesto} (mejor de 3 semillas) & 42 & vista adelante & 7.91 & 7.4 & 6.1 \\
+Pappis y Mamdani afinado (cada 10 s, $g_{\min}=7$) & 30 & vista adelante & 1 & 9.67 & 9.30 & 8.06 \\
+Difuso 27 reglas, horizontes fijos ($g_{\min}=3$) & 36 & vista adelante & 3 & 8.47 $\pm$ 0.04 & 7.89 $\pm$ 0.03 & 6.56 $\pm$ 0.02 \\
+Difuso 81 reglas con hueco ($g_{\min}=3$) & 93 & vista adelante & 3 & 8.44 $\pm$ 0.03 & 7.87 $\pm$ 0.05 & 6.55 $\pm$ 0.00 \\
+FLC-O, $g_{\min}=7$ & 42 & vista adelante & 3 & 8.55 $\pm$ 0.05 & 8.11 $\pm$ 0.04 & 6.84 $\pm$ 0.02 \\
+FLC-O, $g_{\min}=5$ & 42 & vista adelante & 3 & 8.19 $\pm$ 0.05 & 7.72 $\pm$ 0.08 & 6.44 $\pm$ 0.09 \\
+FLC-O, $g_{\min}=4$ & 42 & vista adelante & 3 & 8.05 $\pm$ 0.02 & 7.56 $\pm$ 0.01 & 6.20 $\pm$ 0.04 \\
+FLC-O, $g_{\min}=3$ & 42 & vista adelante & 3 & 7.98 $\pm$ 0.06 & 7.47 $\pm$ 0.06 & 6.18 $\pm$ 0.09 \\
+Política neuronal ($g_{\min}=3$) & 121 & vista adelante & 1 & 8.09 & 7.53 & 6.24 \\
+Difuso 27 reglas, causal & 36 & solo pasado & 1 & 9.97 & 9.37 & 8.41 \\
+Política lineal causal con hueco & 16 & solo pasado & 1 & 9.53 & 8.97 & 8.10 \\
+Política neuronal, causal & 121 & solo pasado & 1 & 9.46 & 8.95 & 8.05 \\
+\textbf{FLC-O propuesto} (semilla elegida) & 42 & vista adelante & 1 & 7.91 & 7.40 & 6.07 \\
 \bottomrule
 \end{tabular}
-\fuente{simulaci\'on del autor; par.: n\'umero de par\'ametros entrenados; las filas de $g_{\min}$ usan la misma semilla de entrenamiento.}
+\fuente{simulaci\'on del autor; par.: n\'umero de par\'ametros entrenados; las semillas cambian solo la semilla de CMA-ES, con los mismos escenarios de entrenamiento.}
 \end{table*}

@@ -11,9 +11,10 @@ ETIQUETA = {
     "fijo": "Ciclo fijo (Webster)",
     "actuado": "Actuado (hueco 3 s)",
     "actuado_af": "Actuado afinado",
+    "actuado_vista": "Actuado afinado con vista adelante",
     "maxpressure": "Presión máxima",
-    "pappis": "Pappis y Mamdani",
-    "afinado_pappis": "Pappis y Mamdani afinado",
+    "pappis": "Pappis y Mamdani reconstruido",
+    "afinado_pappis": "Pappis y Mamdani reconstruido afinado",
     "mdp": "Óptimo (PD, caudales conocidos)",
     "flc": "FLC-O (propuesto)",
     "flc_causal": "FLC-O causal",
@@ -22,7 +23,7 @@ ETIQUETA = {
 }
 
 # orden de las columnas en las tablas
-ORDEN_REFERENCIAS = ["fijo", "actuado", "actuado_af", "pappis"]
+ORDEN_REFERENCIAS = ["fijo", "actuado", "actuado_af", "actuado_vista", "pappis"]
 
 
 def finales(ruta="resultados/opt/modelos_finales.json"):
@@ -35,6 +36,6 @@ def finales(ruta="resultados/opt/modelos_finales.json"):
 def clave(rol, fin=None):
     """Nombre bajo el que aparece el controlador en evaluacion_final.json."""
     fin = fin if fin is not None else finales()
-    if rol in ("fijo", "actuado", "actuado_af", "maxpressure", "pappis", "mdp"):
+    if rol in ("fijo", "actuado", "actuado_af", "actuado_vista", "maxpressure", "pappis", "mdp"):
         return rol
     return fin.get({"afinado_pappis": "afinado"}.get(rol, rol), rol)

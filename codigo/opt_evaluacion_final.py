@@ -30,7 +30,7 @@ import opt_flc
 import opt_flc2
 import opt_mdp
 import opt_politicas
-from opt_controladores import FixedCycle, Actuated, PappisFuzzy, MaxPressure
+from opt_controladores import FixedCycle, Actuated, PappisFuzzy, MaxPressure, ActuatedPreview
 from opt_entrenar import escenarios_oficiales, escenarios_validacion
 from sim_batch import BatchSim
 
@@ -68,6 +68,7 @@ def correr_todos(arr, fl, modelos, mdp_tablas=None):
     ln, le = fl[:, 0] / 3600.0, fl[:, 1] / 3600.0
     af = json.load(open(f"{OUT}/actuado_afinado.json"))["mejor"]
     mp = json.load(open(f"{OUT}/maxpressure_afinado.json"))["mejor"]
+    av = json.load(open(f"{OUT}/actuado_vista_afinado.json"))["mejor"] if os.path.exists(f"{OUT}/actuado_vista_afinado.json") else None
     res = {
         "fijo": BatchSim(arr, max_green=None).run(FixedCycle(ln, le)),
         "actuado": BatchSim(arr, max_green=57).run(Actuated(7, 3)),
@@ -75,6 +76,8 @@ def correr_todos(arr, fl, modelos, mdp_tablas=None):
         "maxpressure": BatchSim(arr, max_green=mp["max_green"]).run(MaxPressure(mp["min_green"], mp["margen"])),
         "pappis": BatchSim(arr).run(PappisFuzzy()),
     }
+    if av is not None:        # actuado con la misma vista adelante de 10 s que Pappis y Mamdani y FLC-O
+        res["actuado_vista"] = BatchSim(arr, max_green=av["max_green"]).run(ActuatedPreview(av["min_green"], av["gap"], av["gap_rojo"]))
     if mdp_tablas is not None:
         res["mdp"] = BatchSim(arr, max_green=None).run(opt_mdp.PoliticaMDP(mdp_tablas))
     for nombre, d in modelos.items():
@@ -130,9 +133,14 @@ def main():
                     cambios_fase={k: v["n_switch"].tolist() for k, v in res.items()})
         if nombre == "oficial":
             info["por_par"] = {k: ev.resumen_por_par(np.array(info["delay"][k]), fl, reps) for k in res}
-            refs = [r for r in ("fijo", "actuado", "actuado_af", "pappis", "mdp", "afinado_pappis") if r in res]
+            refs = [r for r in ("fijo", "actuado", "actuado_af", "actuado_vista", "pappis", "mdp", "afinado_pappis") if r in res]
             info["comparaciones"] = {f"{a}__vs__{b}": ev.comparar(np.array(info["delay"][a]), np.array(info["delay"][b]), reps)
                                      for a in res for b in refs if a != b}
+        else:                  # conjuntos con un escenario por par: IC de la media y prueba pareada por escenario
+            refs = [r for r in ("fijo", "actuado", "actuado_af", "actuado_vista", "pappis", "afinado_pappis") if r in res]
+            info["resumen"] = {k: ev.resumen_escenarios(np.array(info["delay"][k])) for k in res}
+            info["comparaciones_escenario"] = {f"{a}__vs__{b}": ev.comparar_escenarios(np.array(info["delay"][a]), np.array(info["delay"][b]))
+                                               for a in res for b in refs if a != b}
         salida[nombre] = info
         medias = {k: float(np.mean(v)) for k, v in info["delay"].items()}
         print(f"[{nombre}] ({len(fl)} escenarios, {time.time()-t0:.0f} s) retardo medio:",

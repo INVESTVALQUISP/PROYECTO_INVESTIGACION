@@ -27,7 +27,7 @@ from sim_batch import BatchSim
 OUT = "articulo/figures"
 plt.rcParams.update({"font.size": 7, "axes.titlesize": 7.5, "axes.labelsize": 7, "legend.fontsize": 6.2, "xtick.labelsize": 6.5,
                      "ytick.labelsize": 6.5, "axes.spines.top": False, "axes.spines.right": False, "font.family": "DejaVu Sans"})
-COL = {"fijo": "#8c8c8c", "actuado_af": "#2b6cb0", "pappis": "#d9822b", "flc": "#1f9d55", "mdp": "#222222", "mlp": "#8e44ad"}
+COL = {"fijo": "#8c8c8c", "actuado_af": "#2b6cb0", "actuado_vista": "#17a2b8", "pappis": "#d9822b", "flc": "#1f9d55", "mdp": "#222222", "mlp": "#8e44ad"}
 
 
 def cargar_modelo(nombre):
@@ -43,31 +43,42 @@ def fig_retardo(d, key):
     pares = np.array(of["flujos"])[::20]
     tot = pares.sum(axis=1)
     orden = np.lexsort((pares[:, 0], tot))
-    comp = of["comparaciones"][f"{key['flc']}__vs__{key['pappis']}"]
-    fig, ax = plt.subplots(1, 2, figsize=(7.16, 2.5), gridspec_kw={"width_ratios": [1.35, 1]})
+    cp = of["comparaciones"][f"{key['flc']}__vs__{key['pappis']}"]
+    cv = of["comparaciones"].get(f"{key['flc']}__vs__{key['actuado_vista']}") if "actuado_vista" in key else None
+    fig, ax = plt.subplots(1, 2, figsize=(7.16, 2.7), gridspec_kw={"width_ratios": [1.35, 1]})
     x = np.arange(len(pares))
-    for r, ls in (("fijo", "-"), ("actuado_af", "-"), ("pappis", "-"), ("mdp", "--"), ("flc", "-")):
+    lista = [r for r in ("fijo", "actuado_af", "actuado_vista", "pappis", "mdp", "flc") if r in key and key[r] in of["por_par"]]
+    for r in lista:
+        ls = "--" if r == "mdp" else "-"
         y = np.array([of["por_par"][key[r]][i]["media"] for i in orden])
-        ax[0].plot(x, y, ls, color=COL[r], lw=1.9 if r == "flc" else 1.2, marker="o" if r == "flc" else None, ms=3,
-                   label=ETIQUETA[r], zorder=5 if r == "flc" else 3)
-    lo = np.array([of["por_par"][key["flc"]][i]["ic_lo"] for i in orden])
-    hi = np.array([of["por_par"][key["flc"]][i]["ic_hi"] for i in orden])
-    ax[0].fill_between(x, lo, hi, color=COL["flc"], alpha=0.25, lw=0)
+        ax[0].plot(x, y, ls, color=COL[r], lw=1.9 if r == "flc" else 1.1, marker="o" if r == "flc" else None, ms=3,
+                   label=ETIQUETA[r].replace("Pappis y Mamdani reconstruido", "Pappis y Mamdani reconst."), zorder=5 if r == "flc" else 3)
+        if r != "mdp":                      # banda: IC 95 % de las 20 replicas de cada controlador (la cota es determinista)
+            lo = np.array([of["por_par"][key[r]][i]["ic_lo"] for i in orden])
+            hi = np.array([of["por_par"][key[r]][i]["ic_hi"] for i in orden])
+            ax[0].fill_between(x, lo, hi, color=COL[r], alpha=0.22 if r == "flc" else 0.15, lw=0)
     ax[0].set_xticks(x)
     ax[0].set_xticklabels([f"{int(pares[i, 0])}/{int(pares[i, 1])}" for i in orden], rotation=60, ha="right", fontsize=5.6)
     ax[0].set_xlabel("caudales N-S / E-W (veh/h), ordenados por la suma")
     ax[0].set_ylabel("retardo medio (s/veh)")
-    ax[0].set_title("(a) Retardo por par de caudales (banda: IC 95 % de FLC-O)")
+    ax[0].set_title("(a) Retardo por par (bandas: IC 95 % de cada controlador)")
     ax[0].legend(frameon=False, ncol=1, loc="upper left")
-    g = np.array(comp["mejora_por_par"])[orden]
-    sig = np.array(comp["p_holm"])[orden] < 0.05
-    ax[1].bar(x, g, color=[COL["flc"] if s else "#b8c4bd" for s in sig], width=0.75)
+    w = 0.4 if cv is not None else 0.75
+    g = np.array(cp["mejora_por_par"])[orden]
+    sig = np.array(cp["p_holm"])[orden] < 0.05
+    ax[1].bar(x - (w / 2 if cv is not None else 0), g, color=[COL["pappis"] if s_ else "#e6d3c0" for s_ in sig], width=w,
+              label="frente a Pappis y Mamdani reconst.")
+    if cv is not None:
+        gv = np.array(cv["mejora_por_par"])[orden]
+        sv = np.array(cv["p_holm"])[orden] < 0.05
+        ax[1].bar(x + w / 2, gv, color=[COL["actuado_vista"] if s_ else "#c7dfe4" for s_ in sv], width=w, label="frente al actuado con vista adelante")
     ax[1].axhline(0, color="k", lw=0.6)
     ax[1].set_xticks(x)
     ax[1].set_xticklabels([f"{int(pares[i, 0])}/{int(pares[i, 1])}" for i in orden], rotation=60, ha="right", fontsize=5.6)
     ax[1].set_xlabel("caudales N-S / E-W (veh/h)")
-    ax[1].set_ylabel("mejora (%)")
-    ax[1].set_title("(b) Mejora frente a Pappis y Mamdani\n(verde: significativa, Holm 0.05)")
+    ax[1].set_ylabel("mejora de FLC-O (%)")
+    ax[1].set_title("(b) Mejora de FLC-O (color pleno: significativa,\nHolm 0.05; tenue: no significativa)")
+    ax[1].legend(frameon=False, loc="upper right")
     fig.tight_layout(pad=0.5)
     fig.savefig(f"{OUT}/fig_opt_retardo.png", dpi=300)
     plt.close(fig)
@@ -156,7 +167,7 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     d = json.load(open("resultados/opt/evaluacion_final.json"))
     fin = finales()
-    key = {r: clave(r, fin) for r in ("fijo", "actuado_af", "pappis", "mdp", "flc")}
+    key = {r: clave(r, fin) for r in ("fijo", "actuado_af", "actuado_vista", "pappis", "mdp", "flc")}
     fig_retardo(d, key)
     fig_difuso(fin["flc"])
     fig_aprendizaje(fin)

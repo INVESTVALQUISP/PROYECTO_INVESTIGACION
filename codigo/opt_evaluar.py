@@ -57,6 +57,23 @@ def resumen_por_par(delay, flujos, reps=20):
     return out
 
 
+def resumen_escenarios(delay):
+    """Media, sd muestral (n-1) e IC 95 % (t de Student) del retardo sobre n escenarios distintos (un escenario por par de caudales)."""
+    m, sd, lo, hi = est.ic95(np.asarray(delay, dtype=float))
+    return dict(n=int(len(delay)), media=m, sd=sd, ic_lo=lo, ic_hi=hi)
+
+
+def comparar_escenarios(delay_a, delay_b):
+    """a frente a b en escenarios pareados (mismas llegadas): reduccion relativa media por escenario (%) con su IC 95 %,
+    reduccion de las medias (%), numero de escenarios en que a es mejor y peor, y p de Wilcoxon pareado de dos colas."""
+    a, b = np.asarray(delay_a, dtype=float), np.asarray(delay_b, dtype=float)
+    rel = (b - a) / b * 100.0
+    m, sd, lo, hi = est.ic95(rel)
+    return dict(n=int(len(a)), mejora_media_escenario_pct=m, ic_lo=lo, ic_hi=hi,
+                mejora_de_medias_pct=float((b.mean() - a.mean()) / b.mean() * 100.0),
+                mejor=int((a < b).sum()), peor=int((a > b).sum()), p_wilcoxon=float(est.wilcoxon(a, b)["p"]))
+
+
 def comparar(delay_a, delay_b, reps=20):
     """Wilcoxon pareado por par de caudales (a vs b) con Holm. Devuelve mejora % media y conteos."""
     ps, difs = [], []

@@ -13,7 +13,7 @@ import _raiz  # noqa: F401  (cwd = carpeta del proyecto)
 from collections import Counter
 
 import etiquetas_articulo as ea
-from observaciones_revision import OBS, PROCEDE, EN_PARTE, NO_PROCEDE, NO_VERIFICABLE
+from observaciones_revision import OBS, PROCEDE, EN_PARTE, NO_PROCEDE, NO_VERIFICABLE, clase
 
 OUT = "articulo"
 COLOR = {PROCEDE: "okverde", EN_PARTE: "okamarillo", NO_PROCEDE: "okrojo", NO_VERIFICABLE: "okgris"}
@@ -31,7 +31,9 @@ def donde(claves):
 def main():
     filas = []
     for oid, tipo, texto, ubic, ver, razon, accion, claves in OBS:
-        cel_obs = f"\\textbf{{{oid}}}\\ ({t(tipo)}): {t(texto)}\\par\\smallskip{{\\itshape Ubicaci\\'on citada: {t(ubic)}}}"
+        cl = clase(oid, tipo)[0]
+        etq = tipo if tipo != "Otra" else cl.lower() + ", clasif. propia"
+        cel_obs = f"\\textbf{{{oid}}}\\ ({t(etq)}): {t(texto)}\\par\\smallskip{{\\itshape Ubicaci\\'on citada: {t(ubic)}}}"
         cel_ver = f"\\cellcolor{{{COLOR[ver]}}}\\textbf{{{t(ver)}}}"
         cel_acc = f"{t(accion)}\\par\\smallskip{{\\itshape Queda en: {t(donde(claves))}}}"
         filas.append(f"{cel_obs} & {cel_ver} & {t(razon)} & {cel_acc} \\\\\n\\midrule")

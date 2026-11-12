@@ -95,3 +95,25 @@ OBS = [
      "Además, la comparación causal no es la principal para el resultado de 27.8 %, pues el controlador de 1977 sí tiene vista adelante. La alternativa que el revisor ofrece (actuado con vista adelante) sí se hizo (O1).",
      "Se mantiene la comparación sin vista adelante tal como estaba (@@RedActMlpC@@ % la política neuronal; @@RedActFlcC@@ % el difuso causal) y se agrega la comparación con información igualada.", ["sec:res-abl"]),
 ]
+
+# ---------------------------------------------------------------- clase de cada observacion: mayor o menor
+# La revision enumera 5 observaciones mayores (seccion 5, «Major Issues»: O1-O5) y 10 menores (seccion 6, «Minor Issues»: O6-O15).
+# O16-O21 salen de otras secciones, donde el revisor no las pone en ninguna de las dos listas; se clasifican aqui segun la
+# severidad que el propio revisor les da en esa seccion, y el documento lo dice.
+BASE_CLASE = {
+    "O16": ("Mayor", "no está en las listas de mayores ni menores de la revisión; sale de la sección C2, donde el revisor le asigna severidad «Important»"),
+    "O17": ("Menor", "no está en las listas de mayores ni menores de la revisión; sale de la sección 8 (figuras, tablas y notación), cuyo arreglo el revisor califica de «menor»"),
+    "O18": ("Mayor", "no está en las listas de mayores ni menores de la revisión; sale de la sección 7 (calidad de los datos) y es parte de la estadística de la Tabla 6 que pide la observación mayor 3"),
+    "O19": ("Mayor", "no está en las listas de mayores ni menores de la revisión; sale de la sección C9 (reproducibilidad), donde el revisor le asigna severidad «Important»"),
+    "O20": ("Menor", "no está en las listas de mayores ni menores de la revisión; sale de la sección 8 (figuras, tablas y notación), cuyo arreglo el revisor califica de «menor»"),
+    "O21": ("Mayor", "no está en las listas de mayores ni menores de la revisión; es parte del arreglo propuesto en la observación mayor 1 y en la sección C3 (severidad «Important»)"),
+}
+
+
+def clase(oid, tipo):
+    """('Mayor' | 'Menor', explicacion de donde sale la clasificacion)."""
+    if tipo.startswith("Mayor"):
+        return "Mayor", f"observación mayor {tipo.split()[1]} de la revisión, en su sección 5 «Major Issues»"
+    if tipo == "Menor":
+        return "Menor", "lista de observaciones menores de la revisión, en su sección 6 «Minor Issues»"
+    return BASE_CLASE[oid][0], "clasificación propia: " + BASE_CLASE[oid][1]

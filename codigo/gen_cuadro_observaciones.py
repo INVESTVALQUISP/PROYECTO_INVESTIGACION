@@ -20,7 +20,7 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 import etiquetas_articulo as ea
-from observaciones_revision import OBS, PROCEDE, EN_PARTE, NO_PROCEDE, NO_VERIFICABLE
+from observaciones_revision import OBS, PROCEDE, EN_PARTE, NO_PROCEDE, NO_VERIFICABLE, clase
 
 OUT = "entregas/Cuadro_Observaciones_Levantadas.docx"
 TITULOS = {
@@ -139,10 +139,23 @@ def rotulo(doc, texto):
     parrafo(doc, texto, negrita=True, tam=10.5, color="1F3864", antes=6, despues=2)
 
 
-def bloque(doc, n, titulo, cuerpo_obs, ubic, estado, color_estado, que, donde, etiqueta="OBSERVACIÓN"):
-    h = doc.add_heading(f"{etiqueta} {n}", level=2)
+def bloque(doc, n, titulo, cuerpo_obs, ubic, estado, color_estado, que, donde, etiqueta="OBSERVACIÓN", tipo=None):
+    h = doc.add_heading(f"{etiqueta} {n}" + (f" — {tipo[0].upper()}" if tipo else ""), level=2)
     h.paragraph_format.space_before = Pt(14)
     linea(doc)
+    if tipo:
+        p = parrafo(doc, despues=2)
+        r = p.add_run("TIPO: ")
+        r.bold = True
+        r.font.size = Pt(10.5)
+        r.font.color.rgb = RGBColor.from_string("1F3864")
+        r = p.add_run(f"Observación {tipo[0].lower()}")
+        r.bold = True
+        r.font.size = Pt(10.5)
+        r.font.color.rgb = RGBColor.from_string("B03A2E" if tipo[0] == "Mayor" else "5D6D7E")
+        r = p.add_run(f" ({tipo[1]})")
+        r.font.size = Pt(9.5)
+        r.font.color.rgb = RGBColor.from_string("555555")
     rotulo(doc, "Observación y ubicación citada")
     parrafo(doc, titulo, negrita=True, sangria=0.5, despues=2)
     if cuerpo_obs:
@@ -166,6 +179,8 @@ def bloque(doc, n, titulo, cuerpo_obs, ubic, estado, color_estado, que, donde, e
 
 def main():
     c = Counter(o[4] for o in OBS)
+    tipos = Counter(clase(o[0], o[1])[0] for o in OBS)
+    nmay, nmen = tipos["Mayor"], tipos["Menor"]
     doc = Document()
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
@@ -187,8 +202,10 @@ def main():
                  "Universidad Nacional de San Agustín de Arequipa", tam=10, color="555555", despues=10)
     parrafo(doc, f"Se extrajeron {len(OBS)} observaciones distintas del documento recibido: {c[PROCEDE]} proceden y se levantaron, "
                  f"{c[EN_PARTE]} proceden en parte (se levantó lo que tiene fondo), {c[NO_PROCEDE]} no proceden y no se modificó nada por "
-                 f"ellas, y {c[NO_VERIFICABLE]} no es verificable por el revisor. Cada observación se presenta abajo con la misma estructura: "
-                 "la observación y su ubicación citada, su estado, qué se hizo y dónde queda en el manuscrito compilado (articulo/main.pdf y "
+                 f"ellas, y {c[NO_VERIFICABLE]} no es verificable por el revisor. Por su tipo, {nmay} son mayores y {nmen} menores: la revisión "
+                 "enumera 5 mayores (O1 a O5) y 10 menores (O6 a O15); las otras 6 (O16 a O21) salen de otras secciones de la revisión, que no las "
+                 "ponen en ninguna de las dos listas, y se clasifican según la severidad que el revisor les da allí (cada una lo indica). "
+                 "Cada observación se presenta abajo con la misma estructura: su tipo, la observación y su ubicación citada, su estado, qué se hizo y dónde queda en el manuscrito compilado (articulo/main.pdf y "
                  "articulo/suplemento.pdf). La razón detallada de las que no proceden está en el documento «Revisión de las observaciones».")
     rotulo(doc, "Cambio de cifras que conviene conocer (observación 1)")
     for txt in (
@@ -211,8 +228,8 @@ def main():
             que = ea.resolver(accion, "txt") + " (" + ea.resolver(razon, "txt") + ")"
         else:
             que = ea.resolver(accion, "txt")
-        bloque(doc, n, f"{TITULOS[oid]} ({oid}, observación {tipo.lower()})", ea.resolver(texto, "txt"), ubic,
-               ESTADO[ver], COLOR_TXT[ver], que, donde)
+        bloque(doc, n, f"{TITULOS[oid]} ({oid})", ea.resolver(texto, "txt"), ubic,
+               ESTADO[ver], COLOR_TXT[ver], que, donde, tipo=clase(oid, tipo))
 
     # ---- pedidos del ingeniero (rondas anteriores) que no caben en el articulo y van en el material suplementario
     doc.add_page_break()

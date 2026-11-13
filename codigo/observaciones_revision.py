@@ -68,8 +68,8 @@ OBS = [
     ("O12", "Menor", "Sec. V-A: indicar el modelo exacto de CPU y el tiempo de ejecución de la afirmación del «entrenamiento de 20 minutos»; la tabla de reproducibilidad marca el hardware como incompleto.",
      "Sec. V-A; Parte 4B ítem 7", EN_PARTE,
      "El dato de hardware sí faltaba. Pero no existe una afirmación de 20 minutos en ningún documento: el manuscrito decía 15 y el tiempo medido es 787 s (13 min). "
-     "Además, el tiempo de entrenamiento está en la Sec. VI-D, no en la V-A (que trata del simulador).",
-     "Se agrega el procesador (Intel Xeon a 2.10 GHz, 4 vCPU, 15 GB) en las Sec. V-A y VI-D y en la disponibilidad, y el tiempo medido (13 min, 787 s).", ["sec:vectorizado", "sec:entrena", "sec:disp"]),
+     "Además, el tiempo de entrenamiento está en la Sec. VI-D, no en la V-A (que trata del simulador). El «hardware» de este renglón de la plantilla es solo la computadora de las simulaciones: el estudio no tiene equipos físicos, instrumentación ni programas de PLC.",
+     "Se agrega el procesador (Intel Xeon a 2.10 GHz, 4 vCPU, 15 GB) en las Sec. V-A y VI-D y en la disponibilidad, y el tiempo medido (13 min, 787 s). Se declara además que es el único equipo del estudio, que es solo de simulación (introducción, «Alcance»).", ["sec:vectorizado", "sec:entrena", "sec:disp", "sec:intro"]),
     ("O13", "Menor", "Tabla 5: aclarar si el intervalo es sobre las 16 mejoras por par o un IC de la media.", "Tabla 5", PROCEDE,
      "Era el rango (mínimo a máximo) de las 16 mejoras, no un intervalo de confianza; el rótulo «Intervalo» confundía.", "Columna renombrada «Rango», se agrega «IC 95 %» de la media y el pie lo explica.", ["tab:comparaciones"]),
     ("O14", "Menor", "Tabla S2 del suplemento: agregar unidades a las columnas «Error medio» y «Error máximo».", "Suplemento, Tabla S2", NO_PROCEDE,

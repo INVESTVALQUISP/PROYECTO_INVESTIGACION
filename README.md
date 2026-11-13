@@ -32,6 +32,8 @@ actuado afinado con el que se comparaba no. Se agregó un actuado afinado **con 
 Un actuado simple con vista adelante ya mejora en 23.9 % al controlador de 1977: la mayor parte de la ganancia sobre 1977 viene de la información,
 y el aporte propio de FLC-O es lo que queda sobre ese actuado. La mejora frente al controlador de 1977 (27.8 %) no cambia.
 
+**Alcance.** Todo el trabajo es una simulación en computadora, como el estudio original de 1977: no se construyó ni se instaló hardware y no hay datos de campo. El artículo lo declara en el resumen, en la introducción, en las conclusiones y en la disponibilidad del código; implementar el controlador en una intersección real queda como trabajo futuro.
+
 **Observaciones que no proceden** (detalle en el documento de revisión): O6 («CONTROLDORES») y O15 («venta») son errores de extracción de texto
 del PDF; los fuentes y los PDF dicen «Controladores» y «ventana». O14 pide unidades que la Tabla S2 ya tiene (%). O20 cita la Tabla 3, pero los
 nudos están en la Tabla 2 (el fondo, ecuaciones exactas, se atendió en O2). O21 atribuye a FLC-O causal la mejora de 1.7 %, que es de la política

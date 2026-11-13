@@ -207,6 +207,15 @@ def main():
                  "ponen en ninguna de las dos listas, y se clasifican según la severidad que el revisor les da allí (cada una lo indica). "
                  "Cada observación se presenta abajo con la misma estructura: su tipo, la observación y su ubicación citada, su estado, qué se hizo y dónde queda en el manuscrito compilado (articulo/main.pdf y "
                  "articulo/suplemento.pdf). La razón detallada de las que no proceden está en el documento «Revisión de las observaciones».")
+    rotulo(doc, "Alcance del estudio: es una simulación")
+    parrafo(doc, "Todo el trabajo es computacional: los controladores se programan y se evalúan en un modelo de simulación de la intersección, "
+                 "igual que en el artículo original de 1977, cuyos resultados también salen de corridas simuladas en computadora (pp. 709 y 714 del "
+                 "original). No se construyó ni se instaló hardware, no se compraron equipos y no se usaron datos de campo; el artículo lo declara "
+                 "ahora en el resumen, en la introducción («Alcance: un estudio de simulación»), en las conclusiones y en la disponibilidad del código. "
+                 "Por eso no corresponde atender pedidos de comprar materiales, construir un prototipo o implementar el controlador en una "
+                 "intersección real: están fuera del alcance declarado y quedan como trabajo futuro. El revisor de esta ronda lo reconoce "
+                 "(«Simulation-Only Study») y no pidió nada de eso; los ítems de su plantilla sobre hardware, firmware, instrumentación y programas "
+                 "de PLC no aplican, y lo único que pidió en ese renglón fue el modelo de la CPU usada en las simulaciones (observación 12).")
     rotulo(doc, "Cambio de cifras que conviene conocer (observación 1)")
     for txt in (
         f"Ventaja de FLC-O sobre el actuado afinado sin vista adelante (conjunto oficial): 17.8 % antes; {ea.valor('RedActAfOf')} % después "

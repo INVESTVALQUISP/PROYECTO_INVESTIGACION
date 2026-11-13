@@ -187,6 +187,18 @@ Una propiedad del modelo importa para lo que sigue: las llegadas de los próximo
 \label{sec:vectorizado}
 Optimizar exige evaluar un controlador en cientos de escenarios miles de veces. Se reescribió el simulador para simular $n_e$ escenarios a la vez con arreglos de NumPy: como \eqref{eq:dm} solo necesita las longitudes de cola, no se mantiene la lista de llegadas de cada vehículo, y las llegadas se generan con el mismo generador y las mismas semillas que el simulador de referencia. La equivalencia es exacta: en 8 escenarios de 2400\,s, con el ciclo fijo (dos redondeos), el actuado y el difuso de Pappis y Mamdani (dos lecturas), el retardo coincide con diferencia nula con las dos convenciones (\texttt{test\_sim\_batch.py}). Con un núcleo (Intel Xeon a 2.10\,GHz) y 320 escenarios de 7200\,s, el difuso de Pappis y Mamdani tarda unos 3.3\,s (10\,ms por escenario) frente a unos 230\,ms por escenario con el simulador de referencia, unas veinte veces menos.
 
+
+\subsection{Simulador interactivo}
+\label{sec:interactivo}
+Para observar las decisiones, el mismo modelo se ejecuta también segundo a segundo en un simulador interactivo con ventana (Fig.~\ref{fig:simulador}): dibuja la intersección vista desde arriba, con los vehículos de cada brazo, sus colas y los semáforos de tres luces, y muestra en vivo las entradas, la salida y la fuerza de cada regla del controlador, el retardo medio en el tiempo y, sobre las mismas llegadas, la curva del otro controlador. Con las mismas llegadas da el mismo retardo y los mismos cambios de fase que el simulador por lotes (\texttt{test\_sim\_flco.py}). El suplemento explica cada apartado en una figura aparte.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{fig_sup_ventana_flco.png}
+\caption{Simulador interactivo con \FLC{} (720/2160\,veh/h, semilla 1, $t=118$\,s). (a) Configuración: escenario, controlador y vista; (b) la intersección: vehículos (azules: N-S; cálidos: E-W), semáforos, colas, tiempo y retardo; (c) entradas $G$, $R$ y $V$ sobre sus conjuntos difusos; (d) salida $u$ de este segundo; (e) fuerza de cada una de las 27 reglas; (f) retardo medio en el tiempo, con la curva de \PMR{} sobre las mismas llegadas (punteada); (g) botones; (h) explicación de la decisión; (i) registro de cambios de fase. Captura de la ventana real; cada apartado se detalla en la Sec.~XII del suplemento.}
+\label{fig:simulador}
+\end{figure*}
+
 \subsection{Cota óptima por programación dinámica}
 \label{sec:pd}
 Para saber cuánto puede mejorarse sin ver el futuro se calcula la política óptima de un proceso de decisión de Markov \cite{Puterman1994} con un paso de 1\,s. El estado es $(Q_1,Q_2,\text{fase})$ en verde, o $(Q_1,Q_2,\text{fase destino},k)$ con $k=1,\dots,4$ segundos ya perdidos; la acción en verde es continuar o cambiar; el costo por paso es $Q_1+Q_2$ y las llegadas son de Bernoulli con las tasas conocidas. La política minimiza el costo medio por segundo (iteración de valor relativa, colas truncadas a 80) y, por la ley de Little \cite{Little1961}, $L=\lambda W$, con $L$ la suma media de colas y $\lambda=\qbar_1+\qbar_2$ la tasa total de llegada, el retardo medio es $W=L/\lambda$, es decir, ese costo dividido por la tasa total. No hay mínimo ni máximo de verde. Es una cota para controladores que conocen los caudales y no ven llegadas futuras; no es realizable, pues los caudales no se conocen. Su validez se comprueba contra la simulación: en los 16 pares de la Tabla VIII, el retardo que predice la programación dinámica y el que se mide al simular su política difieren como máximo \PdMaxDif\,\%.

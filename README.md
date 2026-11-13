@@ -21,7 +21,7 @@ Versión del 9 de noviembre de 2026. Para revisar lo que se hizo con las observa
 |---|---|
 | [Revisión de las observaciones](entregas/Revision_de_observaciones.pdf) | Evaluación de la revisión: si está bien estructurada y, para cada una de las 21 observaciones, si procede o no y por qué. **11 proceden, 4 proceden en parte, 5 no proceden y 1 no es verificable**; las que no proceden están resaltadas en rojo. |
 | [Cuadro de observaciones levantadas](entregas/Cuadro_Observaciones_Levantadas.pdf) ([DOCX](entregas/Cuadro_Observaciones_Levantadas.docx)) | Qué se hizo con cada observación y dónde quedó (sección, tabla y página del artículo o del suplemento), y los pedidos del ingeniero de las rondas anteriores que van en el material suplementario. |
-| [Artículo corregido](articulo/main.pdf) | El manuscrito con las correcciones (11 páginas). |
+| [Artículo corregido](articulo/main.pdf) | El manuscrito con las correcciones (12 páginas, con la captura del simulador como Fig. 2). |
 | [Material suplementario](articulo/suplemento.pdf) | 22 páginas: entrenamiento y evaluación en detalle, FLC-O completo (ecuaciones, 42 parámetros y un ejemplo), diagramas de bloques, las 25 reglas de 1977 en cuadro vertical, las 180 combinaciones con las 25 usadas en verde, las 27 reglas de FLC-O y el simulador interactivo explicado apartado por apartado (la calle y cada panel en una figura aparte). |
 | [Justificación de la optimización](articulo/justificacion.pdf) | Cómo se optimizó y por qué se eligió FLC-O (13 páginas). |
 | [Matriz de respuesta](entregas/Matriz_Respuesta_Optimizacion.pdf) | Respuesta a la primera ronda de observaciones. |
@@ -76,7 +76,7 @@ dinámica con caudales conocidos, 9.35. El modelo elegido por validación es el 
 
 | Carpeta | Contenido |
 |---|---|
-| `articulo/` | **Artículo** de la mejora (`main.tex`, 11 páginas), su suplemento (`suplemento.tex`, 22 páginas: detalles del entrenamiento y la evaluación, FLC-O completo, diagramas de bloques, las 25 reglas de 1977 en cuadro vertical, las 180 combinaciones con las 25 marcadas, las 27 reglas de FLC-O y el simulador interactivo explicado apartado por apartado, con la calle y cada panel en una figura aparte), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
+| `articulo/` | **Artículo** de la mejora (`main.tex`, 12 páginas), su suplemento (`suplemento.tex`, 22 páginas: detalles del entrenamiento y la evaluación, FLC-O completo, diagramas de bloques, las 25 reglas de 1977 en cuadro vertical, las 180 combinaciones con las 25 marcadas, las 27 reglas de FLC-O y el simulador interactivo explicado apartado por apartado, con la calle y cada panel en una figura aparte), el documento de justificación de la optimización (`justificacion.tex`, 13 páginas: cómo se optimizó y por qué se eligió FLC-O) y la evaluación de la segunda ronda de observaciones (`revision_observaciones.tex`: qué observaciones proceden y cuáles no), con sus PDF, tablas, figuras y `referencias.bib`. Listo para Overleaf. |
 | `codigo/` | Simulador vectorizado (`sim_batch.py`), controladores y entrenamiento (`opt_*.py`), **simulador interactivo con calle y autos** (`simulador_gui.py`, `web_sim.py`), generadores de tablas y figuras (`gen_*_opt.py`), comparador visual (`simulador_opt.py`), pruebas, y el modelo de la réplica. |
 | `resultados/opt/` | Modelos entrenados (`modelos_finales.json` indica cuál es cuál), referencias afinadas y `evaluacion_final.json`, de donde salen todas las cifras del artículo. |
 | `entregas/` | Matriz de respuesta del autor, cuadro de observaciones levantadas de la segunda ronda (DOCX y PDF) y la evaluación de esas observaciones (`Revision_de_observaciones.pdf`). |
@@ -145,7 +145,7 @@ carpeta y use **Ejecutar y depurar (F5)**; `docs/README_VSCODE.md` explica el pa
 
 ### Artículo
 
-`articulo/` contiene el manuscrito (`main.tex`, 11 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
+`articulo/` contiene el manuscrito (`main.tex`, 12 páginas con referencias, IEEEtran), el material suplementario (`suplemento.tex`: configuración
 del entrenamiento, referencias afinadas, verificación del simulador, cota por programación dinámica, resultados completos por par, sensibilidad a la
 semilla de entrenamiento, FLC-O completo, diagramas de bloques, las reglas completas de los dos controladores y el simulador interactivo apartado por
 apartado) y `referencias.bib`. En Overleaf: suba la carpeta como proyecto, deje `main.tex` como documento principal y compile con

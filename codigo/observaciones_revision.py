@@ -22,7 +22,7 @@ OBS = [
      "Es cierto y era la objeción más importante. Se implementó y afinó un actuado con la misma vista adelante (4 parámetros, mismos escenarios de entrenamiento y rango). "
      "Resultado: la ventaja de FLC-O sobre el actuado cae de @@RedActAfOf@@ % a @@RedActVOf@@ % en el conjunto oficial (significativa en @@ParMejorActV@@ de 16 pares, @@ParPeorActV@@ peor), a @@RedActVNv@@ % con caudales no vistos, a @@RedActVVa@@ % con demanda variable y a @@RedActVSa@@ % cerca de la saturación. "
      "Matiz que el revisor no vio: la comparación principal, con el controlador de 1977 reconstruido, ya tenía información igual (ese controlador también ve las llegadas de los próximos 10 s).",
-     "Nuevo rival «actuado afinado con vista adelante» en el protocolo, en las Tablas 3 a 6, en la Fig. 3 y en el resumen; el @@RedActAfOf@@ % se califica como «sin vista adelante» y se reporta junto al @@RedActVOf@@ %. "
+     "Nuevo rival «actuado afinado con vista adelante» en el protocolo, en las Tablas 3 a 6, en la @@FIG:fig:retardo@@ y en el resumen; el @@RedActAfOf@@ % se califica como «sin vista adelante» y se reporta junto al @@RedActVOf@@ %. "
      "Se agrega, con honestidad, que el actuado con vista adelante ya mejora @@RedVistaPapOf@@ % al controlador de 1977.",
      ["sec:protocolo", "tab:controladores", "sec:res-oficial", "tab:oficial", "tab:comparaciones", "fig:retardo", "sec:res-otros", "tab:conjuntos", "sec:discusion", "S:sec:s-ref"]),
     ("O2", "Mayor 2", "Las ecuaciones exactas de las funciones de pertenencia de FLC-O (formas, hombros, comportamiento fuera del universo) no están en el manuscrito; "
@@ -49,7 +49,7 @@ OBS = [
     ("O5", "Mayor 5", "La Tabla 4 solo da retardos medios; la Fig. 3(a) tiene banda de confianza solo para FLC-O. Arreglo: columnas de SD o IC 95 % en la Tabla 4 y bandas para todos los controladores.",
      "Tabla 4; Fig. 3; C7", PROCEDE,
      "Cierto en el texto principal. La dispersión por par ya estaba en el suplemento (Tabla S5) para tres controladores, pero no en la Tabla 4.",
-     "Tabla 4: media ± desviación estándar de las 20 réplicas para cada controlador. Fig. 3(a): banda de IC 95 % para todos (la cota es determinista). Suplemento S5: se agrega el actuado con vista adelante.",
+     "Tabla 4: media ± desviación estándar de las 20 réplicas para cada controlador. @@FIG:fig:retardo@@(a): banda de IC 95 % para todos (la cota es determinista). Suplemento S5: se agrega el actuado con vista adelante.",
      ["tab:oficial", "fig:retardo", "S:tab:spares"]),
     ("O6", "Menor", "Pie de la Tabla 3: «CONTROLDORES» debe ser «CONTROLADORES».", "Tabla 3, pie", NO_PROCEDE,
      "No existe tal error. El fuente dice «Controladores comparados y la información que usan» y el texto extraído de nuestro PDF muestra «C ONTROLADORES COMPARADOS»: el título está en versalitas y la extracción de texto pierde letras. "

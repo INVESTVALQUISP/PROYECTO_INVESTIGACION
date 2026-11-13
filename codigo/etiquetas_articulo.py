@@ -53,7 +53,9 @@ def valor(nombre):
 
 
 def resolver(txt, formato):
-    """Sustituye @@Macro@@ por la cifra (formato 'txt') o por la macro de LaTeX (formato 'tex')."""
+    """Sustituye @@Macro@@ por la cifra (formato 'txt') o por la macro de LaTeX (formato 'tex'), y @@FIG:etiqueta@@ por
+    «Fig. n» con el numero de la figura en el articulo compilado (main.aux)."""
+    txt = re.sub(r"@@FIG:([\w:-]+)@@", lambda m: "Fig. " + L[m.group(1)][0], txt)
     if formato == "tex":
         return re.sub(r"@@(\w+)@@", lambda m: "\\" + m.group(1) + "{}", txt)
     return re.sub(r"@@(\w+)@@", lambda m: valor(m.group(1)), txt)

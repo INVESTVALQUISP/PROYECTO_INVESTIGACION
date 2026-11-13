@@ -248,7 +248,7 @@ Pappis, C. P., & Mamdani, E. H. (1977). A Fuzzy Logic Controller for a Traffic J
 
 ## 9. Mejora del controlador: optimización (FLC-O)
 
-El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (11 páginas) con su suplemento `articulo/suplemento.tex` (22 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
+El objetivo del repositorio es mejorar el controlador de 1977 con un protocolo que separa entrenamiento, validación y prueba. Las secciones 1 a 8 describen la réplica de partida y no cambian. El manuscrito de la mejora es `articulo/main.tex` (12 páginas) con su suplemento `articulo/suplemento.tex` (22 páginas); las cifras de ambos salen de `resultados/opt/evaluacion_final.json`.
 
 **Archivos (todos en `codigo/`):**
 

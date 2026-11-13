@@ -206,7 +206,10 @@ def main():
                  "enumera 5 mayores (O1 a O5) y 10 menores (O6 a O15); las otras 6 (O16 a O21) salen de otras secciones de la revisión, que no las "
                  "ponen en ninguna de las dos listas, y se clasifican según la severidad que el revisor les da allí (cada una lo indica). "
                  "Cada observación se presenta abajo con la misma estructura: su tipo, la observación y su ubicación citada, su estado, qué se hizo y dónde queda en el manuscrito compilado (articulo/main.pdf y "
-                 "articulo/suplemento.pdf). La razón detallada de las que no proceden está en el documento «Revisión de las observaciones».")
+                 "articulo/suplemento.pdf). La razón detallada de las que no proceden está en el documento «Revisión de las observaciones». "
+                 "La «ubicación citada por el revisor» usa la numeración de la versión que él revisó; «Dónde queda» usa la de la versión actual, "
+                 f"en la que se agregó la captura del simulador como {ea.ref('fig:simulador').split(' (')[0]}, de modo que las figuras siguientes "
+                 "subieron un número (la figura del retardo que el revisor llama Fig. 3 es ahora la " + ea.ref("fig:retardo").split(" (")[0] + ").")
     rotulo(doc, "Alcance del estudio: es una simulación")
     parrafo(doc, "Todo el trabajo es computacional: los controladores se programan y se evalúan en un modelo de simulación de la intersección, "
                  "igual que en el artículo original de 1977, cuyos resultados también salen de corridas simuladas en computadora (pp. 709 y 714 del "
@@ -256,9 +259,10 @@ def main():
          "grados, disparos, traza, explicación, registro y editor de reglas). Cada figura tiene su texto explicativo.",
          f"{R('S:sec:s-sim')}; {R('S:fig:s-entradas')} a {R('S:fig:s-editor')}"),
         ("Esas figuras, aparte de la captura de la simulación",
-         "La captura completa de la ventana (con FLC-O y con el de 1977) va aparte, con los nueve apartados rotulados de (a) a (i), y remite a la "
+         "La captura completa de la ventana va aparte: con FLC-O en el artículo y, con FLC-O y con el de 1977, en el suplemento, con los nueve apartados rotulados de (a) a (i), y remite a la "
          "figura de cada uno; las tres pestañas de configuración tienen también su figura.",
-         f"{R('S:fig:s-ventana-flco')}; {R('S:fig:s-ventana-pappis')}; {R('S:fig:s-pestana1')} a {R('S:fig:s-pestana3')}"),
+         f"Captura en el artículo: {R('fig:simulador')}. En el suplemento: {R('S:fig:s-ventana-flco')}; {R('S:fig:s-ventana-pappis')}; "
+         f"{R('S:fig:s-pestana1')} a {R('S:fig:s-pestana3')}"),
         ("Las reglas en un cuadro vertical (tipo desglose de reglas)",
          "Las 25 reglas de Pappis y Mamdani en cuadro vertical, una caja por regla; las 27 de FLC-O desglosadas una por fila, en forma «si … entonces».",
          f"{R('S:tab:sreglas25')}; {R('S:tab:sreglas27')}"),
